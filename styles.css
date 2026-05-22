@@ -519,13 +519,14 @@ section { position: relative; }
    SEE YOU SOON — 大圖頁尾
    =================================================================== */
 .seeyou {
+  position: relative;
   height: 90svh; min-height: 480px;
   display: flex; align-items: center; justify-content: center;
   text-align: center; overflow: hidden;
 }
 .seeyou-bg {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center 40%;
+  background-size: cover; background-position: center 46%;
 }
 .seeyou-veil {
   position: absolute; inset: 0;
