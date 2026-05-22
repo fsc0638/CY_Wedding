@@ -665,9 +665,9 @@ section { position: relative; }
 }
 .seeyou-inner { position: relative; z-index: 2; color: var(--light); padding: 0 1.5rem; }
 .seeyou-text {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(2.6rem, 9vw, 5.4rem);
+  font-family: var(--script);
+  font-weight: 200;
+  font-size: clamp(3rem, 10vw, 6rem);
   letter-spacing: 0.02em;
 }
 .seeyou-text span {
