@@ -17,7 +17,7 @@
   --light-soft:rgba(246, 245, 236, 0.66);
   --accent:    #b29079;
 
-  --script:    "Sacramento", cursive;
+  --script:    "canvas-script", cursive;
   --serif:     "Cormorant Garamond", "Noto Sans TC", serif;
   --serif-tc:  "Roboto Mono", "Noto Sans TC", monospace;
   --sans:      "Roboto Mono", "Noto Sans TC", monospace;
@@ -130,7 +130,8 @@ section { position: relative; }
 .loader.hide { opacity: 0; visibility: hidden; }
 .loader-mono {
   font-family: var(--script);
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  font-weight: 200;
+  font-size: clamp(2.6rem, 7.5vw, 4rem);
   color: var(--ink);
   animation: pulse 1.7s ease-in-out infinite;
 }
@@ -178,7 +179,7 @@ section { position: relative; }
 }
 .hero-names {
   font-family: var(--script);
-  font-weight: 400;
+  font-weight: 200;
   display: flex; flex-direction: column; align-items: center;
   line-height: 1.05;
 }
@@ -669,7 +670,7 @@ section { position: relative; }
 }
 .seeyou-text span {
   font-family: var(--script);
-  font-weight: 400;
+  font-weight: 200;
   font-size: 1.15em;
   margin: 0 0.04em;
 }
