@@ -1,6 +1,6 @@
 /* ===================================================================
    CY Wedding — interactions
-   loader · reveal-on-scroll · live countdown
+   loader · navbar · reveal-on-scroll · live countdown
    =================================================================== */
 (function () {
   "use strict";
@@ -10,6 +10,28 @@
     var loader = document.getElementById("loader");
     if (loader) setTimeout(function () { loader.classList.add("hide"); }, 650);
   });
+
+  /* ---------- Navbar：捲動變暗 + 漢堡 ---------- */
+  var nav = document.getElementById("site-nav");
+  var burger = nav && nav.querySelector(".nav-burger");
+  if (nav) {
+    window.addEventListener("scroll", function () {
+      nav.classList.toggle("scrolled", window.scrollY > 40);
+    }, { passive: true });
+  }
+  if (burger && nav) {
+    burger.addEventListener("click", function () {
+      var open = nav.classList.toggle("open");
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    // 點選連結後關閉
+    nav.querySelectorAll(".nav-links a").forEach(function (a) {
+      a.addEventListener("click", function () {
+        nav.classList.remove("open");
+        burger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
 
   /* ---------- 進場動畫（reveal） ---------- */
   var reveals = document.querySelectorAll(".reveal");

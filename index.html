@@ -10,10 +10,24 @@
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Space+Mono:wght@400;700&family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Space+Mono:wght@400;700&family=Roboto+Mono:wght@300;400;500&family=GFS+Didot&family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+<!-- ===== 頂部導覽 ===== -->
+<nav class="site-nav" id="site-nav">
+  <a class="nav-logo" href="#top">CY</a>
+  <ul class="nav-links">
+    <li><a href="#story">Our Love</a></li>
+    <li><a href="#invite">Process</a></li>
+    <li><a href="#dresscode">Dress Code</a></li>
+    <li><a href="#travel">Getting There</a></li>
+  </ul>
+  <button class="nav-burger" aria-label="選單" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
 <!-- ===== 進場載入 ===== -->
 <div class="loader" id="loader">
@@ -37,16 +51,35 @@
 
 <!-- ===== 愛情故事 / OUR LOVE FOR GARDENS ===== -->
 <section class="story" id="story">
-  <p class="story-quote reveal">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
   <h2 class="story-title reveal">OUR LOVE FOR GARDENS</h2>
   <p class="story-sub reveal">( AND EACH OTHER )</p>
   <div class="story-photo reveal">
     <img src="Picture/20251006102242-DSC08383.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
-  <div class="story-pair">
-    <div class="reveal"><img src="Picture/20251006085102-DSC07362.jpg" alt="婚紗照" loading="lazy" /></div>
-    <div class="reveal"><img src="Picture/20251006122334-DSC09448.jpg" alt="婚紗照" loading="lazy" /></div>
+  <!-- 手繪乾杯插圖 -->
+  <div class="story-toast reveal" aria-hidden="true">
+    <svg class="toast-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- 左杯 -->
+      <path d="M62 30 Q58 55 56 75 Q54 95 60 105 Q66 115 74 118 L72 180 M60 180 L86 180" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M62 30 L80 30 Q84 55 82 75 Q80 95 74 105" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- 左杯泡泡 -->
+      <circle cx="67" cy="60" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="72" cy="45" r="1.4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="75" cy="68" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <!-- 右杯 -->
+      <path d="M138 30 Q142 55 144 75 Q146 95 140 105 Q134 115 126 118 L128 180 M114 180 L140 180" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M138 30 L120 30 Q116 55 118 75 Q120 95 126 105" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- 右杯泡泡 -->
+      <circle cx="133" cy="60" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="128" cy="45" r="1.4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="125" cy="68" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <!-- 碰杯火花 -->
+      <path d="M100 18 L100 8 M90 22 L83 14 M110 22 L117 14 M86 28 L78 24 M114 28 L122 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <!-- 碰杯頂部交叉 -->
+      <path d="M82 30 Q100 20 118 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
   </div>
+  <p class="story-quote reveal">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
 </section>
 
 <!-- ===== 邀請 / 流程 / 行事曆（深色） ===== -->
@@ -109,7 +142,7 @@
   </div>
 
   <div class="invite-photo reveal">
-    <img src="Picture/20251006121412-DSC09206.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+    <img src="Picture/IMG_0566.JPG" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
 </section>
 
@@ -117,6 +150,9 @@
 <section class="dresscode" id="dresscode">
   <h2 class="dc-title reveal">Dress Code</h2>
   <p class="dc-zh reveal">服裝建議</p>
+  <div class="dc-photo reveal">
+    <img src="Picture/20251006122334-DSC09448.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+  </div>
   <div class="swatches reveal">
     <div class="swatch"><span style="background:#F6F5EC"></span><em class="mono">#F6F5EC</em></div>
     <div class="swatch"><span style="background:#EFE7DA"></span><em class="mono">#EFE7DA</em></div>
@@ -125,6 +161,21 @@
     <div class="swatch"><span style="background:#B29079"></span><em class="mono">#B29079</em></div>
   </div>
   <p class="dc-note reveal">為了讓婚禮畫面更加和諧，敬請避免全白穿搭，感謝您的體貼！</p>
+</section>
+
+<!-- ===== 相片牆（暗灰） ===== -->
+<section class="photowall" id="photowall">
+  <div class="pw-grid">
+    <div class="pw-item reveal">
+      <img src="Picture/20251006121412-DSC09206.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+    </div>
+    <div class="pw-item reveal">
+      <img src="Picture/20251006122329-DSC09432.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+    </div>
+    <div class="pw-item reveal">
+      <img src="Picture/20251006085102-DSC07362.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+    </div>
+  </div>
 </section>
 
 <!-- ===== 交通資訊（駝色） ===== -->
@@ -183,7 +234,7 @@
     <p class="qr-note">歡迎掃描下方 QR Code，加入婚禮小幫手<br />了解更多婚禮相關資訊</p>
     <div class="qr-card">
       <img src="Picture/wedding-line-qr.png" alt="婚禮小幫手 LINE QR Code"
-           width="188" height="188" loading="lazy" />
+           width="188" height="188" loading="lazy" class="qr-img" />
     </div>
     <p class="qr-label mono">WEDDING ASSISTANT · LINE</p>
   </div>
@@ -195,7 +246,6 @@
   <div class="seeyou-veil"></div>
   <div class="seeyou-inner">
     <p class="seeyou-text reveal">See <span>you</span> Soon!</p>
-    <p class="seeyou-names mono reveal">黃俊郁 &amp; 范雁婷 &nbsp;·&nbsp; 2026 . 09 . 12</p>
   </div>
 </footer>
 
