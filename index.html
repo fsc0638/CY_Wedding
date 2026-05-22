@@ -10,14 +10,14 @@
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Space+Mono:wght@400;700&family=Roboto+Mono:wght@300;400;500&family=GFS+Didot&family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Sacramento&family=Roboto+Mono:wght@300;400;500&family=GFS+Didot&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <!-- ===== 頂部導覽 ===== -->
 <nav class="site-nav" id="site-nav">
-  <a class="nav-logo" href="#top">CY</a>
+  <a class="nav-logo" href="#top"><img src="Picture/wedding-logo-mark.png" alt="Chunyu &amp; Yanting" /></a>
   <ul class="nav-links">
     <li><a href="#story">Our Love</a></li>
     <li><a href="#invite">Process</a></li>
@@ -52,10 +52,11 @@
 <!-- ===== 愛情故事 / OUR LOVE FOR GARDENS ===== -->
 <section class="story" id="story">
   <h2 class="story-title reveal">OUR LOVE FOR GARDENS</h2>
-  <p class="story-sub reveal">( AND EACH OTHER )</p>
   <div class="story-photo reveal">
-    <img src="Picture/20251006102242-DSC08383.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+    <img src="Picture/20251006085102-DSC07362.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
+  <p class="story-sub reveal">( AND EACH OTHER )</p>
+  <p class="story-quote reveal">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
   <!-- 手繪乾杯插圖 -->
   <div class="story-toast reveal" aria-hidden="true">
     <svg class="toast-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
@@ -79,7 +80,6 @@
       <path d="M82 30 Q100 20 118 30" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
     </svg>
   </div>
-  <p class="story-quote reveal">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
 </section>
 
 <!-- ===== 邀請 / 流程 / 行事曆（深色） ===== -->
@@ -92,19 +92,38 @@
   <div class="schedule reveal">
     <div class="sch-item">
       <svg class="sch-ico" viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M22 14l6 14M42 14l-6 14M19 13h26M24 28h16l-2 9a6 6 0 0 1-12 0z"
-          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M26 50h12M32 41v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <g transform="translate(26 33) rotate(15)">
+            <path d="M-5 -17 Q 0 -14.5 5 -17"/>
+            <path d="M-5 -17 Q -4.5 -7 0 -2"/>
+            <path d="M5 -17 Q 4.5 -7 0 -2"/>
+            <path d="M0 -2 L0 13"/>
+            <path d="M-6 15 Q 0 17.5 6 15"/>
+          </g>
+          <g transform="translate(38 33) rotate(-15)">
+            <path d="M-5 -17 Q 0 -14.5 5 -17"/>
+            <path d="M-5 -17 Q -4.5 -7 0 -2"/>
+            <path d="M5 -17 Q 4.5 -7 0 -2"/>
+            <path d="M0 -2 L0 13"/>
+            <path d="M-6 15 Q 0 17.5 6 15"/>
+          </g>
+          <path d="M32 3 L32 9 M26 6 L22 3 M38 6 L42 3"/>
+        </g>
       </svg>
       <p class="sch-time mono">12 : 00</p>
       <p class="sch-label">迎賓入席</p>
     </div>
     <div class="sch-item">
       <svg class="sch-ico" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="15" fill="none" stroke="currentColor" stroke-width="1.6"/>
-        <circle cx="32" cy="32" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M14 20v12M14 20c-2 0-3 2-3 5s1 5 3 5M50 20v24M50 20c2 0 3 2 3 6s-1 6-3 6"
-          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="33" r="13"/>
+          <circle cx="32" cy="33" r="8.5"/>
+          <path d="M11 13 Q 8 22 9 32 Q 10 36 11 37 Q 12 36 13 32 Q 14 22 11 13 Z"/>
+          <path d="M11 37 L11 52"/>
+          <path d="M49 13 L49 23 M53 13 L53 23 M57 13 L57 23"/>
+          <path d="M49 23 Q 49 28 53 29 Q 57 28 57 23"/>
+          <path d="M53 29 L53 52"/>
+        </g>
       </svg>
       <p class="sch-time mono">12 : 30</p>
       <p class="sch-label">婚宴開席</p>
@@ -170,10 +189,10 @@
       <img src="Picture/20251006121412-DSC09206.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
     </div>
     <div class="pw-item reveal">
-      <img src="Picture/20251006122329-DSC09432.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+      <img src="Picture/20251006102242-DSC08383.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
     </div>
     <div class="pw-item reveal">
-      <img src="Picture/20251006085102-DSC07362.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
+      <img src="Picture/20251006122329-DSC09432.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
     </div>
   </div>
 </section>
