@@ -515,6 +515,34 @@ section { position: relative; }
   margin-top: 1.2rem;
 }
 
+/* QR — 婚禮小幫手 */
+.qr-block { margin-top: clamp(3rem, 7vw, 4.4rem); }
+.qr-note {
+  font-family: var(--serif-tc);
+  font-size: clamp(0.92rem, 2.5vw, 1.05rem);
+  letter-spacing: 0.1em;
+  line-height: 2;
+  color: var(--ink-soft);
+  margin-bottom: 1.6rem;
+}
+.qr-card {
+  display: inline-block;
+  padding: 18px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(45,43,37,0.16);
+}
+.qr-card img {
+  width: clamp(150px, 40vw, 188px);
+  height: auto;
+  display: block;
+}
+.qr-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  margin-top: 1.2rem;
+}
+
 /* ===================================================================
    SEE YOU SOON — 大圖頁尾
    =================================================================== */
