@@ -115,6 +115,18 @@
     });
   })();
 
+  /* ---------- 回頂端浮動鈕 ---------- */
+  var toTop = document.getElementById("to-top");
+  if (toTop) {
+    var toggleToTop = function () {
+      toTop.classList.toggle("show", window.scrollY > window.innerHeight * 0.8);
+    };
+    window.addEventListener("scroll", toggleToTop, { passive: true });
+    toTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
   /* ---------- Navbar：捲動變暗 + 漢堡 ---------- */
   var nav = document.getElementById("site-nav");
   var burger = nav && nav.querySelector(".nav-burger");
