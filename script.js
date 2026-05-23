@@ -5,6 +5,11 @@
 (function () {
   "use strict";
 
+  /* ---------- 重新整理一律回到最頂，不記憶捲動位置 ---------- */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+  window.addEventListener("load", function () { window.scrollTo(0, 0); });
+
   /* ---------- 進場載入：最少 3 秒，最多 5 秒 ---------- */
   var LOADER_START = Date.now();
   var LOADER_MIN = 3000;
@@ -73,6 +78,7 @@
     }
 
     function tryPlay() {
+      try { audio.currentTime = 0; } catch (e) {} // 永遠從頭播放
       var p = audio.play();
       if (p && typeof p.then === "function") {
         p.then(function () { setPlayingUI(true); })
