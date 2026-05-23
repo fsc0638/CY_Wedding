@@ -305,8 +305,8 @@ section { position: relative; }
 }
 .sch-item { display: flex; flex-direction: column; align-items: center; }
 .sch-ico {
-  width: clamp(48px, 12vw, 62px);
-  height: clamp(48px, 12vw, 62px);
+  width: clamp(72px, 16vw, 96px);
+  height: clamp(72px, 16vw, 96px);
   color: var(--taupe);
 }
 .sch-time {
@@ -326,9 +326,9 @@ section { position: relative; }
 .count { margin-top: clamp(3rem, 7vw, 4.4rem); }
 .count-lead {
   display: block;
-  font-family: 'Roboto Mono', 'Space Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.4em;
+  font-family: 'GFS Didot', var(--serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.32em;
   color: var(--accent);
   margin-bottom: 1.2rem;
 }
@@ -341,17 +341,17 @@ section { position: relative; }
   min-width: 64px;
 }
 .count-row b {
-  font-family: 'Roboto Mono', 'Space Mono', monospace;
+  font-family: 'GFS Didot', var(--serif);
   font-weight: 400;
-  font-size: clamp(2.4rem, 8vw, 3.8rem);
+  font-size: clamp(2.6rem, 8.5vw, 4.2rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .count-row i {
   font-style: normal;
-  font-family: 'Roboto Mono', var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.2em;
+  font-family: 'GFS Didot', var(--serif-tc);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
   color: var(--light-soft);
   margin-top: 0.5rem;
 }
@@ -769,8 +769,8 @@ section { position: relative; }
   flex-shrink: 0;
   vertical-align: middle;
 }
-.i-glasses   { -webkit-mask-image: url('Icons/glasses.svg');   mask-image: url('Icons/glasses.svg'); }
-.i-plate     { -webkit-mask-image: url('Icons/plate.svg');     mask-image: url('Icons/plate.svg'); }
+.i-glasses   { -webkit-mask-image: url('Icons/glasses-hand.png'); mask-image: url('Icons/glasses-hand.png'); }
+.i-plate     { -webkit-mask-image: url('Icons/plate-hand.png');   mask-image: url('Icons/plate-hand.png'); }
 .i-bus       { -webkit-mask-image: url('Icons/bus.svg');       mask-image: url('Icons/bus.svg'); }
 .i-car       { -webkit-mask-image: url('Icons/car.svg');       mask-image: url('Icons/car.svg'); }
 .i-pin       { -webkit-mask-image: url('Icons/pin.svg');       mask-image: url('Icons/pin.svg'); }
@@ -825,20 +825,6 @@ section { position: relative; }
 .addr-copy .icon-mask { width: 14px; height: 14px; }
 .addr-copy:hover { opacity: 1; }
 .addr-copy.copied { color: var(--accent); opacity: 1; }
-
-/* ===================================================================
-   QR DESKTOP NOTE
-   =================================================================== */
-.qr-desktop-note {
-  font-family: var(--sans);
-  font-size: 0.74rem;
-  color: var(--ink-soft);
-  margin-top: 0.6rem;
-  letter-spacing: 0.08em;
-}
-@media (hover: none) and (pointer: coarse) {
-  .qr-desktop-note { display: none; }
-}
 
 /* ===================================================================
    CREDITS (OpenMoji attribution)

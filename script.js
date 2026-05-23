@@ -49,11 +49,19 @@
     });
   });
 
-  /* ---------- 背景音樂：首次互動（滾動/點擊）自動播放，按鈕可切換 ---------- */
+  /* ---------- 背景音樂：每次開啟隨機選一首，首次互動自動播放 ---------- */
   (function () {
     var audio = document.getElementById("bgm");
     var btn   = document.getElementById("bgm-toggle");
     if (!audio || !btn) return;
+
+    // 目錄中的歌單（順序不重要，會隨機挑）
+    var TRACKS = [
+      "Music/Troye Sivan - Angel Baby (SPOTISAVER).mp3",
+      "Music/Taylor Swift - Enchanted (SPOTISAVER).mp3",
+      "Music/Lauv - Love U Like That (SPOTISAVER).mp3"
+    ];
+    audio.src = TRACKS[Math.floor(Math.random() * TRACKS.length)];
     audio.volume = 0.35;
 
     var userPaused = false;
