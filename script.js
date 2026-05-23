@@ -5,16 +5,22 @@
 (function () {
   "use strict";
 
-  /* ---------- 進場載入：以 window.load 為主，2.5s 為上限 ---------- */
+  /* ---------- 進場載入：最少 3 秒，最多 5 秒 ---------- */
+  var LOADER_START = Date.now();
+  var LOADER_MIN = 3000;
+  var LOADER_MAX = 5000;
   function hideLoader() {
     var loader = document.getElementById("loader");
     if (!loader || loader.classList.contains("hide")) return;
-    loader.classList.add("hide");
-    var bgmBtn = document.getElementById("bgm-toggle");
-    if (bgmBtn) setTimeout(function () { bgmBtn.classList.add("ready"); }, 400);
+    var wait = Math.max(0, LOADER_MIN - (Date.now() - LOADER_START));
+    setTimeout(function () {
+      loader.classList.add("hide");
+      var bgmBtn = document.getElementById("bgm-toggle");
+      if (bgmBtn) setTimeout(function () { bgmBtn.classList.add("ready"); }, 400);
+    }, wait);
   }
   window.addEventListener("load", hideLoader);
-  setTimeout(hideLoader, 2500); // 安全上限
+  setTimeout(hideLoader, LOADER_MAX); // 安全上限
 
   /* ---------- 地址複製 ---------- */
   document.querySelectorAll("[data-copy]").forEach(function (btn) {
