@@ -837,19 +837,6 @@ section { position: relative; }
 .addr-copy.copied { color: var(--accent); opacity: 1; }
 
 /* ===================================================================
-   CREDITS (OpenMoji attribution)
-   =================================================================== */
-.credits {
-  margin-top: clamp(2.4rem, 6vw, 3.6rem);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  color: rgba(246, 245, 236, 0.4);
-}
-.credits a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-.credits a:hover { color: var(--light); }
-
-/* ===================================================================
    FOCUS RING (a11y for keyboard users)
    =================================================================== */
 a:focus-visible, button:focus-visible {
