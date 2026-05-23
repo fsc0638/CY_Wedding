@@ -160,10 +160,8 @@ section { position: relative; }
 }
 .hero-bg {
   position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center 32%;
-  background: var(--dark);
+  background-size: cover;
+  background-position: center 32%;
   transform: scale(1.08);
   animation: heroZoom 16s ease-out forwards;
 }
@@ -407,12 +405,14 @@ section { position: relative; }
   height: clamp(40px, 10vw, 52px);
   transform: translate(-50%, -52%);
   background: var(--taupe);
-  -webkit-mask: var(--heart) center / contain no-repeat;
-  mask: var(--heart) center / contain no-repeat;
+  -webkit-mask: url('Icons/heart.svg') center / contain no-repeat;
+  mask: url('Icons/heart.svg') center / contain no-repeat;
   z-index: 1;
+  animation: heartPulse 2.6s ease-in-out infinite;
 }
-:root {
-  --heart: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 29"><path d="M16 29S2 19.5 2 9.7C2 4.9 5.8 1 10.5 1 13 1 15.3 2.3 16 4.4 16.7 2.3 19 1 21.5 1 26.2 1 30 4.9 30 9.7 30 19.5 16 29 16 29Z"/></svg>');
+@keyframes heartPulse {
+  0%, 100% { transform: translate(-50%, -52%) scale(1); }
+  50%      { transform: translate(-50%, -52%) scale(1.08); }
 }
 
 .invite-photo {
@@ -729,7 +729,7 @@ section { position: relative; }
   color: #fff;
   border-color: var(--accent);
 }
-.bgm-icon { display: flex; }
+.bgm-icon { width: 20px; height: 20px; }
 .bgm-toggle.playing .bgm-icon { display: none; }
 .bgm-wave {
   display: none;
@@ -755,4 +755,109 @@ section { position: relative; }
 }
 @media (max-width: 420px) {
   .bgm-toggle { right: 0.9rem; bottom: 0.9rem; width: 44px; height: 44px; }
+}
+
+/* ===================================================================
+   OPENMOJI ICONS (via CSS mask · color via currentColor)
+   =================================================================== */
+.icon-mask {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-size: contain;    mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.i-glasses   { -webkit-mask-image: url('Icons/glasses.svg');   mask-image: url('Icons/glasses.svg'); }
+.i-plate     { -webkit-mask-image: url('Icons/plate.svg');     mask-image: url('Icons/plate.svg'); }
+.i-bus       { -webkit-mask-image: url('Icons/bus.svg');       mask-image: url('Icons/bus.svg'); }
+.i-car       { -webkit-mask-image: url('Icons/car.svg');       mask-image: url('Icons/car.svg'); }
+.i-pin       { -webkit-mask-image: url('Icons/pin.svg');       mask-image: url('Icons/pin.svg'); }
+.i-music     { -webkit-mask-image: url('Icons/music.svg');     mask-image: url('Icons/music.svg'); }
+.i-heart     { -webkit-mask-image: url('Icons/heart.svg');     mask-image: url('Icons/heart.svg'); }
+.i-calendar  { -webkit-mask-image: url('Icons/calendar.svg');  mask-image: url('Icons/calendar.svg'); }
+.i-clipboard { -webkit-mask-image: url('Icons/clipboard.svg'); mask-image: url('Icons/clipboard.svg'); }
+
+/* ===================================================================
+   ADD-TO-CALENDAR BUTTONS
+   =================================================================== */
+.cal-actions {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: clamp(2.4rem, 6vw, 3.6rem);
+}
+.cal-btn {
+  display: inline-flex; align-items: center; gap: 0.55em;
+  padding: 0.7em 1.4em;
+  border: 1px solid rgba(205, 193, 171, 0.45);
+  border-radius: 999px;
+  color: var(--light);
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.cal-btn .icon-mask { width: 18px; height: 18px; }
+.cal-btn:hover {
+  background: var(--taupe);
+  color: var(--dark);
+  border-color: var(--taupe);
+}
+
+/* ===================================================================
+   COPY ADDRESS BUTTON
+   =================================================================== */
+.addr-copy {
+  display: inline-flex; align-items: center; gap: 0.3em;
+  background: none; border: none; cursor: pointer;
+  padding: 2px 6px;
+  margin-left: 0.5em;
+  color: var(--ink);
+  opacity: 0.55;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.addr-copy .icon-mask { width: 14px; height: 14px; }
+.addr-copy:hover { opacity: 1; }
+.addr-copy.copied { color: var(--accent); opacity: 1; }
+
+/* ===================================================================
+   QR DESKTOP NOTE
+   =================================================================== */
+.qr-desktop-note {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  margin-top: 0.6rem;
+  letter-spacing: 0.08em;
+}
+@media (hover: none) and (pointer: coarse) {
+  .qr-desktop-note { display: none; }
+}
+
+/* ===================================================================
+   CREDITS (OpenMoji attribution)
+   =================================================================== */
+.credits {
+  margin-top: clamp(2.4rem, 6vw, 3.6rem);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgba(246, 245, 236, 0.4);
+}
+.credits a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.credits a:hover { color: var(--light); }
+
+/* ===================================================================
+   FOCUS RING (a11y for keyboard users)
+   =================================================================== */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
 }

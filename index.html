@@ -8,6 +8,15 @@
 <meta property="og:title" content="ChunYu &amp; YanTing — We're getting married!" />
 <meta property="og:description" content="2026.09.12 · 桃園皇家薇庭 法蘭新廳 · 誠摯邀請您一起見證" />
 <meta property="og:type" content="website" />
+<meta property="og:image" content="https://fsc0638.github.io/CY_Wedding/og-image.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://fsc0638.github.io/CY_Wedding/" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Roboto+Mono:wght@300;400;500&family=GFS+Didot&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -38,22 +47,13 @@
 <!-- ===== 背景音樂 ===== -->
 <audio id="bgm" loop preload="auto" src="Music/陳小雲_愛情恰恰.mp3"></audio>
 <button class="bgm-toggle" id="bgm-toggle" aria-label="播放背景音樂" aria-pressed="false">
-  <span class="bgm-icon" aria-hidden="true">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 18V5l12-2v13"/>
-      <circle cx="6" cy="18" r="3"/>
-      <circle cx="18" cy="16" r="3"/>
-    </svg>
-  </span>
+  <i class="bgm-icon icon-mask i-music" aria-hidden="true"></i>
   <span class="bgm-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
 </button>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="top">
-  <video class="hero-bg" autoplay muted loop playsinline
-         poster="Picture/20251006120430-DSC09041.jpg">
-    <source src="Picture/hero-couple.mp4" type="video/mp4" />
-  </video>
+  <div class="hero-bg" style="background-image:url('Picture/20251006120430-DSC09041.jpg')"></div>
   <div class="hero-veil"></div>
   <div class="hero-inner">
     <h1 class="hero-names">
@@ -108,40 +108,12 @@
 
   <div class="schedule reveal">
     <div class="sch-item">
-      <svg class="sch-ico" viewBox="0 0 64 64" aria-hidden="true">
-        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <g transform="translate(26 33) rotate(15)">
-            <path d="M-5 -17 Q 0 -14.5 5 -17"/>
-            <path d="M-5 -17 Q -4.5 -7 0 -2"/>
-            <path d="M5 -17 Q 4.5 -7 0 -2"/>
-            <path d="M0 -2 L0 13"/>
-            <path d="M-6 15 Q 0 17.5 6 15"/>
-          </g>
-          <g transform="translate(38 33) rotate(-15)">
-            <path d="M-5 -17 Q 0 -14.5 5 -17"/>
-            <path d="M-5 -17 Q -4.5 -7 0 -2"/>
-            <path d="M5 -17 Q 4.5 -7 0 -2"/>
-            <path d="M0 -2 L0 13"/>
-            <path d="M-6 15 Q 0 17.5 6 15"/>
-          </g>
-          <path d="M32 3 L32 9 M26 6 L22 3 M38 6 L42 3"/>
-        </g>
-      </svg>
+      <i class="sch-ico icon-mask i-glasses" aria-hidden="true"></i>
       <p class="sch-time mono">12 : 00</p>
       <p class="sch-label">迎賓入席</p>
     </div>
     <div class="sch-item">
-      <svg class="sch-ico" viewBox="0 0 64 64" aria-hidden="true">
-        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="32" cy="33" r="13"/>
-          <circle cx="32" cy="33" r="8.5"/>
-          <path d="M11 13 Q 8 22 9 32 Q 10 36 11 37 Q 12 36 13 32 Q 14 22 11 13 Z"/>
-          <path d="M11 37 L11 52"/>
-          <path d="M49 13 L49 23 M53 13 L53 23 M57 13 L57 23"/>
-          <path d="M49 23 Q 49 28 53 29 Q 57 28 57 23"/>
-          <path d="M53 29 L53 52"/>
-        </g>
-      </svg>
+      <i class="sch-ico icon-mask i-plate" aria-hidden="true"></i>
       <p class="sch-time mono">12 : 30</p>
       <p class="sch-label">婚宴開席</p>
     </div>
@@ -175,6 +147,18 @@
         <tr><td>27</td><td>28</td><td>29</td><td>30</td><td></td><td></td><td></td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="cal-actions reveal">
+    <a class="cal-btn" href="wedding.ics" download="CY-Wedding-2026-09-12.ics">
+      <i class="icon-mask i-calendar" aria-hidden="true"></i>
+      <span>加入行事曆</span>
+    </a>
+    <a class="cal-btn" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=%E9%BB%83%E4%BF%8A%E9%83%81%20%26%20%E8%8C%83%E9%9B%81%E5%A9%B7%20%E5%A9%9A%E7%A6%AE&amp;dates=20260912T040000Z/20260912T070000Z&amp;location=%E7%9A%87%E5%AE%B6%E8%96%87%E5%BA%AD%E5%A9%9A%E5%AE%B4%E6%9C%83%E9%A4%A8%20%E6%B3%95%E8%98%AD%E6%96%B0%E5%BB%B3&amp;details=12%3A00%20%E8%BF%8E%E8%B3%93%E5%85%A5%E5%B8%AD%20%7C%2012%3A30%20%E5%A9%9A%E5%AE%B4%E9%96%8B%E5%B8%AD"
+       target="_blank" rel="noopener">
+      <i class="icon-mask i-calendar" aria-hidden="true"></i>
+      <span>Google 行事曆</span>
+    </a>
   </div>
 
   <div class="invite-photo reveal">
@@ -224,7 +208,7 @@
   <div class="travel-grid">
     <div class="travel-info">
       <div class="ti-block reveal">
-        <h3><svg class="ti-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z M5 9h14 M8 19l-2 3 M16 19l2 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8.5" cy="13" r="1.1" fill="currentColor"/><circle cx="15.5" cy="13" r="1.1" fill="currentColor"/></svg>大眾運輸</h3>
+        <h3><i class="ti-ico icon-mask i-bus" aria-hidden="true"></i>大眾運輸</h3>
         <ul>
           <li>北部南下：搭 9023、1662 至尊爵飯店，轉計程車約 8 分鐘</li>
           <li>搭 9005A 至中國江山站，步行約 10 分鐘</li>
@@ -232,15 +216,20 @@
         </ul>
       </div>
       <div class="ti-block reveal">
-        <h3><svg class="ti-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l2-6a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 6 M3 13h18v4a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="15.5" r="1" fill="currentColor"/><circle cx="17" cy="15.5" r="1" fill="currentColor"/></svg>自行開車</h3>
+        <h3><i class="ti-ico icon-mask i-car" aria-hidden="true"></i>自行開車</h3>
         <ul>
           <li>國道一號：南崁交流道往桃園方向 → 靠右經國路 → 莊敬路二段右轉</li>
           <li>國道二號：南桃園交流道往桃園方向 → 靠右大興西路三段 → 寶慶路左轉 → 莊敬路二段左轉</li>
         </ul>
       </div>
       <div class="ti-block address reveal">
-        <h3><svg class="ti-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>地址</h3>
-        <p class="addr-zh">330 桃園市桃園區莊敬路二段 369 號</p>
+        <h3><i class="ti-ico icon-mask i-pin" aria-hidden="true"></i>地址</h3>
+        <p class="addr-zh">330 桃園市桃園區莊敬路二段 369 號
+          <button class="addr-copy" type="button" data-copy="330 桃園市桃園區莊敬路二段 369 號" aria-label="複製地址">
+            <i class="icon-mask i-clipboard" aria-hidden="true"></i>
+            <span class="addr-copy-label">複製</span>
+          </button>
+        </p>
         <p class="addr-en mono">No. 369, Sec. 2, Zhuangjing Rd., Taoyuan Dist., Taoyuan City 330</p>
       </div>
     </div>
@@ -273,6 +262,7 @@
            width="188" height="188" loading="lazy" class="qr-img" />
     </div>
     <p class="qr-label mono">WEDDING ASSISTANT · LINE</p>
+    <p class="qr-desktop-note">桌機使用者請改用手機掃描</p>
   </div>
 </section>
 
@@ -282,6 +272,7 @@
   <div class="seeyou-veil"></div>
   <div class="seeyou-inner">
     <p class="seeyou-text reveal">See <span>you</span> Soon!</p>
+    <p class="credits">Icons by <a href="https://openmoji.org/" target="_blank" rel="noopener">OpenMoji</a> · CC BY-SA 4.0</p>
   </div>
 </footer>
 

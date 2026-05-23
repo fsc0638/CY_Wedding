@@ -5,13 +5,42 @@
 (function () {
   "use strict";
 
-  /* ---------- 進場載入 ---------- */
-  window.addEventListener("load", function () {
+  /* ---------- 進場載入：以 window.load 為主，2.5s 為上限 ---------- */
+  function hideLoader() {
     var loader = document.getElementById("loader");
-    if (loader) setTimeout(function () { loader.classList.add("hide"); }, 2000);
-    // Loader 結束後讓背景音樂按鈕淡入
+    if (!loader || loader.classList.contains("hide")) return;
+    loader.classList.add("hide");
     var bgmBtn = document.getElementById("bgm-toggle");
-    if (bgmBtn) setTimeout(function () { bgmBtn.classList.add("ready"); }, 2400);
+    if (bgmBtn) setTimeout(function () { bgmBtn.classList.add("ready"); }, 400);
+  }
+  window.addEventListener("load", hideLoader);
+  setTimeout(hideLoader, 2500); // 安全上限
+
+  /* ---------- 地址複製 ---------- */
+  document.querySelectorAll("[data-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var text = btn.getAttribute("data-copy");
+      var label = btn.querySelector(".addr-copy-label");
+      var done = function () {
+        btn.classList.add("copied");
+        if (label) label.textContent = "已複製";
+        setTimeout(function () {
+          btn.classList.remove("copied");
+          if (label) label.textContent = "複製";
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+      } else {
+        // 後備方案
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
   });
 
   /* ---------- 背景音樂：首次互動（滾動/點擊）自動播放，按鈕可切換 ---------- */
