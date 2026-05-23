@@ -35,6 +35,19 @@
   <div class="loader-mono">Chun<span>&amp;</span>Yan</div>
 </div>
 
+<!-- ===== 背景音樂 ===== -->
+<audio id="bgm" loop preload="auto" src="Music/陳小雲_愛情恰恰.mp3"></audio>
+<button class="bgm-toggle" id="bgm-toggle" aria-label="播放背景音樂" aria-pressed="false">
+  <span class="bgm-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </svg>
+  </span>
+  <span class="bgm-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+</button>
+
 <!-- ===== HERO ===== -->
 <section class="hero" id="top">
   <video class="hero-bg" autoplay muted loop playsinline
