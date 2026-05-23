@@ -291,8 +291,9 @@ section { position: relative; }
   margin-top: 0.8rem;
 }
 .invite-date {
-  font-size: clamp(1rem, 2.6vw, 1.25rem);
-  letter-spacing: 0.22em;
+  font-family: 'GFS Didot', var(--serif-tc);
+  font-size: clamp(1.3rem, 3.2vw, 1.7rem);
+  letter-spacing: 0.18em;
   margin-top: clamp(2.6rem, 6vw, 4rem);
   color: var(--light);
 }
@@ -310,8 +311,9 @@ section { position: relative; }
   color: var(--taupe);
 }
 .sch-time {
-  font-size: clamp(1.1rem, 3vw, 1.4rem);
-  letter-spacing: 0.12em;
+  font-family: 'GFS Didot', var(--serif);
+  font-size: clamp(1.4rem, 3.4vw, 1.8rem);
+  letter-spacing: 0.1em;
   margin-top: 0.9rem;
 }
 .sch-label {
@@ -385,8 +387,8 @@ section { position: relative; }
   padding-bottom: 0.9rem;
 }
 .cal-grid td {
-  font-family: var(--serif);
-  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  font-family: 'GFS Didot', var(--serif);
+  font-size: clamp(1rem, 2.7vw, 1.2rem);
   color: var(--light-soft);
   height: clamp(38px, 9vw, 48px);
   text-align: center;
@@ -483,9 +485,17 @@ section { position: relative; }
    PHOTO WALL — 相片牆（暗灰）
    =================================================================== */
 .photowall {
-  background: #1a1917;
+  position: relative;
+  background: #1a1917 url('Picture/background.jpg') center / cover no-repeat;
   padding: clamp(3rem, 7vw, 5rem) clamp(1.2rem, 4vw, 3rem);
 }
+.photowall::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(26, 25, 23, 0.55);
+  pointer-events: none;
+}
+.photowall .pw-grid { position: relative; z-index: 1; }
 .pw-grid {
   display: flex;
   flex-direction: column;
