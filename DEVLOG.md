@@ -1,0 +1,56 @@
+# CY Wedding — 開發記錄
+
+## 專案概要
+- 線上喜帖網站，新人 黃俊郁 (ChunYu Huang) & 范雁婷 (YanTing Fan)
+- 婚禮：2026/09/12（六）12:30 開席
+- 場地：桃園皇家薇庭 法蘭新廳，330 桃園市桃園區莊敬路二段 369 號
+- 靜態網站：`index.html` / `styles.css` / `script.js`，照片置於 `Picture/`
+- 設計方向：復刻 Canva 線上喜帖風格並優化（米白 / 暖黑 / 駝色交替分區）
+
+---
+
+## 2026-05-22 更新記錄
+
+### 第一輪：全站大更新
+- 新增固定頂部導覽列：CY logo + Our Love / Process / Dress Code / Getting There，
+  捲動後半透明深色背景，手機版漢堡選單
+- Hero 文字整體往上移，避免擋住人物
+- Story 區重整：移除原雙欄照片、新增手繪乾杯 SVG、中文引言移至區塊底部
+- Invite：底部照片改為 IMG_0566；倒數字體改 Roboto Mono；行事曆標題改 GFS Didot
+- Dress Code：在標題與色卡之間插入 DSC09448 照片
+- 新增第五頁相片牆
+- LINE QR Code 以 `mix-blend-mode: multiply` 去背
+- See you Soon 頁尾移除中文名字與日期
+
+### 第二輪：字體與版面細修
+- 中文字體統一改為 `Roboto Mono` + `Noto Sans TC` 等寬字體堆疊
+- Navbar 改用婚禮 logo 圖：原圖白底，以 PIL 處理成透明背景白色標誌
+  （`Picture/wedding-logo-mark.png`），CSS 用 `filter: brightness(0) invert(1)` 上色
+- Hero 名字字體：Autography 不在 Google Fonts → 先改 Sacramento → 最終改用
+  Adobe Typekit（kit `waq7ckh`）的 `canvas-script` 手寫體（僅套用於名字）
+- Story 主照片改為 DSC07362；`( AND EACH OTHER )` 移到照片下方；乾杯 SVG 移到最下方
+- 迎賓入席 / 婚宴開席 圖示重繪為 Canva 風格（碰杯香檳杯 / 餐盤刀叉）
+- 相片牆改為直式排列，照片改為 DSC09206 / DSC08383 / DSC09432
+- 所有內容照片改為依原始比例顯示，不再裁切
+
+### 目前字體配置
+| 用途 | 字體 |
+|------|------|
+| 新人名字（script） | canvas-script（Adobe Typekit kit `waq7ckh`） |
+| 英文標題 | Cormorant Garamond |
+| 英數字 / 標籤 / 倒數 | Roboto Mono |
+| 行事曆標題 | GFS Didot |
+| 中文 | Roboto Mono + Noto Sans TC（等寬堆疊） |
+
+### Git
+- 遠端：`fsc0638/CY_Wedding`，`master` 已 push
+- 已建立並使用 `fsc` 分支進行後續開發
+
+---
+
+## 待辦 / 備註
+- 若日後取得 Autography 真字型檔，可改用 `@font-face` 載入真正的 Autography
+- Hero 與 See you Soon 為滿版背景圖，仍維持 `background-size: cover` 裁切
+  （不裁切會出現留白邊破壞滿版效果）
+- IMG_0566 為 iPhone 直式照片
+- 本機預覽：`python3 -m http.server`

@@ -8,8 +8,63 @@
   /* ---------- 進場載入 ---------- */
   window.addEventListener("load", function () {
     var loader = document.getElementById("loader");
-    if (loader) setTimeout(function () { loader.classList.add("hide"); }, 650);
+    if (loader) setTimeout(function () { loader.classList.add("hide"); }, 2000);
+    // Loader 結束後讓背景音樂按鈕淡入
+    var bgmBtn = document.getElementById("bgm-toggle");
+    if (bgmBtn) setTimeout(function () { bgmBtn.classList.add("ready"); }, 2400);
   });
+
+  /* ---------- 背景音樂：首次互動（滾動/點擊）自動播放，按鈕可切換 ---------- */
+  (function () {
+    var audio = document.getElementById("bgm");
+    var btn   = document.getElementById("bgm-toggle");
+    if (!audio || !btn) return;
+    audio.volume = 0.35;
+
+    var userPaused = false;
+
+    function setPlayingUI(on) {
+      btn.classList.toggle("playing", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute("aria-label", on ? "暫停背景音樂" : "播放背景音樂");
+    }
+
+    function tryPlay() {
+      var p = audio.play();
+      if (p && typeof p.then === "function") {
+        p.then(function () { setPlayingUI(true); })
+         .catch(function () { /* 瀏覽器尚未授權，等下次互動 */ });
+      } else {
+        setPlayingUI(true);
+      }
+    }
+
+    // 首次互動觸發（滾動 / 觸控 / 點擊任意位置）
+    function onFirstInteract() {
+      if (!userPaused && audio.paused) tryPlay();
+      window.removeEventListener("scroll", onFirstInteract);
+      window.removeEventListener("touchstart", onFirstInteract);
+      window.removeEventListener("click", onFirstInteract);
+      window.removeEventListener("keydown", onFirstInteract);
+    }
+    window.addEventListener("scroll",     onFirstInteract, { passive: true, once: false });
+    window.addEventListener("touchstart", onFirstInteract, { passive: true });
+    window.addEventListener("click",      onFirstInteract);
+    window.addEventListener("keydown",    onFirstInteract);
+
+    // 按鈕手動切換
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (audio.paused) {
+        userPaused = false;
+        tryPlay();
+      } else {
+        userPaused = true;
+        audio.pause();
+        setPlayingUI(false);
+      }
+    });
+  })();
 
   /* ---------- Navbar：捲動變暗 + 漢堡 ---------- */
   var nav = document.getElementById("site-nav");
