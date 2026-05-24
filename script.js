@@ -380,13 +380,38 @@
     });
   }
 
+  /* ---------- 分享：產生帶時戳版本參數的網址（避開 LINE 縮圖快取） ---------- */
+  function buildShareUrl() {
+    var base = window.location.origin + window.location.pathname;
+    var d = new Date();
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    var v = d.getFullYear() +
+            pad(d.getMonth() + 1) +
+            pad(d.getDate()) +
+            pad(d.getHours()) +
+            pad(d.getMinutes()) +
+            pad(d.getSeconds());
+    return base + "?v=" + v;
+  }
+
+  /* ---------- LINE 分享按鈕：點擊瞬間用最新時戳 ---------- */
+  (function () {
+    var lineBtn = document.getElementById("share-line");
+    if (!lineBtn) return;
+    lineBtn.addEventListener("click", function () {
+      var shareUrl = "https://social-plugins.line.me/lineit/share?url=" +
+                     encodeURIComponent(buildShareUrl());
+      lineBtn.setAttribute("href", shareUrl);
+    });
+  })();
+
   /* ---------- 分享：複製網址 ---------- */
   (function () {
     var btn = document.getElementById("share-copy");
     if (!btn) return;
     var label = btn.querySelector("span");
     btn.addEventListener("click", function () {
-      var url = window.location.origin + window.location.pathname;
+      var url = buildShareUrl();
       var done = function () {
         btn.classList.add("copied");
         if (label) label.textContent = t("share.copy.done");
