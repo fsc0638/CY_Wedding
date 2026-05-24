@@ -37,12 +37,18 @@
 <nav class="site-nav" id="site-nav">
   <a class="nav-logo" href="#top"><img src="Picture/wedding-logo-mark.png" alt="Chunyu &amp; Yanting" /></a>
   <ul class="nav-links">
-    <li><a href="#story">Our Love</a></li>
-    <li><a href="#invite">Timeline</a></li>
-    <li><a href="#dresscode">Dress Code</a></li>
-    <li><a href="#travel">Getting There</a></li>
+    <li><a href="#story" data-i18n="nav.story">Our Love</a></li>
+    <li><a href="#invite" data-i18n="nav.invite">Timeline</a></li>
+    <li><a href="#dresscode" data-i18n="nav.dresscode">Dress Code</a></li>
+    <li><a href="#travel" data-i18n="nav.travel">Getting There</a></li>
   </ul>
-  <button class="nav-burger" aria-label="選單" aria-expanded="false">
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button type="button" data-lang="zh" aria-pressed="true">中</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" data-lang="ja" aria-pressed="false">日</button>
+    <button type="button" data-lang="ko" aria-pressed="false">한</button>
+  </div>
+  <button class="nav-burger" aria-label="選單" data-i18n-aria="nav.menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -89,7 +95,7 @@
     <img src="Picture/20251006085102-DSC07362.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
   <p class="story-sub reveal">( AND EACH OTHER )</p>
-  <p class="story-quote reveal">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
+  <p class="story-quote reveal" data-i18n-html="story.quote">長跑十三年的愛情故事，<br />即將揭開新的序幕⋯</p>
   <!-- 手繪乾杯插圖 -->
   <div class="story-toast reveal" aria-hidden="true">
     <svg class="toast-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
@@ -117,21 +123,21 @@
 
 <!-- ===== 邀請 / 流程 / 行事曆（深色） ===== -->
 <section class="invite" id="invite">
-  <h2 class="invite-title reveal">Join us as we tie the knot!</h2>
-  <p class="invite-zh reveal">誠摯地邀請您一起來見證我們的婚禮</p>
+  <h2 class="invite-title reveal" data-i18n="invite.title">Join us as we tie the knot!</h2>
+  <p class="invite-zh reveal" data-i18n="invite.subtitle">誠摯地邀請您一起來見證我們的婚禮</p>
 
-  <p class="invite-date mono reveal">2026 / 9 / 12（六）</p>
+  <p class="invite-date mono reveal" data-i18n="invite.date">2026 / 9 / 12（六）</p>
 
   <div class="schedule reveal">
     <div class="sch-item">
       <i class="sch-ico icon-mask i-glasses" aria-hidden="true"></i>
       <p class="sch-time mono">12 : 00</p>
-      <p class="sch-label">迎賓入席</p>
+      <p class="sch-label" data-i18n="schedule.welcome">迎賓入席</p>
     </div>
     <div class="sch-item">
       <i class="sch-ico icon-mask i-plate" aria-hidden="true"></i>
       <p class="sch-time mono">12 : 30</p>
-      <p class="sch-label">婚宴開席</p>
+      <p class="sch-label" data-i18n="schedule.banquet">婚宴開席</p>
     </div>
   </div>
 
@@ -139,13 +145,13 @@
   <div class="count reveal" id="countWrap">
     <span class="count-lead mono">COUNTING DOWN</span>
     <div class="count-row">
-      <span><b data-k="d">--</b><i>天</i></span>
-      <span><b data-k="h">--</b><i>時</i></span>
-      <span><b data-k="m">--</b><i>分</i></span>
-      <span><b data-k="s">--</b><i>秒</i></span>
+      <span><b data-k="d">--</b><i data-i18n="count.d">天</i></span>
+      <span><b data-k="h">--</b><i data-i18n="count.h">時</i></span>
+      <span><b data-k="m">--</b><i data-i18n="count.m">分</i></span>
+      <span><b data-k="s">--</b><i data-i18n="count.s">秒</i></span>
     </div>
   </div>
-  <p class="count-done mono" id="countDone" hidden>WE ARE MARRIED — 我們結婚囉</p>
+  <p class="count-done mono" id="countDone" data-i18n="count.done" hidden>WE ARE MARRIED — 我們結婚囉</p>
 
   <!-- 九月行事曆 -->
   <div class="calendar reveal">
@@ -169,7 +175,7 @@
     <a class="cal-btn" href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=%E9%BB%83%E4%BF%8A%E9%83%81%20%26%20%E8%8C%83%E9%9B%81%E5%A9%B7%20%E5%A9%9A%E7%A6%AE&amp;dates=20260912T040000Z/20260912T070000Z&amp;location=%E7%9A%87%E5%AE%B6%E8%96%87%E5%BA%AD%E5%A9%9A%E5%AE%B4%E6%9C%83%E9%A4%A8%20%E6%B3%95%E8%98%AD%E6%96%B0%E5%BB%B3&amp;details=12%3A00%20%E8%BF%8E%E8%B3%93%E5%85%A5%E5%B8%AD%20%7C%2012%3A30%20%E5%A9%9A%E5%AE%B4%E9%96%8B%E5%B8%AD"
        target="_blank" rel="noopener">
       <i class="icon-mask i-calendar" aria-hidden="true"></i>
-      <span>加入 Google 行事曆</span>
+      <span data-i18n="cal.add">加入 Google 行事曆</span>
     </a>
   </div>
 
@@ -180,8 +186,8 @@
 
 <!-- ===== 服裝建議（深色續） ===== -->
 <section class="dresscode" id="dresscode">
-  <h2 class="dc-title reveal">Dress Code</h2>
-  <p class="dc-zh reveal">服裝建議</p>
+  <h2 class="dc-title reveal" data-i18n="dc.title">Dress Code</h2>
+  <p class="dc-zh reveal" data-i18n="dc.subtitle">服裝建議</p>
   <div class="dc-photo reveal">
     <img src="Picture/20251006122334-DSC09448.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
@@ -192,7 +198,7 @@
     <div class="swatch"><span style="background:#C1B6A4"></span><em class="mono">#C1B6A4</em></div>
     <div class="swatch"><span style="background:#B29079"></span><em class="mono">#B29079</em></div>
   </div>
-  <p class="dc-note reveal">為了讓婚禮畫面更加和諧，敬請避免全白穿搭，感謝您的體貼！</p>
+  <p class="dc-note reveal" data-i18n="dc.note">為了讓婚禮畫面更加和諧，敬請避免全白穿搭，感謝您的體貼！</p>
 </section>
 
 <!-- ===== 相片牆（暗灰） ===== -->
@@ -212,34 +218,34 @@
 
 <!-- ===== 交通資訊（駝色） ===== -->
 <section class="travel" id="travel">
-  <h2 class="travel-title reveal">Getting there</h2>
-  <p class="travel-zh reveal">婚禮地點 / 行車資訊</p>
+  <h2 class="travel-title reveal" data-i18n="travel.title">Getting there</h2>
+  <p class="travel-zh reveal" data-i18n="travel.subtitle">婚禮地點 / 行車資訊</p>
 
-  <p class="venue-name reveal">皇家薇庭婚宴會館 — 法蘭新廳</p>
+  <p class="venue-name reveal" data-i18n="travel.venue">皇家薇庭婚宴會館 — 法蘭新廳</p>
 
   <div class="travel-grid">
     <div class="travel-info">
       <div class="ti-block reveal">
-        <h3><i class="ti-ico icon-mask i-bus" aria-hidden="true"></i>大眾運輸</h3>
+        <h3><i class="ti-ico icon-mask i-bus" aria-hidden="true"></i><span data-i18n="travel.transit">大眾運輸</span></h3>
         <ul>
-          <li>北部南下：搭 9023、1662 至尊爵飯店，轉計程車約 8 分鐘</li>
-          <li>搭 9005A 至中國江山站，步行約 10 分鐘</li>
-          <li>桃園高鐵站搭 302、707 公車，中正莊敬路口站下車，轉計程車約 5 分鐘</li>
+          <li data-i18n="travel.transit.1">北部南下：搭 9023、1662 至尊爵飯店，轉計程車約 8 分鐘</li>
+          <li data-i18n="travel.transit.2">搭 9005A 至中國江山站，步行約 10 分鐘</li>
+          <li data-i18n="travel.transit.3">桃園高鐵站搭 302、707 公車，中正莊敬路口站下車，轉計程車約 5 分鐘</li>
         </ul>
       </div>
       <div class="ti-block reveal">
-        <h3><i class="ti-ico icon-mask i-car" aria-hidden="true"></i>自行開車</h3>
+        <h3><i class="ti-ico icon-mask i-car" aria-hidden="true"></i><span data-i18n="travel.driving">自行開車</span></h3>
         <ul>
-          <li>國道一號：南崁交流道往桃園方向 → 靠右經國路 → 莊敬路二段右轉</li>
-          <li>國道二號：南桃園交流道往桃園方向 → 靠右大興西路三段 → 寶慶路左轉 → 莊敬路二段左轉</li>
+          <li data-i18n="travel.driving.1">國道一號：南崁交流道往桃園方向 → 靠右經國路 → 莊敬路二段右轉</li>
+          <li data-i18n="travel.driving.2">國道二號：南桃園交流道往桃園方向 → 靠右大興西路三段 → 寶慶路左轉 → 莊敬路二段左轉</li>
         </ul>
       </div>
       <div class="ti-block address reveal">
-        <h3><i class="ti-ico icon-mask i-pin" aria-hidden="true"></i>地址</h3>
-        <p class="addr-zh">330 桃園市桃園區莊敬路二段 369 號
-          <button class="addr-copy" type="button" data-copy="330 桃園市桃園區莊敬路二段 369 號" aria-label="複製地址">
+        <h3><i class="ti-ico icon-mask i-pin" aria-hidden="true"></i><span data-i18n="travel.address">地址</span></h3>
+        <p class="addr-zh" data-i18n-keep-button>330 桃園市桃園區莊敬路二段 369 號
+          <button class="addr-copy" type="button" data-copy="330 桃園市桃園區莊敬路二段 369 號" aria-label="複製地址" data-i18n-aria="travel.copy.aria">
             <i class="icon-mask i-clipboard" aria-hidden="true"></i>
-            <span class="addr-copy-label">複製</span>
+            <span class="addr-copy-label" data-i18n="travel.copy">複製</span>
           </button>
         </p>
         <p class="addr-en mono">No. 369, Sec. 2, Zhuangjing Rd., Taoyuan Dist., Taoyuan City 330</p>
@@ -254,7 +260,7 @@
     </div>
   </div>
 
-  <a class="map-link reveal" href="https://www.google.com/maps/search/?api=1&query=皇家薇庭婚宴會館+桃園市桃園區莊敬路二段369號" target="_blank" rel="noopener">
+  <a class="map-link reveal" href="https://www.google.com/maps/search/?api=1&query=皇家薇庭婚宴會館+桃園市桃園區莊敬路二段369號" target="_blank" rel="noopener" data-i18n="travel.map.open">
     在 Google 地圖開啟導航 &#8594;
   </a>
 </section>
@@ -264,16 +270,33 @@
   <div class="closing-photo reveal">
     <img src="Picture/IMG_0088.jpg" alt="ChunYu &amp; YanTing" loading="lazy" />
   </div>
-  <p class="closing-line reveal">Your presence is truly the best<br />gift we could ask for.</p>
-  <p class="closing-zh reveal">期待在最美好的一天，與您相見</p>
+  <p class="closing-line reveal" data-i18n-html="closing.line">Your presence is truly the best<br />gift we could ask for.</p>
+  <p class="closing-zh reveal" data-i18n="closing.zh">期待在最美好的一天，與您相見</p>
 
   <div class="qr-block reveal">
-    <p class="qr-note">歡迎掃描下方 QR Code，加入婚禮小幫手<br />了解更多婚禮相關資訊</p>
+    <p class="qr-note" data-i18n-html="qr.note">歡迎掃描下方 QR Code，加入婚禮小幫手<br />了解更多婚禮相關資訊</p>
     <div class="qr-card">
       <img src="Picture/wedding-line-qr.png" alt="婚禮小幫手 LINE QR Code"
            width="188" height="188" loading="lazy" class="qr-img" />
     </div>
     <p class="qr-label mono">WEDDING ASSISTANT · LINE</p>
+  </div>
+
+  <!-- 分享給朋友 -->
+  <div class="share-block reveal">
+    <p class="share-note" data-i18n="share.note">分享這份喜帖給朋友</p>
+    <div class="share-buttons">
+      <a class="share-btn share-line" id="share-line"
+         href="https://social-plugins.line.me/lineit/share?url=https%3A%2F%2Ffsc0638.github.io%2FCY_Wedding%2F"
+         target="_blank" rel="noopener" aria-label="Share to LINE">
+        <span class="share-ico" aria-hidden="true">LINE</span>
+        <span data-i18n="share.line">分享到 LINE</span>
+      </a>
+      <button class="share-btn share-copy" id="share-copy" type="button" aria-label="複製連結">
+        <i class="icon-mask i-clipboard share-ico" aria-hidden="true"></i>
+        <span data-i18n="share.copy">複製網址</span>
+      </button>
+    </div>
   </div>
 </section>
 
