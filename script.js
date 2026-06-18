@@ -644,8 +644,11 @@
         return;
       }
       setStatus(null, false);
+      // 每次隨機抽取 10–15 則（總數不足則全部顯示）；每次重新整理都會重新抽取
+      var pool = shuffle(wishes.slice());
+      var take = Math.min(pool.length, 10 + Math.floor(Math.random() * 6));  // 10..15
       var frag = document.createDocumentFragment();
-      shuffle(wishes.slice()).forEach(function (w, idx) {
+      pool.slice(0, take).forEach(function (w, idx) {
         var b = document.createElement("div");
         // 三種浮動路徑變體輪流（f1 為預設、f2/f3 換 keyframe），加上各自隨機時長/相位
         var variant = idx % 3;
