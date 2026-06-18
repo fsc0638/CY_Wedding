@@ -643,15 +643,13 @@
       var frag = document.createDocumentFragment();
       shuffle(wishes.slice()).forEach(function (w, idx) {
         var b = document.createElement("div");
-        b.className = "wish-bubble " + (w.side === "bride" ? "bride" : "groom");
+        // 三種浮動路徑變體輪流（f1 為預設、f2/f3 換 keyframe），加上各自隨機時長/相位
+        var variant = idx % 3;
+        b.className = "wish-bubble " + (w.side === "bride" ? "bride" : "groom") +
+          (variant === 1 ? " f2" : variant === 2 ? " f3" : "");
         b.textContent = w.text;
-        // 每顆泡泡各自隨機的慢速浮動參數
         b.style.setProperty("--dur", rand(7, 13).toFixed(2) + "s");
         b.style.setProperty("--delay", (-rand(0, 6)).toFixed(2) + "s");
-        b.style.setProperty("--fx", rand(6, 16).toFixed(0) + "px");
-        b.style.setProperty("--fy", rand(10, 22).toFixed(0) + "px");
-        b.style.setProperty("--rot", rand(-2.5, 2.5).toFixed(2) + "deg");
-        b.style.setProperty("--in-delay", (idx * 55) + "ms");
         frag.appendChild(b);
       });
       field.appendChild(frag);
@@ -804,11 +802,13 @@
     var codeError = document.getElementById("voucherCodeError");
     var canDialog = modal && typeof modal.showModal === "function";
 
+    var openedAt = 0;
     function openModal() {
       if (codeInput) codeInput.value = "";
       if (codeError) codeError.hidden = true;
       if (canDialog) {
         modal.showModal();
+        openedAt = Date.now();
         setTimeout(function () { if (codeInput) codeInput.focus(); }, 30);
       }
     }
@@ -838,7 +838,10 @@
           if (e.key === "Enter") { e.preventDefault(); submitCode(); }
         });
       }
-      modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+      // 點背景關閉，但忽略「開窗那一下」的誤觸（iOS 觸控會把開窗的 tap 帶到背景上 → 秒關）
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal && Date.now() - openedAt > 350) closeModal();
+      });
     }
   })();
 })();

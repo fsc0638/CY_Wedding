@@ -171,6 +171,21 @@
   - 注意：純前端閘門，0638 寫在 client 原始碼 → 懂技術者可檢視，屬軟性防呆而非真正權限控管
 - 觸發採「輕觸」而非「下滑」：避免捲動時誤撕（與「誤撕復原」初衷一致）
 - i18n：`voucher.tear` / `voucher.restore` / `voucher.unlock.*` 四語
+
+## 2026-06-18 iPhone(iOS Safari) 三項修正
+- 回報：①祝福泡泡不浮動 ②兌換券撕除無動畫、瞬間消失 ③復原彈窗未置中/未持續顯示
+- ①②根因：先前 `prefers-reduced-motion: reduce` 把泡泡浮動與撕票過渡「關掉」——iPhone 開
+  「減少動態效果」即觸發。修正：移除這兩個 reduce-motion 停用規則（裝飾動畫刻意保留播放）
+- 泡泡浮動另避開 iOS 對 keyframe 內 `var()/calc()` transform 的問題 → 改三組**固定數值** keyframe
+  （`wishFloat` / `wishFloat2` / `wishFloat3`，JS 以 `f2`/`f3` class 輪流套用 + 隨機時長/相位）
+- 健壯性：泡泡基底改 `opacity:1` + `wishIn forwards`（移除 stagger）→ 即使瀏覽器停用動畫也可見，
+  不會卡在 `opacity:0` 隱形（移除原本依賴入場動畫才顯示的寫法）
+- 撕票票根加 `will-change: transform, opacity` 促 iOS 提升合成層，平順過渡含 `clip-path` 的元素
+- ③彈窗置中：`.voucher-modal { position:fixed; inset:0; margin:auto; width:min(92vw,420px);
+  height:fit-content }`（iOS 穩定置中）；並加「開窗 350ms 內忽略背景點擊」避免 iOS 觸控把開窗的
+  tap 帶到背景 → 秒關
+- 限制：預覽環境(自動化 Chromium)停用 CSS 動畫，無法在預覽看到浮動/撕票實際動態；邏輯與可見性已驗證，
+  動態需於真機(iPhone Safari)確認
 - ⚠️ **評估結論（電話+簡訊OTP 驗證身分）：不做**。理由：①靜態站無後端，OTP 需外接 Firebase/Twilio
   等付費服務 ②比對「表單電話」會逼電話個資上前端或後端 ③撕除狀態存 localStorage，清快取/換裝置即繞過，
   OTP 擋不到重複領。真正核銷交給現場「兌換碼 + 名單劃記」即可，不需後端。
