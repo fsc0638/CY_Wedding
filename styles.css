@@ -978,3 +978,203 @@ a:focus-visible, button:focus-visible {
   color: #fff;
   border-color: var(--accent);
 }
+
+/* ===================================================================
+   WISHES — 賓客祝福泡泡牆（暖黑）
+   =================================================================== */
+.wishes {
+  --wish-groom: #6f93a8;   /* 俊郁朋友 · 男方 */
+  --wish-bride: #c98a98;   /* 雁婷朋友 · 女方 */
+  background: var(--dark);
+  color: var(--light);
+  text-align: center;
+  padding: clamp(5rem, 13vw, 9rem) clamp(1.2rem, 5vw, 4rem);
+  overflow: hidden;
+}
+.wishes-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: clamp(1.8rem, 5.5vw, 3rem);
+  letter-spacing: 0.06em;
+}
+.wishes-zh {
+  font-family: var(--serif-tc);
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  letter-spacing: 0.3em;
+  color: var(--light-soft);
+  margin-top: 0.4rem;
+}
+
+/* 圖例 + 重新整理 */
+.wishes-bar {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 4vw, 2.2rem);
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+.wishes-legend { display: inline-flex; gap: clamp(1rem, 3vw, 1.6rem); }
+.wl-item {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--light-soft);
+}
+.wl-item i {
+  width: 11px; height: 11px; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
+}
+.wl-groom i { background: var(--wish-groom); }
+.wl-bride i { background: var(--wish-bride); }
+
+.wishes-refresh {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.55em 1.1em;
+  border-radius: 999px;
+  border: 1px solid rgba(205, 193, 171, 0.4);
+  background: transparent;
+  color: var(--light);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.wishes-refresh:hover {
+  background: var(--taupe);
+  color: var(--dark);
+  border-color: var(--taupe);
+}
+.wishes-refresh .wr-ico { transition: transform 0.4s ease; }
+.wishes-refresh.spinning .wr-ico { animation: wrSpin 0.9s linear infinite; }
+@keyframes wrSpin { to { transform: rotate(360deg); } }
+
+/* 泡泡場 */
+.wish-field {
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: center;
+  gap: clamp(0.7rem, 2.2vw, 1.3rem);
+  max-width: 1080px;
+  margin: clamp(2.6rem, 6vw, 4rem) auto 0;
+  min-height: 120px;
+  transition: opacity 0.35s ease;
+}
+.wish-field.fading { opacity: 0; }
+
+.wish-bubble {
+  --dur: 9s; --delay: 0s; --fx: 10px; --fy: 16px; --rot: 2deg;
+  max-width: clamp(190px, 62vw, 300px);
+  padding: 0.85em 1.25em;
+  border-radius: 22px;
+  font-family: var(--serif-tc);
+  font-weight: 300;
+  font-size: clamp(0.86rem, 2.2vw, 0.98rem);
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  color: var(--light);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+  opacity: 0;
+  animation:
+    wishIn 0.8s ease var(--in-delay, 0s) forwards,
+    wishFloat var(--dur) ease-in-out var(--delay) infinite;
+}
+.wish-bubble.groom {
+  background: rgba(111, 147, 168, 0.16);
+  border-color: rgba(111, 147, 168, 0.5);
+}
+.wish-bubble.bride {
+  background: rgba(201, 138, 152, 0.16);
+  border-color: rgba(201, 138, 152, 0.5);
+}
+@keyframes wishIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wishFloat {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(calc(var(--fx) * 0.5), calc(var(--fy) * -1)) rotate(var(--rot)); }
+  50%  { transform: translate(calc(var(--fx) * -1), calc(var(--fy) * -0.45)) rotate(calc(var(--rot) * -1)); }
+  75%  { transform: translate(calc(var(--fx) * -0.4), calc(var(--fy) * -0.8)) rotate(var(--rot)); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.wish-status {
+  margin-top: 1.6rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--light-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wish-bubble { animation: wishIn 0.01s ease forwards; opacity: 1; }
+  .wishes-refresh.spinning .wr-ico { animation: none; }
+}
+
+/* ===================================================================
+   PASTRY VOUCHER — 喜餅兌換券（女方專屬·預設隱藏）
+   =================================================================== */
+#nav-voucher[hidden], #voucher[hidden] { display: none !important; }
+
+.voucher {
+  background: var(--cream-2);
+  color: var(--ink);
+  text-align: center;
+  padding: clamp(5rem, 13vw, 9rem) clamp(1.4rem, 6vw, 4rem);
+}
+.voucher-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: clamp(1.8rem, 5.5vw, 3rem);
+  letter-spacing: 0.06em;
+}
+.voucher-zh {
+  font-family: var(--serif-tc);
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--ink-soft);
+  margin-top: 0.4rem;
+}
+
+/* 票券圖卡 */
+.voucher-card {
+  max-width: 480px;
+  margin: clamp(2.8rem, 6vw, 3.8rem) auto 0;
+}
+.voucher-img {
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 24px 50px rgba(45, 43, 37, 0.22);
+}
+.voucher-for {
+  font-family: var(--serif-tc);
+  font-size: 0.98rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-top: clamp(1.6rem, 4vw, 2.2rem);
+}
+.voucher-for strong {
+  display: inline-block;
+  color: var(--ink);
+  font-weight: 500;
+  margin-left: 0.45em;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--accent);
+}
+.voucher-note {
+  font-family: var(--serif-tc);
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 2;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  max-width: 420px;
+  margin: 1rem auto 0;
+}

@@ -78,7 +78,7 @@
 ### 🥉 加分項
 - [x] **多語言切換** — 繁中 / 英 / 日 / 韓
 - [ ] **故事相簿 / 影音** — 求婚影片、交往時間軸、Spotify 婚禮歌單
-- [ ] **賓客留言牆**（Notion / Firebase）
+- [x] **賓客留言牆** — 泡泡浮動式祝福牆（資料來自 Google 表單匯出 Excel）
 - [x] **LINE 分享按鈕 + 縮圖優化**
 
 ### 🚫 不採用
@@ -94,3 +94,65 @@
 - 使用者語言偏好儲存於 localStorage
 - LINE 分享按鈕（Social Plugin 連結）
 - OG meta 翻譯版本，依語言切換 og:locale
+
+## 2026-06-18 賓客祝福泡泡牆（Words of Love）
+- 新增 `#wishes` 頁籤（nav 連結 + 暖黑區塊），標題 WORDS OF LOVE / 賓客的祝福
+- 資料來源：Google 表單匯出的 Excel（放在 `data/`，**含個資不進 repo**）
+  - `data/build_wishes.py`：抓 `data/` 內最新 `.xlsx`，取「與我們的關係」「想對我們說的話」
+    兩欄，去識別化（不含姓名 / 電話 / 地址）後輸出 `data/wishes.json`
+  - 依關係分類：`俊郁朋友 → groom`（男方）、`雁婷朋友 → bride`（女方）
+  - 自動濾除表單預設文字「您的回答」與空白留言
+  - 檔案被 Excel/OneDrive 鎖住時，以 Windows 共享讀取（ctypes CreateFileW）繞過
+- 前端（script.js）：fetch `data/wishes.json?v=時戳`（`cache:no-store`），
+  泡泡隨機洗牌 + 各自隨機慢速浮動參數；**[重新整理]** 按鈕重新讀取並刷新
+  - 進入視窗才首次載入（IntersectionObserver）
+- 樣式（styles.css）：男方藍灰 `#6f93a8`、女方玫瑰 `#c98a98` 半透明泡泡，
+  `prefers-reduced-motion` 關閉浮動動畫
+- i18n：nav.wishes / wishes.* 四語齊備
+- **隱私**：`.gitignore` 加入 `data/*.xlsx`，公開 repo 僅含去識別化 `wishes.json`
+- 更新流程：有新回覆 → 重新匯出 Excel 放進 `data/` → `python data/build_wishes.py` → 提交 `wishes.json`
+
+## 2026-06-18 喜餅兌換券（女方專屬頁籤）+ 個人化網址
+- 需求：分享連結時於網址加 `?g=<賓客姓名>` 綴詞；網站依姓名判斷男女方，
+  只有女方親友看得到「喜餅兌換券」頁籤（男方不顯示）
+- 判斷方式（**靜態站、純前端**，已與使用者確認可接受此強度）：
+  - `data/build_guests.py`：從 Excel 取「賓客姓名 + 與我們的關係」，姓名正規化
+    （NFKC → 去空白 → 小寫）後做 `sha256(salt + name)`，輸出 `data/guests.json`
+    （只含 `salt` + 女方姓名雜湊集合，**無明文姓名**，可安全進公開 repo）
+  - 同時輸出 `data/voucher_links.txt`（含明文姓名與專屬連結，**已 gitignore**）
+  - 前端（script.js）讀 `?g=`，以**相同正規化 + 雜湊**比對 `brideHashes`，命中才
+    `hidden=false` 解鎖 nav 連結與 `#voucher` 區塊，並以網址原值顯示「此券專屬於 ◯◯◯」
+  - 用 Web Crypto `crypto.subtle`（GitHub Pages / localhost 皆為 secure context）
+  - 預設隱藏：`#nav-voucher[hidden], #voucher[hidden]{display:none!important}`；
+    沒帶姓名 / 男方 / 比對失敗 → 一律維持隱藏（安全預設）
+- UI：直接顯示新人提供的票券設計圖 `Picture/pastry-voucher.png`
+  （原檔名為中文 `喜絣兌換券.png`，已改成 ASCII 檔名避免 GitHub Pages 網址編碼問題），
+  下方加「此券專屬於 ◯◯◯」與簡短領取說明
+- i18n：nav.voucher / voucher.* 四語齊備
+- Excel 讀取邏輯抽成共用 `data/_xlsx_util.py`（build_wishes / build_guests 共用）
+- ⚠️ 限制：純前端閘門，懂技術的男方賓客仍可翻原始碼看到兌換券內容（非真正權限控管）
+- 更新流程：新回覆 → 重新匯出 Excel → `python data/build_guests.py` → 提交 `guests.json`
+
+## 2026-06-18 每位賓客專屬兌換碼成品圖
+- 需求：依 Excel 新增的「喜餅兌換碼」欄位（col 12），把每位女方賓客的 8 碼
+  （`26091201`~`26091210`）套到票券圖右側 NO. 後方，一人一張
+- `data/make_vouchers.py`：以 `Picture/pastry-voucher.png`（NO. 後留空底圖）為基底，
+  量測座標（NO. 句點上緣 y≈821、水平中心 x≈1683、深綠 #414B3B），用 Pillow 將號碼
+  直書（逆時針 90°、與 NO. 同向）疊上，輸出到 `vouchers/`，檔名「喜餅兌換券_姓名_碼.png」
+- 字體：原指定「可畫潮牌楷體」為 Canva 專有字體、無法匯出 → 改用**華文楷體**
+  `STKAITI.TTF`（已與使用者確認）
+- 共 10 張（女方賓客；男方無兌換碼故不產生）
+- 🔒 成品圖含姓名與兌換碼 → `.gitignore` 加入 `vouchers/`，供私下發送、不進公開 repo
+- 重新產生：`python data/make_vouchers.py`（換字體：`python data/make_vouchers.py <字體路徑>`）
+- ⚠️ **注意事項（未來開發必讀）**：目前「喜餅兌換碼」與女方賓客名單**都還是測試階段資料，
+  尚未最終確認**。現有 10 張成品圖、`guests.json` 雜湊都是測試資料產生的。正式對外發送前，
+  務必先確認「人員名單與兌換碼是否已定案」，定案後重跑 `build_guests.py` 與 `make_vouchers.py`。
+
+## 2026-06-18 電子喜帖連結欄位填入值
+- 依「是否需要寄送喜帖」欄判斷：值為「響應環保，電子喜帖即可」或「2個都要🕶」者需要電子喜帖
+  → 填入個人化連結 `?g=<姓名>`（與網站 `?g=` 解鎖機制、`voucher_links.txt` 同格式；男方帶了
+  也無妨，兌換券不會顯示）；「想收藏紙本喜帖」與空白則留白
+- 30 位中 26 位需填、4 位留白
+- `data/fill_invite_links.py` 產生：`einvite_links_column.txt`（依 Excel 列順序、可整欄貼回）、
+  `einvite_links_reference.csv`（核對用）；兩者含明文姓名 → 已 gitignore，不進 repo
+- 未直接覆寫原始 Excel（檔案被鎖、且為使用者排版好的主檔）→ 改提供整欄可貼回的值

@@ -2,3 +2,27 @@
 *.log
 *.zip
 .claude/
+
+# 賓客表單原始 Excel 含個資（電話／地址），不可進公開 repo
+# 僅提交去識別化後的 data/wishes.json 與只含雜湊的 data/guests.json
+data/*.xlsx
+~$*
+
+# 喜餅兌換券專屬連結清單（含明文賓客姓名），不可進公開 repo
+data/voucher_links.txt
+
+# 電子喜帖連結填入用 / 對照表（含明文賓客姓名），不可進公開 repo
+data/einvite_links_column.txt
+data/einvite_links_reference.csv
+
+# Python 轉檔腳本的位元組快取
+__pycache__/
+*.pyc
+
+# 每位賓客的喜餅兌換券成品圖（含姓名與兌換碼），供私下發送、不進公開 repo
+vouchers/
+
+# 開發過程的暫存測試圖
+_test_*.png
+_cmp_*.png
+_voucher_*.png

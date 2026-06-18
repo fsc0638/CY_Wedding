@@ -15,6 +15,7 @@
       "nav.invite": "Timeline",
       "nav.dresscode": "Dress Code",
       "nav.travel": "Getting There",
+      "nav.wishes": "Wishes",
       "nav.menu": "選單",
       "bgm.play": "播放背景音樂",
       "bgm.pause": "暫停背景音樂",
@@ -52,7 +53,19 @@
       "share.note": "分享這份喜帖給朋友",
       "share.line": "分享到 LINE",
       "share.copy": "複製網址",
-      "share.copy.done": "已複製"
+      "share.copy.done": "已複製",
+      "wishes.subtitle": "賓客的祝福",
+      "wishes.groom": "俊郁朋友",
+      "wishes.bride": "雁婷朋友",
+      "wishes.refresh": "重新整理",
+      "wishes.refresh.aria": "重新整理祝福留言",
+      "wishes.loading": "載入中⋯",
+      "wishes.empty": "目前還沒有祝福留言，敬請期待 ♡",
+      "wishes.error": "讀取資料失敗，請稍後再試",
+      "nav.voucher": "喜餅兌換券",
+      "voucher.subtitle": "喜餅兌換券",
+      "voucher.for": "此券專屬於",
+      "voucher.note": "請於婚禮當天憑此畫面至收禮台領取喜餅 🍪"
     },
     en: {
       "title.page": "ChunYu & YanTing Wedding — September 12, 2026",
@@ -60,6 +73,7 @@
       "nav.invite": "Timeline",
       "nav.dresscode": "Dress Code",
       "nav.travel": "Getting There",
+      "nav.wishes": "Wishes",
       "nav.menu": "Menu",
       "bgm.play": "Play background music",
       "bgm.pause": "Pause background music",
@@ -97,7 +111,19 @@
       "share.note": "Share this invitation with friends",
       "share.line": "Share on LINE",
       "share.copy": "Copy link",
-      "share.copy.done": "Copied"
+      "share.copy.done": "Copied",
+      "wishes.subtitle": "Words from our guests",
+      "wishes.groom": "ChunYu's friends",
+      "wishes.bride": "YanTing's friends",
+      "wishes.refresh": "Refresh",
+      "wishes.refresh.aria": "Reload guest messages",
+      "wishes.loading": "Loading…",
+      "wishes.empty": "No messages yet — check back soon ♡",
+      "wishes.error": "Couldn't load messages, please try again",
+      "nav.voucher": "Pastry Voucher",
+      "voucher.subtitle": "Pastry Voucher",
+      "voucher.for": "Issued to",
+      "voucher.note": "Show this screen at the gift desk on the wedding day to receive your pastry 🍪"
     },
     ja: {
       "title.page": "ChunYu & YanTing 結婚式 — 2026年9月12日",
@@ -105,6 +131,7 @@
       "nav.invite": "式次第",
       "nav.dresscode": "Dress Code",
       "nav.travel": "アクセス",
+      "nav.wishes": "お祝い",
       "nav.menu": "メニュー",
       "bgm.play": "BGMを再生",
       "bgm.pause": "BGMを一時停止",
@@ -142,7 +169,19 @@
       "share.note": "ご友人にこの招待状をシェア",
       "share.line": "LINE でシェア",
       "share.copy": "URL をコピー",
-      "share.copy.done": "コピーしました"
+      "share.copy.done": "コピーしました",
+      "wishes.subtitle": "ゲストからの祝福",
+      "wishes.groom": "俊郁の友人",
+      "wishes.bride": "雁婷の友人",
+      "wishes.refresh": "更新",
+      "wishes.refresh.aria": "祝福メッセージを再読み込み",
+      "wishes.loading": "読み込み中…",
+      "wishes.empty": "まだメッセージがありません ♡",
+      "wishes.error": "読み込みに失敗しました。もう一度お試しください",
+      "nav.voucher": "引き菓子券",
+      "voucher.subtitle": "引き菓子引換券",
+      "voucher.for": "ご利用者",
+      "voucher.note": "挙式当日、この画面を受付にご提示のうえ引き菓子をお受け取りください 🍪"
     },
     ko: {
       "title.page": "ChunYu & YanTing 결혼식 — 2026년 9월 12일",
@@ -150,6 +189,7 @@
       "nav.invite": "식순",
       "nav.dresscode": "Dress Code",
       "nav.travel": "오시는 길",
+      "nav.wishes": "축하 메시지",
       "nav.menu": "메뉴",
       "bgm.play": "배경 음악 재생",
       "bgm.pause": "배경 음악 일시정지",
@@ -187,7 +227,19 @@
       "share.note": "친구에게 청첩장 공유하기",
       "share.line": "LINE으로 공유",
       "share.copy": "링크 복사",
-      "share.copy.done": "복사됨"
+      "share.copy.done": "복사됨",
+      "wishes.subtitle": "하객들의 축하 메시지",
+      "wishes.groom": "ChunYu의 친구",
+      "wishes.bride": "YanTing의 친구",
+      "wishes.refresh": "새로고침",
+      "wishes.refresh.aria": "축하 메시지 새로고침",
+      "wishes.loading": "불러오는 중…",
+      "wishes.empty": "아직 메시지가 없습니다 ♡",
+      "wishes.error": "불러오지 못했습니다. 다시 시도해 주세요",
+      "nav.voucher": "답례품 교환권",
+      "voucher.subtitle": "답례품 교환권",
+      "voucher.for": "받는 분",
+      "voucher.note": "예식 당일 이 화면을 접수처에 제시하고 답례품을 받으세요 🍪"
     }
   };
 
@@ -506,4 +558,156 @@
   }
   tick();
   var timer = setInterval(tick, 1000);
+
+  /* ---------- 賓客祝福：泡泡牆 ---------- */
+  (function () {
+    var field = document.getElementById("wishField");
+    var statusEl = document.getElementById("wishStatus");
+    var refreshBtn = document.getElementById("wishes-refresh");
+    if (!field) return;
+
+    var DATA_URL = "data/wishes.json";
+
+    function setStatus(key, show) {
+      if (!statusEl) return;
+      statusEl.textContent = key ? t(key) : "";
+      statusEl.style.display = show ? "" : "none";
+    }
+
+    function rand(min, max) { return min + Math.random() * (max - min); }
+
+    function shuffle(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    function renderBubbles(wishes) {
+      field.innerHTML = "";
+      if (!wishes || !wishes.length) {
+        setStatus("wishes.empty", true);
+        return;
+      }
+      setStatus(null, false);
+      var frag = document.createDocumentFragment();
+      shuffle(wishes.slice()).forEach(function (w, idx) {
+        var b = document.createElement("div");
+        b.className = "wish-bubble " + (w.side === "bride" ? "bride" : "groom");
+        b.textContent = w.text;
+        // 每顆泡泡各自隨機的慢速浮動參數
+        b.style.setProperty("--dur", rand(7, 13).toFixed(2) + "s");
+        b.style.setProperty("--delay", (-rand(0, 6)).toFixed(2) + "s");
+        b.style.setProperty("--fx", rand(6, 16).toFixed(0) + "px");
+        b.style.setProperty("--fy", rand(10, 22).toFixed(0) + "px");
+        b.style.setProperty("--rot", rand(-2.5, 2.5).toFixed(2) + "deg");
+        b.style.setProperty("--in-delay", (idx * 55) + "ms");
+        frag.appendChild(b);
+      });
+      field.appendChild(frag);
+    }
+
+    function load(initial) {
+      setStatus("wishes.loading", true);
+      if (!initial) {
+        if (refreshBtn) refreshBtn.classList.add("spinning");
+        field.classList.add("fading");
+      }
+      var fetchP = fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        });
+      var delayP = new Promise(function (res) { setTimeout(res, initial ? 0 : 360); });
+
+      Promise.all([fetchP, delayP]).then(function (vals) {
+        var data = vals[0];
+        field.classList.remove("fading");
+        renderBubbles((data && data.wishes) || []);
+      }).catch(function () {
+        field.classList.remove("fading");
+        // 失敗時若畫面已有泡泡則保留，僅在無內容時顯示錯誤
+        if (!field.children.length) setStatus("wishes.error", true);
+      }).then(function () {
+        if (refreshBtn) {
+          setTimeout(function () { refreshBtn.classList.remove("spinning"); }, 500);
+        }
+      });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", function () { load(false); });
+    }
+
+    // 進入視窗才首次載入（順便讓泡泡入場更有感）
+    if ("IntersectionObserver" in window) {
+      var loaded = false;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && !loaded) {
+            loaded = true;
+            load(true);
+            io.disconnect();
+          }
+        });
+      }, { rootMargin: "0px 0px -8% 0px" });
+      io.observe(field);
+    } else {
+      load(true);
+    }
+  })();
+
+  /* ---------- 喜餅兌換券：依網址 ?g=<姓名> 判斷女方親友才解鎖 ---------- */
+  (function () {
+    var navItem = document.getElementById("nav-voucher");
+    var section = document.getElementById("voucher");
+    if (!navItem || !section) return;
+
+    // 正規化（須與 data/build_guests.py 的 normalize_name 完全一致）
+    function normName(s) {
+      return (s || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase();
+    }
+    function toHex(buf) {
+      var b = new Uint8Array(buf), s = "";
+      for (var i = 0; i < b.length; i++) {
+        s += (b[i] < 16 ? "0" : "") + b[i].toString(16);
+      }
+      return s;
+    }
+
+    var raw;
+    try { raw = new URLSearchParams(window.location.search).get("g"); }
+    catch (e) { raw = null; }
+    var norm = normName(raw);
+    if (!norm) return;                                  // 沒帶姓名 → 維持隱藏
+    if (!(window.crypto && window.crypto.subtle)) return; // 不支援雜湊 → 安全起見維持隱藏
+
+    function reveal() {
+      navItem.hidden = false;
+      section.hidden = false;
+      // 顯示專屬姓名（用網址原值，textContent 防注入）
+      var forLine = document.getElementById("voucherFor");
+      var nameEl = document.getElementById("voucherName");
+      if (nameEl && raw) {
+        nameEl.textContent = raw;
+        if (forLine) forLine.hidden = false;
+      }
+      // 解鎖後直接讓區塊內的進場動畫到位
+      section.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+    }
+
+    fetch("data/guests.json?v=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (g) {
+        var enc = new TextEncoder();
+        return window.crypto.subtle
+          .digest("SHA-256", enc.encode((g.salt || "") + norm))
+          .then(function (buf) {
+            var hex = toHex(buf);
+            if ((g.brideHashes || []).indexOf(hex) >= 0) reveal();
+          });
+      })
+      .catch(function () { /* 失敗 → 維持隱藏 */ });
+  })();
 })();
