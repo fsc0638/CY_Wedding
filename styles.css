@@ -1313,6 +1313,18 @@ a:focus-visible, button:focus-visible {
   margin-bottom: 1rem;
   color: var(--ink);
 }
+.vm-code {
+  font-family: var(--serif-tc);
+  font-weight: 700;
+  text-align: center;
+  font-size: clamp(1rem, 4vw, 1.12rem);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: rgba(178, 144, 121, 0.14);
+  border-radius: 10px;
+  padding: 0.5em 0.8em;
+  margin: 0 0 1.1rem;
+}
 .vm-msg {
   font-family: var(--serif-tc);
   font-weight: 300;
