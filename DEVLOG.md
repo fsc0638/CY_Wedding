@@ -156,3 +156,21 @@
 - `data/fill_invite_links.py` 產生：`einvite_links_column.txt`（依 Excel 列順序、可整欄貼回）、
   `einvite_links_reference.csv`（核對用）；兩者含明文姓名 → 已 gitignore，不進 repo
 - 未直接覆寫原始 Excel（檔案被鎖、且為使用者排版好的主檔）→ 改提供整欄可貼回的值
+
+## 2026-06-18 喜餅兌換券撕票動畫 + 誤撕復原
+- 票券圖沿虛線（量測 x≈1222 → 61.6% 寬）以 `clip-path` 切成「主券(左)+票根(右)」兩層（同一張圖）
+- 輕觸票根 → 票根自頂端外翻、往下落、淡出（transform-origin 頂端 seam + rotate + translate + opacity）；
+  主券保留虛線撕邊；shadow 用 `filter: drop-shadow` 跟著撕後形狀
+- **[復原] 按鈕**：撕除後出現；撕除狀態記 `localStorage`（key 帶 `?g=` 姓名），重新整理仍保持，
+  由 storage 還原時加 `is-initial` 不播動畫
+- **誤撕復原需核銷驗證碼**：點 [復原] → 自訂 `<dialog>` 彈窗（非瀏覽器預設 alert/prompt），
+  顯示「請與主辦單位聯繫索取核銷驗證碼」訊息 + 密碼輸入；輸入正確碼才 `setTorn(false)` 解鎖，
+  錯誤顯示提示、取消/背景/ESC 關閉。i18n `voucher.unlock.*` 四語
+  - ⚠️ **核銷驗證碼目前暫定 `0638`**（寫在 `script.js` 的 `UNLOCK_CODE`）。依設計**活動開始前三天會變更**，
+    屆時需更新 `UNLOCK_CODE` 並通知賓客。彈窗內也附此變更提醒（`voucher.unlock.note`）
+  - 注意：純前端閘門，0638 寫在 client 原始碼 → 懂技術者可檢視，屬軟性防呆而非真正權限控管
+- 觸發採「輕觸」而非「下滑」：避免捲動時誤撕（與「誤撕復原」初衷一致）
+- i18n：`voucher.tear` / `voucher.restore` / `voucher.unlock.*` 四語
+- ⚠️ **評估結論（電話+簡訊OTP 驗證身分）：不做**。理由：①靜態站無後端，OTP 需外接 Firebase/Twilio
+  等付費服務 ②比對「表單電話」會逼電話個資上前端或後端 ③撕除狀態存 localStorage，清快取/換裝置即繞過，
+  OTP 擋不到重複領。真正核銷交給現場「兌換碼 + 名單劃記」即可，不需後端。

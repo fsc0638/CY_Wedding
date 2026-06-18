@@ -65,7 +65,18 @@
       "nav.voucher": "喜餅兌換券",
       "voucher.subtitle": "喜餅兌換券",
       "voucher.for": "此券專屬於",
-      "voucher.note": "請於婚禮當天憑此畫面至收禮台領取喜餅 🍪"
+      "voucher.note": "請於婚禮當天憑此畫面至收禮台領取喜餅 🍪",
+      "voucher.tear": "輕觸撕開 ✂",
+      "voucher.tear.aria": "撕開兌換券票根",
+      "voucher.restore": "復原",
+      "voucher.unlock.title": "兌換券解鎖",
+      "voucher.unlock.msg": "若您的兌換券因操作失誤而顯示已使用，請速與活動主辦單位聯繫並索取核銷驗證碼，以利為您辦理兌換券解鎖程序。",
+      "voucher.unlock.placeholder": "請輸入核銷驗證碼",
+      "voucher.unlock.note": "※ 請注意：基於活動安全機制，此驗證碼將於活動開始前三天進行變更，屆時請留意最新通知。",
+      "voucher.unlock.submit": "解鎖",
+      "voucher.unlock.cancel": "取消",
+      "voucher.unlock.error": "驗證碼錯誤，請重新確認。",
+      "voucher.unlock.close": "關閉"
     },
     en: {
       "title.page": "ChunYu & YanTing Wedding — September 12, 2026",
@@ -123,7 +134,18 @@
       "nav.voucher": "Pastry Voucher",
       "voucher.subtitle": "Pastry Voucher",
       "voucher.for": "Issued to",
-      "voucher.note": "Show this screen at the gift desk on the wedding day to receive your pastry 🍪"
+      "voucher.note": "Show this screen at the gift desk on the wedding day to receive your pastry 🍪",
+      "voucher.tear": "Tap to tear ✂",
+      "voucher.tear.aria": "Tear off the voucher stub",
+      "voucher.restore": "Restore",
+      "voucher.unlock.title": "Unlock Voucher",
+      "voucher.unlock.msg": "If your voucher shows as used by mistake, please contact the event organizer to obtain the verification code so we can unlock it for you.",
+      "voucher.unlock.placeholder": "Enter verification code",
+      "voucher.unlock.note": "※ Note: For event security, this code changes three days before the event. Please watch for the latest notice.",
+      "voucher.unlock.submit": "Unlock",
+      "voucher.unlock.cancel": "Cancel",
+      "voucher.unlock.error": "Incorrect code, please try again.",
+      "voucher.unlock.close": "Close"
     },
     ja: {
       "title.page": "ChunYu & YanTing 結婚式 — 2026年9月12日",
@@ -181,7 +203,18 @@
       "nav.voucher": "引き菓子券",
       "voucher.subtitle": "引き菓子引換券",
       "voucher.for": "ご利用者",
-      "voucher.note": "挙式当日、この画面を受付にご提示のうえ引き菓子をお受け取りください 🍪"
+      "voucher.note": "挙式当日、この画面を受付にご提示のうえ引き菓子をお受け取りください 🍪",
+      "voucher.tear": "タップで切り取る ✂",
+      "voucher.tear.aria": "引換券の半券を切り取る",
+      "voucher.restore": "元に戻す",
+      "voucher.unlock.title": "引換券のロック解除",
+      "voucher.unlock.msg": "操作ミスで引換券が「使用済み」と表示された場合は、主催者までご連絡のうえ認証コードをお受け取りください。ロック解除の手続きをいたします。",
+      "voucher.unlock.placeholder": "認証コードを入力",
+      "voucher.unlock.note": "※ ご注意：イベントのセキュリティのため、この認証コードは開催3日前に変更されます。最新のお知らせをご確認ください。",
+      "voucher.unlock.submit": "ロック解除",
+      "voucher.unlock.cancel": "キャンセル",
+      "voucher.unlock.error": "コードが正しくありません。もう一度お試しください。",
+      "voucher.unlock.close": "閉じる"
     },
     ko: {
       "title.page": "ChunYu & YanTing 결혼식 — 2026년 9월 12일",
@@ -239,7 +272,18 @@
       "nav.voucher": "답례품 교환권",
       "voucher.subtitle": "답례품 교환권",
       "voucher.for": "받는 분",
-      "voucher.note": "예식 당일 이 화면을 접수처에 제시하고 답례품을 받으세요 🍪"
+      "voucher.note": "예식 당일 이 화면을 접수처에 제시하고 답례품을 받으세요 🍪",
+      "voucher.tear": "탭하여 뜯기 ✂",
+      "voucher.tear.aria": "교환권 절취선 뜯기",
+      "voucher.restore": "복원",
+      "voucher.unlock.title": "교환권 잠금 해제",
+      "voucher.unlock.msg": "조작 실수로 교환권이 '사용됨'으로 표시된 경우, 주최 측에 연락하여 인증 코드를 받으시면 잠금 해제를 도와드립니다.",
+      "voucher.unlock.placeholder": "인증 코드 입력",
+      "voucher.unlock.note": "※ 안내: 행사 보안을 위해 이 코드는 행사 3일 전에 변경됩니다. 최신 공지를 확인해 주세요.",
+      "voucher.unlock.submit": "잠금 해제",
+      "voucher.unlock.cancel": "취소",
+      "voucher.unlock.error": "코드가 올바르지 않습니다. 다시 시도해 주세요.",
+      "voucher.unlock.close": "닫기"
     }
   };
 
@@ -278,6 +322,11 @@
     document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
       var v = t(el.getAttribute("data-i18n-aria"));
       if (v != null) el.setAttribute("aria-label", v);
+    });
+    // placeholder
+    document.querySelectorAll("[data-i18n-ph]").forEach(function (el) {
+      var v = t(el.getAttribute("data-i18n-ph"));
+      if (v != null) el.setAttribute("placeholder", v);
     });
     // 標題與 lang / og:locale
     document.title = t("title.page");
@@ -709,5 +758,87 @@
           });
       })
       .catch(function () { /* 失敗 → 維持隱藏 */ });
+  })();
+
+  /* ---------- 喜餅兌換券：撕票動畫 + 誤撕復原（純前端·記在本機）---------- */
+  (function () {
+    var tear = document.getElementById("voucherTear");
+    var stub = document.getElementById("voucherStub");
+    var restoreBtn = document.getElementById("voucherRestore");
+    if (!tear || !stub) return;
+
+    var raw;
+    try { raw = new URLSearchParams(window.location.search).get("g"); }
+    catch (e) { raw = null; }
+    var who = (raw || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase() || "default";
+    var KEY = "cy.voucher.torn." + who;
+
+    function setTorn(on, instant) {
+      if (instant) tear.classList.add("is-initial");
+      tear.classList.toggle("torn", on);
+      if (restoreBtn) restoreBtn.hidden = !on;
+      if (instant) { void tear.offsetWidth; tear.classList.remove("is-initial"); }
+      try {
+        if (on) localStorage.setItem(KEY, "1");
+        else localStorage.removeItem(KEY);
+      } catch (e) {}
+    }
+
+    function tearOff() { if (!tear.classList.contains("torn")) setTorn(true, false); }
+
+    // 還原先前撕除狀態（不播動畫）
+    var wasTorn = false;
+    try { wasTorn = localStorage.getItem(KEY) === "1"; } catch (e) {}
+    if (wasTorn) setTorn(true, true);
+
+    stub.addEventListener("click", tearOff);
+    stub.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tearOff(); }
+    });
+    // ---- 誤撕復原：點 [復原] → 自訂彈窗，須輸入主辦方核銷驗證碼才解鎖 ----
+    // 核銷驗證碼（暫定值，活動開始前三天會變更；屆時同步更新此處與通知賓客）
+    var UNLOCK_CODE = "0638";
+
+    var modal = document.getElementById("voucherModal");
+    var codeInput = document.getElementById("voucherCodeInput");
+    var codeError = document.getElementById("voucherCodeError");
+    var canDialog = modal && typeof modal.showModal === "function";
+
+    function openModal() {
+      if (codeInput) codeInput.value = "";
+      if (codeError) codeError.hidden = true;
+      if (canDialog) {
+        modal.showModal();
+        setTimeout(function () { if (codeInput) codeInput.focus(); }, 30);
+      }
+    }
+    function closeModal() { if (canDialog && modal.open) modal.close(); }
+    function submitCode() {
+      var val = (codeInput && codeInput.value ? codeInput.value : "").trim();
+      if (val === UNLOCK_CODE) {
+        closeModal();
+        setTorn(false, false);
+      } else if (codeError) {
+        codeError.hidden = false;
+        if (codeInput) { codeInput.focus(); codeInput.select(); }
+      }
+    }
+
+    if (restoreBtn) restoreBtn.addEventListener("click", openModal);
+    if (modal) {
+      var submitBtn = document.getElementById("voucherCodeSubmit");
+      var cancelBtn = document.getElementById("voucherModalCancel");
+      var closeBtn = document.getElementById("voucherModalClose");
+      if (submitBtn) submitBtn.addEventListener("click", submitCode);
+      if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      if (codeInput) {
+        codeInput.addEventListener("input", function () { if (codeError) codeError.hidden = true; });
+        codeInput.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") { e.preventDefault(); submitCode(); }
+        });
+      }
+      modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    }
   })();
 })();
