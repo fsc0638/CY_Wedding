@@ -70,6 +70,7 @@
       "voucher.tear.aria": "撕開兌換券票根",
       "voucher.restore": "復原",
       "voucher.unlock.title": "兌換券解鎖",
+      "voucher.unlock.codeLabel": "核銷驗證碼",
       "voucher.unlock.msg": "若您的兌換券因操作失誤而顯示已使用，請速與活動主辦單位聯繫並索取核銷驗證碼，以利為您辦理兌換券解鎖程序。",
       "voucher.unlock.placeholder": "請輸入核銷驗證碼",
       "voucher.unlock.note": "※ 請注意：基於活動安全機制，此驗證碼將於活動開始前三天進行變更，屆時請留意最新通知。",
@@ -139,6 +140,7 @@
       "voucher.tear.aria": "Tear off the voucher stub",
       "voucher.restore": "Restore",
       "voucher.unlock.title": "Unlock Voucher",
+      "voucher.unlock.codeLabel": "Verification code",
       "voucher.unlock.msg": "If your voucher shows as used by mistake, please contact the event organizer to obtain the verification code so we can unlock it for you.",
       "voucher.unlock.placeholder": "Enter verification code",
       "voucher.unlock.note": "※ Note: For event security, this code changes three days before the event. Please watch for the latest notice.",
@@ -208,6 +210,7 @@
       "voucher.tear.aria": "引換券の半券を切り取る",
       "voucher.restore": "元に戻す",
       "voucher.unlock.title": "引換券のロック解除",
+      "voucher.unlock.codeLabel": "認証コード",
       "voucher.unlock.msg": "操作ミスで引換券が「使用済み」と表示された場合は、主催者までご連絡のうえ認証コードをお受け取りください。ロック解除の手続きをいたします。",
       "voucher.unlock.placeholder": "認証コードを入力",
       "voucher.unlock.note": "※ ご注意：イベントのセキュリティのため、この認証コードは開催3日前に変更されます。最新のお知らせをご確認ください。",
@@ -277,6 +280,7 @@
       "voucher.tear.aria": "교환권 절취선 뜯기",
       "voucher.restore": "복원",
       "voucher.unlock.title": "교환권 잠금 해제",
+      "voucher.unlock.codeLabel": "인증 코드",
       "voucher.unlock.msg": "조작 실수로 교환권이 '사용됨'으로 표시된 경우, 주최 측에 연락하여 인증 코드를 받으시면 잠금 해제를 도와드립니다.",
       "voucher.unlock.placeholder": "인증 코드 입력",
       "voucher.unlock.note": "※ 안내: 행사 보안을 위해 이 코드는 행사 3일 전에 변경됩니다. 최신 공지를 확인해 주세요.",
@@ -800,10 +804,18 @@
     var modal = document.getElementById("voucherModal");
     var codeInput = document.getElementById("voucherCodeInput");
     var codeError = document.getElementById("voucherCodeError");
+    var codeHint = document.getElementById("voucherCodeHint");
     var canDialog = modal && typeof modal.showModal === "function";
+
+    // 彈窗上方顯示用的驗證碼，以 UNLOCK_CODE 為單一來源（改碼只需改 UNLOCK_CODE）
+    function syncCodeHint() {
+      if (codeHint) codeHint.textContent = "【" + t("voucher.unlock.codeLabel") + "：" + UNLOCK_CODE + "】";
+    }
+    syncCodeHint();
 
     var openedAt = 0;
     function openModal() {
+      syncCodeHint();
       if (codeInput) codeInput.value = "";
       if (codeError) codeError.hidden = true;
       if (canDialog) {
