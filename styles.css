@@ -1063,7 +1063,7 @@ a:focus-visible, button:focus-visible {
 .wish-field.fading { opacity: 0; }
 
 .wish-bubble {
-  --dur: 9s; --delay: 0s; --fx: 10px; --fy: 16px; --rot: 2deg;
+  --dur: 9s; --delay: 0s;
   max-width: clamp(190px, 62vw, 300px);
   padding: 0.85em 1.25em;
   border-radius: 22px;
@@ -1081,11 +1081,14 @@ a:focus-visible, button:focus-visible {
   white-space: pre-wrap;
   word-break: break-word;
   text-align: left;
-  opacity: 0;
+  opacity: 1;                 /* 預設可見：動畫若未執行（如某些瀏覽器停用動畫）泡泡仍顯示 */
+  will-change: transform, opacity;
   animation:
-    wishIn 0.8s ease var(--in-delay, 0s) forwards,
+    wishIn 0.8s ease forwards,
     wishFloat var(--dur) ease-in-out var(--delay) infinite;
 }
+.wish-bubble.f2 { animation-name: wishIn, wishFloat2; }
+.wish-bubble.f3 { animation-name: wishIn, wishFloat3; }
 .wish-bubble.groom {
   background: rgba(111, 147, 168, 0.16);
   border-color: rgba(111, 147, 168, 0.5);
@@ -1095,12 +1098,23 @@ a:focus-visible, button:focus-visible {
   border-color: rgba(201, 138, 152, 0.5);
 }
 @keyframes wishIn { from { opacity: 0; } to { opacity: 1; } }
+/* 固定數值的浮動關鍵影格（避開 iOS Safari 對 keyframe 內 var()/calc() transform 的問題）*/
 @keyframes wishFloat {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(calc(var(--fx) * 0.5), calc(var(--fy) * -1)) rotate(var(--rot)); }
-  50%  { transform: translate(calc(var(--fx) * -1), calc(var(--fy) * -0.45)) rotate(calc(var(--rot) * -1)); }
-  75%  { transform: translate(calc(var(--fx) * -0.4), calc(var(--fy) * -0.8)) rotate(var(--rot)); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(5px, -14px) rotate(1.6deg); }
+  50%  { transform: translate(-7px, -7px) rotate(-1.4deg); }
+  75%  { transform: translate(-4px, -11px) rotate(1deg); }
+}
+@keyframes wishFloat2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-6px, -10px) rotate(-1.8deg); }
+  66% { transform: translate(8px, -5px) rotate(1.5deg); }
+}
+@keyframes wishFloat3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(4px, -8px) rotate(1.2deg); }
+  50% { transform: translate(-5px, -15px) rotate(-1deg); }
+  80% { transform: translate(6px, -6px) rotate(1.4deg); }
 }
 
 .wish-status {
@@ -1111,7 +1125,7 @@ a:focus-visible, button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wish-bubble { animation: wishIn 0.01s ease forwards; opacity: 1; }
+  /* 泡泡浮動為輕柔裝飾動畫，刻意保留播放（含手機開啟「減少動態效果」時）；僅關旋轉 */
   .wishes-refresh.spinning .wr-ico { animation: none; }
 }
 
@@ -1172,6 +1186,7 @@ a:focus-visible, button:focus-visible {
   clip-path: inset(0 0 0 61.6%);
   transform-origin: 61.6% 0%;
   transition: transform 0.85s cubic-bezier(0.45, 0.05, 0.25, 1), opacity 0.85s ease;
+  will-change: transform, opacity;   /* 促使 iOS 提升合成層，讓含 clip-path 的票根能平順過渡 */
   cursor: pointer;
 }
 .vt-stub:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -1251,16 +1266,21 @@ a:focus-visible, button:focus-visible {
 .voucher-restore[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .vt-stub { transition: none; }
+  /* 撕票為一次性動畫，刻意保留；僅關閉提示脈動 */
   .vt-hint { animation: none; }
 }
 
 /* 兌換券解鎖彈窗（自訂 dialog） */
 .voucher-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;                 /* iOS Safari 穩定置中（垂直 + 水平）*/
+  width: min(92vw, 420px);
+  height: -moz-fit-content;
+  height: fit-content;
   border: none;
   padding: 0;
   background: transparent;
-  width: min(92vw, 420px);
   color: var(--ink);
   overflow: visible;
 }
