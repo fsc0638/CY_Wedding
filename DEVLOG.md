@@ -106,6 +106,7 @@
 - 前端（script.js）：fetch `data/wishes.json?v=時戳`（`cache:no-store`），
   泡泡隨機洗牌 + 各自隨機慢速浮動參數；**[重新整理]** 按鈕重新讀取並刷新
   - 進入視窗才首次載入（IntersectionObserver）
+  - 2026-06-18：避免留言過多，改為**每次隨機抽取 10–15 則**（總數不足則全顯示），每次重新整理重抽
 - 樣式（styles.css）：男方藍灰 `#6f93a8`、女方玫瑰 `#c98a98` 半透明泡泡，
   `prefers-reduced-motion` 關閉浮動動畫
 - i18n：nav.wishes / wishes.* 四語齊備
