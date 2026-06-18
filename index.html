@@ -300,15 +300,43 @@
   <p class="voucher-zh reveal" data-i18n="voucher.subtitle">喜餅兌換券</p>
 
   <figure class="voucher-card reveal">
-    <img class="voucher-img" src="Picture/pastry-voucher.png"
-         alt="喜餅兌換券" width="2000" height="1419" loading="lazy" />
+    <div class="voucher-tear" id="voucherTear">
+      <img class="vt-img vt-main" src="Picture/pastry-voucher.png"
+           alt="喜餅兌換券" width="2000" height="1419" loading="lazy" />
+      <div class="vt-stub" id="voucherStub" role="button" tabindex="0"
+           aria-label="撕開兌換券票根" data-i18n-aria="voucher.tear.aria">
+        <img class="vt-img" src="Picture/pastry-voucher.png" alt="" aria-hidden="true" />
+      </div>
+      <span class="vt-hint" id="voucherTearHint" aria-hidden="true" data-i18n="voucher.tear">輕觸撕開 ✂</span>
+    </div>
     <figcaption class="voucher-for" id="voucherFor" hidden>
       <span data-i18n="voucher.for">此券專屬於</span>
       <strong id="voucherName"></strong>
     </figcaption>
   </figure>
   <p class="voucher-note" data-i18n="voucher.note">請於婚禮當天憑此畫面至收禮台領取喜餅 🍪</p>
+  <button class="voucher-restore" id="voucherRestore" type="button" hidden data-i18n="voucher.restore">復原</button>
 </section>
+
+<!-- 兌換券解鎖：自訂彈窗（誤撕復原須輸入主辦方核銷驗證碼）-->
+<dialog class="voucher-modal" id="voucherModal" aria-labelledby="voucherModalTitle">
+  <div class="vm-card">
+    <button type="button" class="vm-close" id="voucherModalClose"
+            aria-label="關閉" data-i18n-aria="voucher.unlock.close">&times;</button>
+    <h3 class="vm-title" id="voucherModalTitle" data-i18n="voucher.unlock.title">兌換券解鎖</h3>
+    <p class="vm-msg" data-i18n="voucher.unlock.msg">若您的兌換券因操作失誤而顯示已使用，請速與活動主辦單位聯繫並索取核銷驗證碼，以利為您辦理兌換券解鎖程序。</p>
+    <input type="password" class="vm-input" id="voucherCodeInput" inputmode="numeric"
+           autocomplete="off" maxlength="16" placeholder="請輸入核銷驗證碼"
+           data-i18n-ph="voucher.unlock.placeholder" aria-label="核銷驗證碼" />
+    <p class="vm-error" id="voucherCodeError" role="alert" hidden
+       data-i18n="voucher.unlock.error">驗證碼錯誤，請重新確認。</p>
+    <p class="vm-note" data-i18n="voucher.unlock.note">※ 請注意：基於活動安全機制，此驗證碼將於活動開始前三天進行變更，屆時請留意最新通知。</p>
+    <div class="vm-actions">
+      <button type="button" class="vm-btn vm-cancel" id="voucherModalCancel" data-i18n="voucher.unlock.cancel">取消</button>
+      <button type="button" class="vm-btn vm-submit" id="voucherCodeSubmit" data-i18n="voucher.unlock.submit">解鎖</button>
+    </div>
+  </div>
+</dialog>
 
 <!-- ===== 結語 ===== -->
 <section class="closing" id="closing">

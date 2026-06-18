@@ -1147,11 +1147,61 @@ a:focus-visible, button:focus-visible {
   max-width: 480px;
   margin: clamp(2.8rem, 6vw, 3.8rem) auto 0;
 }
-.voucher-img {
+/* 撕票結構：主券(左) + 票根(右)兩層，沿虛線(約 61.6%)切開 */
+.voucher-tear {
+  position: relative;
   width: 100%;
-  height: auto;
+  aspect-ratio: 2000 / 1419;
+  filter: drop-shadow(0 16px 30px rgba(45, 43, 37, 0.22));
+}
+.vt-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   border-radius: 14px;
-  box-shadow: 0 24px 50px rgba(45, 43, 37, 0.22);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.vt-main { clip-path: inset(0 38.4% 0 0); z-index: 1; }   /* 只顯示左側主券 */
+.vt-stub {                                                 /* 只顯示右側票根 */
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: inset(0 0 0 61.6%);
+  transform-origin: 61.6% 0%;
+  transition: transform 0.85s cubic-bezier(0.45, 0.05, 0.25, 1), opacity 0.85s ease;
+  cursor: pointer;
+}
+.vt-stub:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.voucher-tear.torn .vt-stub {        /* 撕除：自頂端外翻、往下落、淡出 */
+  transform: rotate(11deg) translate(15%, 42%);
+  opacity: 0;
+  pointer-events: none;
+}
+.voucher-tear.is-initial .vt-stub { transition: none; }   /* 由 localStorage 還原時不播動畫 */
+
+.vt-hint {
+  position: absolute;
+  top: 7%;
+  right: 5%;
+  z-index: 3;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--dark);
+  background: rgba(246, 245, 236, 0.88);
+  padding: 0.28em 0.65em;
+  border-radius: 999px;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(45, 43, 37, 0.18);
+  animation: vtHintPulse 1.8s ease-in-out infinite;
+}
+.voucher-tear.torn .vt-hint { opacity: 0; animation: none; transition: opacity 0.3s ease; }
+@keyframes vtHintPulse {
+  0%, 100% { opacity: 0.55; transform: translateY(0); }
+  50%      { opacity: 1; transform: translateY(3px); }
 }
 .voucher-for {
   font-family: var(--serif-tc);
@@ -1177,4 +1227,138 @@ a:focus-visible, button:focus-visible {
   color: var(--ink-soft);
   max-width: 420px;
   margin: 1rem auto 0;
+}
+
+/* 誤撕復原鈕（撕除後才出現） */
+.voucher-restore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-top: 1.5rem;
+  padding: 0.5em 1.2em;
+  border-radius: 999px;
+  border: 1px solid rgba(45, 43, 37, 0.28);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.voucher-restore::before { content: "\21BA"; font-size: 1.05em; line-height: 1; }
+.voucher-restore:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.voucher-restore[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-stub { transition: none; }
+  .vt-hint { animation: none; }
+}
+
+/* 兌換券解鎖彈窗（自訂 dialog） */
+.voucher-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: min(92vw, 420px);
+  color: var(--ink);
+  overflow: visible;
+}
+.voucher-modal::backdrop {
+  background: rgba(45, 43, 37, 0.55);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.vm-card {
+  position: relative;
+  background: var(--cream);
+  border-radius: 16px;
+  padding: clamp(1.9rem, 5vw, 2.5rem) clamp(1.4rem, 5vw, 2rem) clamp(1.4rem, 4vw, 1.8rem);
+  box-shadow: 0 30px 60px rgba(45, 43, 37, 0.35);
+  text-align: center;
+}
+.vm-close {
+  position: absolute; top: 0.5rem; right: 0.7rem;
+  background: none; border: none;
+  font-size: 1.6rem; line-height: 1;
+  color: var(--ink-soft); cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
+.vm-close:hover { color: var(--ink); }
+.vm-title {
+  font-family: var(--serif-tc);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 4vw, 1.2rem);
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+.vm-msg {
+  font-family: var(--serif-tc);
+  font-weight: 300;
+  font-size: 0.9rem;
+  line-height: 1.95;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-align: left;
+  margin-bottom: 1.3rem;
+}
+.vm-input {
+  width: 100%;
+  padding: 0.7em 1em;
+  border-radius: 10px;
+  border: 1px solid rgba(45, 43, 37, 0.3);
+  background: #fff;
+  font-family: var(--mono);
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  color: var(--ink);
+}
+.vm-input::placeholder { letter-spacing: 0.06em; color: var(--ink-soft); }
+.vm-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(178, 144, 121, 0.2);
+}
+.vm-error {
+  font-family: var(--serif-tc);
+  font-size: 0.82rem;
+  color: #b1402f;
+  margin-top: 0.6rem;
+}
+.vm-error[hidden] { display: none; }
+.vm-note {
+  font-family: var(--serif-tc);
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  text-align: left;
+  margin-top: 1.1rem;
+}
+.vm-actions {
+  display: flex; gap: 0.7rem; justify-content: center;
+  margin-top: 1.4rem;
+}
+.vm-btn {
+  padding: 0.6em 1.5em;
+  border-radius: 999px;
+  border: 1px solid rgba(45, 43, 37, 0.25);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.vm-cancel { background: transparent; color: var(--ink); }
+.vm-cancel:hover { background: rgba(45, 43, 37, 0.06); }
+.vm-submit { background: var(--accent); color: #fff; border-color: var(--accent); }
+.vm-submit:hover { background: var(--ink); border-color: var(--ink); }
+
+.voucher-modal[open] { animation: vmIn 0.28s ease; }
+.voucher-modal[open]::backdrop { animation: vmFade 0.28s ease; }
+@keyframes vmIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes vmFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .voucher-modal[open], .voucher-modal[open]::backdrop { animation: none; }
 }
