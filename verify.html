@@ -113,6 +113,37 @@
   .r-tag .at { color: var(--soft); display: block; }
   .roster-empty { text-align: center; color: var(--soft); padding: 1.2rem 0; }
   .roster-export { width: 100%; margin-top: 1rem; }
+
+  /* 喜餅樣式 / 滿月禮 徽章 */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.12rem 0.5rem; border-radius: 999px;
+    font-size: 0.74rem; font-weight: 600; line-height: 1.5; white-space: nowrap;
+  }
+  .badge-cn   { background: #eef1ea; color: var(--green-d); }
+  .badge-west { background: #f3e9d2; color: #8a6d1f; }
+  .badge-moon { background: rgba(176, 141, 63, 0.16); color: var(--gold); }
+
+  /* 核銷面板：大徽章 */
+  .v-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.7rem; }
+  .v-badges .badge { font-size: 0.92rem; padding: 0.3rem 0.85rem; }
+  .v-note {
+    font-size: 0.85rem; color: var(--soft); text-align: center;
+    margin: 0.7rem 0 0; padding: 0.5rem 0.7rem; background: #faf8f0; border-radius: 8px;
+  }
+
+  /* 名單統計與篩選 */
+  .roster-stats { font-size: 0.82rem; color: var(--soft); margin-bottom: 0.7rem; }
+  .roster-stats b { color: var(--green); font-size: 1rem; }
+  .roster-stats .sep { color: var(--line); margin: 0 0.45rem; }
+  .roster-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.7rem; }
+  .rf {
+    background: transparent; color: var(--soft); border: 1px solid var(--line);
+    padding: 0.32rem 0.7rem; font-size: 0.8rem; border-radius: 999px;
+  }
+  .rf.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .r-gifts { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
+  .r-gift { transform: scale(0.92); transform-origin: left center; }
 </style>
 </head>
 <body>
@@ -140,8 +171,10 @@
       <div class="who">
         <div class="name" id="vName">—</div>
         <div class="code" id="vCode">—</div>
+        <div class="v-badges" id="vBadges"></div>
         <div class="status-pill" id="vPill"><span class="dot"></span><span id="vPillText">—</span></div>
         <p class="redeemed-at" id="vAt" hidden></p>
+        <p class="v-note" id="vNote" hidden></p>
       </div>
       <div class="actions">
         <button class="btn-redeem" id="redeemBtn" hidden>確認核銷（標記已領取）</button>
@@ -157,7 +190,15 @@
   <section class="card roster" id="rosterCard" hidden>
     <div class="roster-head">
       <h2>女方親友名單</h2>
-      <span class="roster-count" id="rosterCount">—</span>
+    </div>
+    <div class="roster-stats" id="rosterStats">讀取中⋯</div>
+    <div class="roster-filters" id="rosterFilters">
+      <button class="rf active" data-f="all">全部</button>
+      <button class="rf" data-f="unredeemed">未領</button>
+      <button class="rf" data-f="redeemed">已領</button>
+      <button class="rf" data-f="chinese">中式</button>
+      <button class="rf" data-f="western">西式</button>
+      <button class="rf" data-f="fullmoon">滿月禮</button>
     </div>
     <input type="text" class="roster-search" id="rosterSearch" placeholder="搜尋姓名或券號⋯" autocomplete="off" />
     <ul class="roster-list" id="rosterList"></ul>
@@ -265,16 +306,33 @@
     } catch (e) { return ""; }
   }
 
+  // 喜餅樣式 / 滿月禮 判定
+  const isWestern = (d) => (d.giftType || "chinese") === "western";
+  const giftLabel = (d) => isWestern(d) ? "西式喜餅" : "中式喜餅";
+  const hasFullMoon = (d) => /滿月/.test(d.note || "");
+
   function render(d) {
     voucherInfo.hidden = false;
     $("vName").textContent = d.name || "（未命名）";
     $("vCode").textContent = d.code ? ("NO. " + d.code) : "";
+
+    // 喜餅樣式 + 滿月禮 大徽章（避免發錯盒）
+    const badges = $("vBadges");
+    badges.innerHTML =
+      '<span class="badge ' + (isWestern(d) ? "badge-west" : "badge-cn") + '">' + giftLabel(d) + "</span>" +
+      (hasFullMoon(d) ? '<span class="badge badge-moon">＋滿月禮</span>' : "");
+
     const pill = $("vPill"), redeemed = !!d.redeemed;
     pill.className = "status-pill " + (redeemed ? "redeemed" : "unredeemed");
     $("vPillText").textContent = redeemed ? "已領取" : "尚未領取";
     const at = $("vAt"), atStr = redeemed ? fmt(d.redeemedAt) : "";
     at.hidden = !atStr;
     at.textContent = atStr ? ("核銷時間：" + atStr) : "";
+
+    const note = $("vNote"), noteStr = (d.note || "").trim();
+    note.hidden = !noteStr;
+    note.textContent = noteStr ? ("備註：" + noteStr) : "";
+
     $("redeemBtn").hidden = redeemed;
     $("cancelBtn").hidden = !redeemed;
     $("actionMsg").textContent = "";
@@ -283,7 +341,8 @@
 
   // ---- 女方親友名單即時看板 ----
   let rosterDocs = [];
-  const rosterList = $("rosterList"), rosterCount = $("rosterCount");
+  let rosterFilter = "all";
+  const rosterList = $("rosterList"), rosterStats = $("rosterStats");
   const rosterEmpty = $("rosterEmpty"), rosterSearch = $("rosterSearch");
 
   function startRosterWatch() {
@@ -293,8 +352,12 @@
       snap.forEach((d) => {
         const v = d.data() || {};
         if (v.side && v.side !== "bride") return;   // 只列女方賓客
-        rosterDocs.push({ id: d.id, name: v.name || "（未命名）", code: v.code || "",
-                          redeemed: !!v.redeemed, redeemedAt: v.redeemedAt || null });
+        rosterDocs.push({
+          id: d.id, name: v.name || "（未命名）", code: v.code || "",
+          western: (v.giftType || "chinese") === "western",
+          fullMoon: /滿月/.test(v.note || ""), note: (v.note || "").trim(),
+          redeemed: !!v.redeemed, redeemedAt: v.redeemedAt || null
+        });
       });
       // 未領取在前、已領取在後；同組依姓名排序
       rosterDocs.sort((a, b) =>
@@ -302,21 +365,37 @@
       renderRoster();
     }, (err) => {
       rosterList.innerHTML = "";
-      rosterEmpty.hidden = false;
-      rosterEmpty.textContent = "名單讀取失敗：" + (err && err.code || err);
+      rosterStats.textContent = "名單讀取失敗：" + (err && err.code || err);
+      rosterEmpty.hidden = true;
     });
+  }
+
+  function matchFilter(r) {
+    switch (rosterFilter) {
+      case "unredeemed": return !r.redeemed;
+      case "redeemed":   return r.redeemed;
+      case "chinese":    return !r.western;
+      case "western":    return r.western;
+      case "fullmoon":   return r.fullMoon;
+      default:           return true;
+    }
   }
 
   function renderRoster() {
     const total = rosterDocs.length;
     const done = rosterDocs.filter((r) => r.redeemed).length;
-    rosterCount.innerHTML = "已領取 <b>" + done + "</b> / " + total;
+    const west = rosterDocs.filter((r) => r.western).length;
+    const cn = total - west;
+    const moon = rosterDocs.filter((r) => r.fullMoon).length;
+    rosterStats.innerHTML =
+      "已領取 <b>" + done + "</b> / " + total +
+      '<span class="sep">|</span>中式 ' + cn + " · 西式 " + west +
+      (moon ? '<span class="sep">|</span>滿月禮 ' + moon : "");
 
     const kw = (rosterSearch.value || "").trim().toLowerCase();
-    const shown = kw
-      ? rosterDocs.filter((r) =>
-          r.name.toLowerCase().includes(kw) || String(r.code).toLowerCase().includes(kw))
-      : rosterDocs;
+    const shown = rosterDocs.filter((r) =>
+      matchFilter(r) &&
+      (!kw || r.name.toLowerCase().includes(kw) || String(r.code).toLowerCase().includes(kw)));
 
     rosterList.innerHTML = "";
     if (!shown.length) {
@@ -330,19 +409,32 @@
       const li = document.createElement("li");
       if (r.redeemed) li.className = "is-redeemed";
       const atStr = r.redeemed ? fmt(r.redeemedAt) : "";
-      const li_html =
+      const giftBadge = '<span class="badge ' + (r.western ? "badge-west" : "badge-cn") +
+        ' r-gift">' + (r.western ? "西式" : "中式") + "</span>" +
+        (r.fullMoon ? '<span class="badge badge-moon r-gift">滿月禮</span>' : "");
+      li.innerHTML =
         '<span class="r-state"></span>' +
         '<span class="r-main"><span class="r-name"></span>' +
         (r.code ? ' <span class="r-code">NO. ' + escapeHtml(r.code) + "</span>" : "") +
+        '<span class="r-gifts">' + giftBadge + "</span>" +
         '</span>' +
         '<span class="r-tag"><span class="lbl">' + (r.redeemed ? "已領取" : "未領取") + "</span>" +
         (atStr ? '<span class="at">' + escapeHtml(atStr) + "</span>" : "") + "</span>";
-      li.innerHTML = li_html;
       li.querySelector(".r-name").textContent = r.name;
       frag.appendChild(li);
     }
     rosterList.appendChild(frag);
   }
+
+  // 篩選鈕
+  $("rosterFilters").addEventListener("click", (e) => {
+    const btn = e.target.closest(".rf");
+    if (!btn) return;
+    rosterFilter = btn.dataset.f || "all";
+    document.querySelectorAll("#rosterFilters .rf").forEach((b) =>
+      b.classList.toggle("active", b === btn));
+    renderRoster();
+  });
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) =>
@@ -358,20 +450,28 @@
   }
   $("exportBtn").addEventListener("click", () => {
     if (!rosterDocs.length) { alert("目前沒有可匯出的名單資料。"); return; }
-    const header = ["姓名", "喜餅兌換碼", "領取狀態", "核銷時間"];
+    const header = ["姓名", "喜餅兌換碼", "喜餅樣式", "滿月禮", "領取狀態", "核銷時間", "備註"];
     const lines = [header.map(csvCell).join(",")];
     // 依目前排序匯出（未領在前、已領在後）
     for (const r of rosterDocs) {
       lines.push([
         csvCell(r.name),
         csvCell(r.code),
+        csvCell(r.western ? "西式" : "中式"),
+        csvCell(r.fullMoon ? "滿月禮" : ""),
         csvCell(r.redeemed ? "已領取" : "未領取"),
-        csvCell(r.redeemed ? fmt(r.redeemedAt) : "")
+        csvCell(r.redeemed ? fmt(r.redeemedAt) : ""),
+        csvCell(r.note)
       ].join(","));
     }
     const done = rosterDocs.filter((r) => r.redeemed).length;
+    const west = rosterDocs.filter((r) => r.western).length;
+    const moon = rosterDocs.filter((r) => r.fullMoon).length;
     lines.push("");                                       // 空行後附統計
-    lines.push(csvCell("統計") + "," + csvCell("已領取 " + done + " / 共 " + rosterDocs.length));
+    lines.push(csvCell("統計") + "," +
+      csvCell("已領取 " + done + " / 共 " + rosterDocs.length +
+              "；中式 " + (rosterDocs.length - west) + " · 西式 " + west +
+              "；滿月禮 " + moon));
 
     const csv = "﻿" + lines.join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
