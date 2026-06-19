@@ -1303,11 +1303,11 @@ a:focus-visible, button:focus-visible {
 /* 核銷後主券稍微壓暗，凸顯印章 */
 .voucher-card.is-redeemed .vt-main { filter: saturate(0.85) brightness(0.96); }
 
-/* 賓客專屬核銷 QR：藏在票根（被撕掉那側）下方，撕券後才浮現 */
+/* 賓客專屬核銷 QR：藏在票根（被撕掉那側），撕券後才浮現（垂直置中對齊票券）*/
 .voucher-qr {
   position: absolute;
   right: 6%;
-  bottom: 7%;
+  top: 50%;
   z-index: 5;
   width: 30%;
   aspect-ratio: 1;
@@ -1317,12 +1317,12 @@ a:focus-visible, button:focus-visible {
   background: #fff;
   border-radius: 8px;
   opacity: 0;
-  transform: scale(0.9);
+  transform: translateY(-50%) scale(0.9);
   pointer-events: none;
   transition: opacity 0.45s ease 0.35s, transform 0.45s ease 0.35s;
 }
 .voucher-qr:empty { display: none; }
-#voucher.is-torn .voucher-qr { opacity: 1; transform: scale(1); pointer-events: auto; }
+#voucher.is-torn .voucher-qr { opacity: 1; transform: translateY(-50%) scale(1); pointer-events: auto; }
 .voucher-qr img,
 .voucher-qr canvas { display: block; width: 100%; height: 100%; }
 .vq-fallback {
