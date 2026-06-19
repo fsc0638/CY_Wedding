@@ -75,6 +75,43 @@
   .actions { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
   .foot { text-align: center; color: var(--soft); font-size: 0.72rem; margin-top: 1.6rem; }
   .loading { text-align: center; color: var(--soft); padding: 2rem 0; }
+
+  /* 女方親友名單看板 */
+  .roster { margin-top: 1.1rem; }
+  .roster-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 0.9rem; gap: 0.6rem;
+  }
+  .roster-head h2 { font-size: 1rem; margin: 0; letter-spacing: 0.04em; }
+  .roster-count { font-size: 0.85rem; color: var(--soft); }
+  .roster-count b { color: var(--green); font-size: 1.05rem; }
+  .roster-search {
+    width: 100%; padding: 0.55rem 0.75rem; font-size: 0.92rem; margin: 0 0 0.7rem;
+  }
+  .roster-list { list-style: none; margin: 0; padding: 0; }
+  .roster-list li {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 0.2rem; border-bottom: 1px solid var(--line);
+  }
+  .roster-list li:last-child { border-bottom: none; }
+  .r-state {
+    flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%;
+    background: #cfd3c6;
+  }
+  .roster-list li.is-redeemed .r-state { background: var(--red); }
+  .r-main { flex: 1 1 auto; min-width: 0; }
+  .r-name { font-weight: 600; font-size: 0.98rem; }
+  .roster-list li.is-redeemed .r-name { color: var(--soft); }
+  .r-code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.78rem; color: var(--gold); letter-spacing: 0.1em;
+  }
+  .r-tag { flex: 0 0 auto; text-align: right; font-size: 0.74rem; }
+  .r-tag .lbl { font-weight: 600; }
+  .roster-list li.is-redeemed .r-tag .lbl { color: var(--red); }
+  .roster-list li:not(.is-redeemed) .r-tag .lbl { color: var(--green); }
+  .r-tag .at { color: var(--soft); display: block; }
+  .roster-empty { text-align: center; color: var(--soft); padding: 1.2rem 0; }
 </style>
 </head>
 <body>
@@ -115,6 +152,17 @@
     <p class="msg err" id="panelErr" hidden></p>
   </section>
 
+  <!-- 3) 女方親友名單即時看板 -->
+  <section class="card roster" id="rosterCard" hidden>
+    <div class="roster-head">
+      <h2>女方親友名單</h2>
+      <span class="roster-count" id="rosterCount">—</span>
+    </div>
+    <input type="text" class="roster-search" id="rosterSearch" placeholder="搜尋姓名或券號⋯" autocomplete="off" />
+    <ul class="roster-list" id="rosterList"></ul>
+    <p class="roster-empty" id="rosterEmpty" hidden>目前沒有名單資料。</p>
+  </section>
+
   <p class="foot">CY Wedding · 內部核銷用</p>
 </div>
 
@@ -124,12 +172,13 @@
     onAuthStateChanged, signInWithEmailAndPassword, signOut
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    doc, onSnapshot, updateDoc, serverTimestamp
+    doc, collection, onSnapshot, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const $ = (id) => document.getElementById(id);
   const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
+  const rosterCard = $("rosterCard");
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
@@ -158,16 +207,20 @@
   logoutBtn.addEventListener("click", () => signOut(auth));
 
   // ---- 登入狀態切換 ----
-  let unsub = null;
+  let unsub = null, rosterUnsub = null;
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginCard.hidden = true;
       logoutBtn.hidden = false;
-      panel.hidden = false;
+      panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
+      rosterCard.hidden = false;
       startWatch();
+      startRosterWatch();
     } else {
       if (unsub) { unsub(); unsub = null; }
+      if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
       panel.hidden = true;
+      rosterCard.hidden = true;
       logoutBtn.hidden = true;
       loginCard.hidden = false;
       $("password").value = "";
@@ -225,6 +278,76 @@
     $("actionMsg").textContent = "";
     $("actionMsg").className = "msg";
   }
+
+  // ---- 女方親友名單即時看板 ----
+  let rosterDocs = [];
+  const rosterList = $("rosterList"), rosterCount = $("rosterCount");
+  const rosterEmpty = $("rosterEmpty"), rosterSearch = $("rosterSearch");
+
+  function startRosterWatch() {
+    if (rosterUnsub) return;
+    rosterUnsub = onSnapshot(collection(db, "vouchers"), (snap) => {
+      rosterDocs = [];
+      snap.forEach((d) => {
+        const v = d.data() || {};
+        if (v.side && v.side !== "bride") return;   // 只列女方賓客
+        rosterDocs.push({ id: d.id, name: v.name || "（未命名）", code: v.code || "",
+                          redeemed: !!v.redeemed, redeemedAt: v.redeemedAt || null });
+      });
+      // 未領取在前、已領取在後；同組依姓名排序
+      rosterDocs.sort((a, b) =>
+        (a.redeemed - b.redeemed) || a.name.localeCompare(b.name, "zh-Hant"));
+      renderRoster();
+    }, (err) => {
+      rosterList.innerHTML = "";
+      rosterEmpty.hidden = false;
+      rosterEmpty.textContent = "名單讀取失敗：" + (err && err.code || err);
+    });
+  }
+
+  function renderRoster() {
+    const total = rosterDocs.length;
+    const done = rosterDocs.filter((r) => r.redeemed).length;
+    rosterCount.innerHTML = "已領取 <b>" + done + "</b> / " + total;
+
+    const kw = (rosterSearch.value || "").trim().toLowerCase();
+    const shown = kw
+      ? rosterDocs.filter((r) =>
+          r.name.toLowerCase().includes(kw) || String(r.code).toLowerCase().includes(kw))
+      : rosterDocs;
+
+    rosterList.innerHTML = "";
+    if (!shown.length) {
+      rosterEmpty.hidden = false;
+      rosterEmpty.textContent = total ? "查無符合的賓客。" : "目前沒有名單資料。";
+      return;
+    }
+    rosterEmpty.hidden = true;
+    const frag = document.createDocumentFragment();
+    for (const r of shown) {
+      const li = document.createElement("li");
+      if (r.redeemed) li.className = "is-redeemed";
+      const atStr = r.redeemed ? fmt(r.redeemedAt) : "";
+      const li_html =
+        '<span class="r-state"></span>' +
+        '<span class="r-main"><span class="r-name"></span>' +
+        (r.code ? ' <span class="r-code">NO. ' + escapeHtml(r.code) + "</span>" : "") +
+        '</span>' +
+        '<span class="r-tag"><span class="lbl">' + (r.redeemed ? "已領取" : "未領取") + "</span>" +
+        (atStr ? '<span class="at">' + escapeHtml(atStr) + "</span>" : "") + "</span>";
+      li.innerHTML = li_html;
+      li.querySelector(".r-name").textContent = r.name;
+      frag.appendChild(li);
+    }
+    rosterList.appendChild(frag);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  rosterSearch.addEventListener("input", renderRoster);
 
   // ---- 核銷 / 取消 ----
   $("redeemBtn").addEventListener("click", () => setRedeemed(true));
