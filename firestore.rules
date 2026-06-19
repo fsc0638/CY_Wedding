@@ -1,14 +1,16 @@
 rules_version = '2';
 
 // CY_Wedding 喜餅兌換券核銷
-// - 賓客（未登入）可「讀」自己那張券，才能即時看到「已領取」印章
+// - 賓客（未登入）可「讀自己那一張券」(get)，才能即時看到「已領取」印章
+// - 只有登入的工作人員可「列整份名單」(list)，外人無法撈取全部姓名 / 券號
 // - 只有登入的工作人員可「改」領取狀態，且只能動 redeemed / redeemedAt 兩欄
 // - 文件由匯入腳本（管理員）建立，前端不可新增 / 刪除
 // - 其餘一律拒絕
 service cloud.firestore {
   match /databases/{database}/documents {
     match /vouchers/{id} {
-      allow read: if true;
+      allow get: if true;                       // 賓客可讀單張（知道自己的 hash）
+      allow list: if request.auth != null;      // 只有工作人員可列舉整份名單
       allow update: if request.auth != null
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['redeemed', 'redeemedAt']);

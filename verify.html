@@ -112,6 +112,7 @@
   .roster-list li:not(.is-redeemed) .r-tag .lbl { color: var(--green); }
   .r-tag .at { color: var(--soft); display: block; }
   .roster-empty { text-align: center; color: var(--soft); padding: 1.2rem 0; }
+  .roster-export { width: 100%; margin-top: 1rem; }
 </style>
 </head>
 <body>
@@ -160,6 +161,7 @@
     </div>
     <input type="text" class="roster-search" id="rosterSearch" placeholder="搜尋姓名或券號⋯" autocomplete="off" />
     <ul class="roster-list" id="rosterList"></ul>
+    <button class="btn-ghost roster-export" id="exportBtn">匯出 CSV</button>
     <p class="roster-empty" id="rosterEmpty" hidden>目前沒有名單資料。</p>
   </section>
 
@@ -348,6 +350,43 @@
   }
 
   rosterSearch.addEventListener("input", renderRoster);
+
+  // ---- 匯出 CSV（前端即時下載，含 BOM 讓 Excel 正確顯示中文）----
+  function csvCell(v) {
+    const s = v == null ? "" : String(v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  $("exportBtn").addEventListener("click", () => {
+    if (!rosterDocs.length) { alert("目前沒有可匯出的名單資料。"); return; }
+    const header = ["姓名", "喜餅兌換碼", "領取狀態", "核銷時間"];
+    const lines = [header.map(csvCell).join(",")];
+    // 依目前排序匯出（未領在前、已領在後）
+    for (const r of rosterDocs) {
+      lines.push([
+        csvCell(r.name),
+        csvCell(r.code),
+        csvCell(r.redeemed ? "已領取" : "未領取"),
+        csvCell(r.redeemed ? fmt(r.redeemedAt) : "")
+      ].join(","));
+    }
+    const done = rosterDocs.filter((r) => r.redeemed).length;
+    lines.push("");                                       // 空行後附統計
+    lines.push(csvCell("統計") + "," + csvCell("已領取 " + done + " / 共 " + rosterDocs.length));
+
+    const csv = "﻿" + lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const now = new Date();
+    const p = (n) => (n < 10 ? "0" : "") + n;
+    a.href = url;
+    a.download = "喜餅核銷名單_" + now.getFullYear() + p(now.getMonth() + 1) + p(now.getDate()) +
+                 "_" + p(now.getHours()) + p(now.getMinutes()) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
 
   // ---- 核銷 / 取消 ----
   $("redeemBtn").addEventListener("click", () => setRedeemed(true));
