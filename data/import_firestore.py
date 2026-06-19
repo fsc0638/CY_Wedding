@@ -14,7 +14,10 @@ import_firestore.py — 將女方賓客匯入 Firestore（vouchers 集合）供�
   - data/ 內最新賓客 Excel        取姓名與兌換碼
 依賴：pip install firebase-admin openpyxl
 
-用法（專案根目錄）：python data/import_firestore.py
+用法（專案根目錄）：
+  python data/import_firestore.py            # 只匯入 / 更新（不刪除任何文件）
+  python data/import_firestore.py --prune    # 額外刪除「Excel 已不存在」的女方殘留文件
+                                             # （安全：已核銷的殘留文件一律保留並警示，不刪）
 """
 import hashlib
 import json
@@ -68,6 +71,7 @@ def main():
         sys.exit("Excel 缺少 姓名 / 喜餅兌換碼 / 關係 欄位。")
 
     n = 0
+    current_hashes = set()        # 本次 Excel 內所有女方賓客的雜湊（供 --prune 判斷殘留）
     for r in rows[1:]:
         name = r[ni] if ni < len(r) else None
         code = r[ci] if ci < len(r) else None
@@ -82,6 +86,7 @@ def main():
         gift = GIFT_MAP.get(gift_raw, "chinese")  # 未填 / 無此欄 → 預設中式
         note = str(r[bi]).strip() if bi is not None and bi < len(r) and r[bi] is not None else ""
         h = hashlib.sha256((salt + normalize_name(name)).encode("utf-8")).hexdigest()
+        current_hashes.add(h)
         ref = db.collection("vouchers").document(h)
         data = {"name": name, "side": "bride", "code": code, "giftType": gift, "note": note}
         if not ref.get().exists:                 # 新文件才設初始狀態，既有的保留領取狀態
@@ -92,6 +97,29 @@ def main():
         print("  %s（%s・%s）→ %s…" % (name, code, gift, h[:12]))
 
     print("完成：已匯入/更新 %d 位女方賓客 → Firestore『vouchers』集合。" % n)
+
+    # --prune：刪除 Excel 已不存在的女方殘留文件（已核銷者一律保留並警示）
+    if "--prune" in sys.argv:
+        print("\n--prune：檢查 Firestore 內是否有 Excel 已移除的女方殘留文件…")
+        deleted = kept = 0
+        for snap in db.collection("vouchers").stream():
+            d = snap.to_dict() or {}
+            if d.get("side") and d.get("side") != "bride":
+                continue                          # 只處理女方文件
+            if snap.id in current_hashes:
+                continue                          # 仍在本次 Excel 內 → 保留
+            if d.get("redeemed"):                 # 已核銷的殘留 → 不刪，警示
+                print("  ⚠ 保留（已核銷，請手動確認）：%s（%s）%s…"
+                      % (d.get("name"), d.get("code"), snap.id[:12]))
+                kept += 1
+                continue
+            snap.reference.delete()
+            print("  ✗ 刪除殘留：%s（%s）%s…" % (d.get("name"), d.get("code"), snap.id[:12]))
+            deleted += 1
+        print("Prune 完成：刪除 %d 筆殘留；保留 %d 筆已核銷殘留（如確定不需要請到主控台手動刪除）。"
+              % (deleted, kept))
+    else:
+        print("（未加 --prune；如需清除 Excel 已移除的殘留文件，請改跑：python data/import_firestore.py --prune）")
 
 
 if __name__ == "__main__":
