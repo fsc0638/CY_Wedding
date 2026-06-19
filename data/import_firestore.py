@@ -31,6 +31,12 @@ KEY = os.path.join(HERE, "serviceAccountKey.json")
 GUESTS = os.path.join(HERE, "guests.json")
 
 SIDE_MAP = {"俊郁朋友": "groom", "雁婷朋友": "bride"}
+GIFT_MAP = {"西式": "western", "中式": "chinese"}   # 未填 → 預設中式
+
+
+def clean_name(s):
+    """去除姓名所有空白（含姓與名之間誤植的空白）；保留原大小寫供顯示。"""
+    return "".join(str(s).split())
 
 
 def main():
@@ -56,6 +62,8 @@ def main():
     ni = find_col(header, "賓客姓名", "姓名")
     ci = find_col(header, "喜餅兌換碼", "兌換碼")
     ri = find_col(header, "關係")
+    gi = find_col(header, "喜餅樣式", "樣式")     # 可無 → 全部視為中式
+    bi = find_col(header, "備註")                 # 可無
     if ni is None or ci is None or ri is None:
         sys.exit("Excel 缺少 姓名 / 喜餅兌換碼 / 關係 欄位。")
 
@@ -66,19 +74,22 @@ def main():
         side = SIDE_MAP.get(str(r[ri]).strip() if r[ri] is not None else "", "groom")
         if side != "bride" or name is None or code is None:
             continue
-        name = str(name).strip()
+        name = clean_name(name)                  # 去除所有空白（含姓名間誤植空白）
         code = str(code).strip()
         if not name or not code:
             continue
+        gift_raw = str(r[gi]).strip() if gi is not None and gi < len(r) and r[gi] is not None else ""
+        gift = GIFT_MAP.get(gift_raw, "chinese")  # 未填 / 無此欄 → 預設中式
+        note = str(r[bi]).strip() if bi is not None and bi < len(r) and r[bi] is not None else ""
         h = hashlib.sha256((salt + normalize_name(name)).encode("utf-8")).hexdigest()
         ref = db.collection("vouchers").document(h)
-        data = {"name": name, "side": "bride", "code": code}
+        data = {"name": name, "side": "bride", "code": code, "giftType": gift, "note": note}
         if not ref.get().exists:                 # 新文件才設初始狀態，既有的保留領取狀態
             data["redeemed"] = False
             data["redeemedAt"] = None
         ref.set(data, merge=True)
         n += 1
-        print("  %s（%s）→ %s…" % (name, code, h[:12]))
+        print("  %s（%s・%s）→ %s…" % (name, code, gift, h[:12]))
 
     print("完成：已匯入/更新 %d 位女方賓客 → Firestore『vouchers』集合。" % n)
 
