@@ -308,12 +308,19 @@
         <img class="vt-img" src="Picture/pastry-voucher.png" alt="" aria-hidden="true" />
       </div>
       <span class="vt-hint" id="voucherTearHint" aria-hidden="true" data-i18n="voucher.tear">輕觸撕開 ✂</span>
+      <div class="voucher-stamp" id="voucherStamp" role="status" aria-live="polite" hidden>
+        <span class="vs-text" data-i18n="voucher.stamp">已領取</span>
+      </div>
+      <!-- 專屬核銷 QR：藏在票根（被撕掉那側）下方，撕券後才浮現（由 voucher-live.js 產生）-->
+      <div class="voucher-qr" id="voucherQr" aria-hidden="true"></div>
     </div>
     <figcaption class="voucher-for" id="voucherFor" hidden>
       <span data-i18n="voucher.for">此券專屬於</span>
       <strong id="voucherName"></strong>
     </figcaption>
   </figure>
+
+  <p class="voucher-qr-note" data-i18n="voucher.qr.note">請於領取喜餅時，出示此 QR 碼給工作人員掃描核銷</p>
   <p class="voucher-note" data-i18n="voucher.note">請於婚禮當天憑此畫面至收禮台領取喜餅 🍪</p>
   <button class="voucher-restore" id="voucherRestore" type="button" hidden data-i18n="voucher.restore">復原</button>
 </section>
@@ -384,5 +391,9 @@
 </footer>
 
 <script src="script.js"></script>
+<!-- QR 產生器（賓客券專屬核銷 QR）；載入失敗時 voucher-live.js 會退回顯示文字連結 -->
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@04f46c6a0708418cb7b96fc563eacae0fbf77674/qrcode.min.js"></script>
+<!-- 掃碼核銷即時狀態（Firebase）-->
+<script type="module" src="voucher-live.js"></script>
 </body>
 </html>

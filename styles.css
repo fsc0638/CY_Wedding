@@ -1265,6 +1265,87 @@ a:focus-visible, button:focus-visible {
 .voucher-restore:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 .voucher-restore[hidden] { display: none; }
 
+/* 已領取電子印章（仿公文紅印，掃碼核銷後由 voucher-live.js 浮現）*/
+.voucher-stamp {
+  position: absolute;
+  top: 50%;
+  left: 31%;                 /* 對齊主券（左側約 0–61.6%）中心 */
+  transform: translate(-50%, -50%) rotate(-15deg) scale(0.4);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: clamp(96px, 26%, 140px);
+  aspect-ratio: 1;
+  border-radius: 14px;
+  color: #c0392b;
+  border: 4px double #c0392b;
+  background: rgba(192, 57, 43, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.35);
+  font-family: var(--serif-tc);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 1px rgba(192, 57, 43, 0.4);
+  animation: vsStamp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.voucher-stamp[hidden] { display: none; }
+.vs-text {
+  font-size: clamp(1.1rem, 4.2vw, 1.55rem);
+  line-height: 1.1;
+  text-align: center;
+}
+@keyframes vsStamp {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-15deg) scale(1.7); }
+  60%  { opacity: 1; transform: translate(-50%, -50%) rotate(-15deg) scale(0.92); }
+  100% { opacity: 0.92; transform: translate(-50%, -50%) rotate(-15deg) scale(1); }
+}
+/* 核銷後主券稍微壓暗，凸顯印章 */
+.voucher-card.is-redeemed .vt-main { filter: saturate(0.85) brightness(0.96); }
+
+/* 賓客專屬核銷 QR：藏在票根（被撕掉那側）下方，撕券後才浮現 */
+.voucher-qr {
+  position: absolute;
+  right: 6%;
+  bottom: 7%;
+  z-index: 5;
+  width: 30%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  background: #fff;
+  border-radius: 8px;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.45s ease 0.35s, transform 0.45s ease 0.35s;
+}
+.voucher-qr:empty { display: none; }
+#voucher.is-torn .voucher-qr { opacity: 1; transform: scale(1); pointer-events: auto; }
+.voucher-qr img,
+.voucher-qr canvas { display: block; width: 100%; height: 100%; }
+.vq-fallback {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  word-break: break-all;
+  color: var(--accent);
+  text-align: center;
+}
+/* 撕券後才顯示的 QR 說明 */
+.voucher-qr-note {
+  font-family: var(--serif-tc);
+  font-weight: 300;
+  font-size: 0.86rem;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  max-width: 340px;
+  margin: clamp(1.4rem, 3.5vw, 2rem) auto 0;
+  display: none;
+}
+#voucher.is-torn .voucher-qr-note { display: block; }
+
 @media (prefers-reduced-motion: reduce) {
   /* 撕票為一次性動畫，刻意保留；僅關閉提示脈動 */
   .vt-hint { animation: none; }

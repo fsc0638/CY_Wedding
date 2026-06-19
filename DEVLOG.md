@@ -213,11 +213,35 @@
 - `data/import_firestore.py`（用服務帳戶金鑰把 10 位女方匯入 Firestore；既有文件保留領取狀態）
 - `.gitignore` 已擋 `serviceAccountKey.json`（管理員機密）
 
-**待辦（接手從這裡繼續）**
-1. 〔使用者·主控台〕Firestore→ルール 貼上 `firestore.rules` 內容並「公開」
-2. 〔使用者·主控台〕專案設定→服務帳戶→產生新私密金鑰 → 改名 `serviceAccountKey.json` 放 `data/`
-3. 〔執行〕`pip install firebase-admin` → `python data/import_firestore.py`（把 10 位女方建進 Firestore）
-4. 〔前端·待建〕撕券後產生 QR（指向 verify 頁）；`verify.html`（工作人員登入 + 顯示資訊 + 已領取/取消）；
-   賓客券即時「已領取」印章（CSS/SVG 仿印章）+ `onSnapshot` 監聽；以上用 Firebase JS SDK（gstatic CDN, ESM）
-5. 〔測試〕本機連真 Firebase 跑通整條流程 → commit → 合併 master → push
+**前端已完成（2026-06-19 本次）**
+- `firebase.js`：ESM 共用初始化（gstatic CDN SDK 10.12.5 + `firebase-config.js`），匯出 `db` / `auth`，
+  供賓客券頁與 verify 頁共用
+- 賓客券即時狀態 `voucher-live.js`（`<script type="module">` 載入）：
+  - 由 `?g=` 算姓名雜湊（與 `guests.json` 同一套 salt / 正規化），命中 `brideHashes` 才動作
+  - **撕券後**才顯示專屬 QR（`#voucher.is-torn` 控制；`script.js setTorn()` 一併 toggle `is-torn`），
+    QR 內容 = `verify.html?h=<雜湊>`（用 `new URL(...,location.href)` → GitHub Pages 子路徑 / localhost 皆正確）
+  - QR 產生器走 CDN `davidshimjs/qrcodejs`（pin commit）；載入失敗自動退回顯示文字連結（`.vq-fallback`）
+  - `onSnapshot` 監聽自己那筆 `vouchers/<雜湊>`：`redeemed:true` → 浮現紅色「已領取」印章（`.voucher-stamp`，
+    仿公文紅印、`vsStamp` 蓋章動畫）；取消核銷 → 撤章
+- `verify.html`（工作人員核銷頁，內部用、`noindex`）：
+  - Firebase Auth email/密碼登入（預設 local persistence，登入一次即記住）；`onAuthStateChanged` 切換登入/面板
+  - 讀 `?h=<雜湊>`（驗 64 hex）→ `onSnapshot` 即時顯示姓名 / 兌換碼(NO.) / 已領取狀態 / 核銷時間
+  - 〔確認核銷〕`updateDoc redeemed:true, redeemedAt:serverTimestamp()`；〔取消核銷〕`redeemed:false, redeemedAt:null`
+    （只動這兩欄，符合 `firestore.rules`）；登出鈕
+- i18n：新增 `voucher.qr.note` / `voucher.stamp` 四語（verify.html 為內部頁，僅中文）
+- ✅ 本機預覽驗證：verify 登入頁正常、Firebase SDK/模組無 console error；index 強制 reveal+撕券後 QR 以
+  qrcodejs 成功 render（canvas）、「已領取」印章正確疊在主券上。**真 Firebase 端到端需待下方使用者任務完成**
+
+**後端設定進度**
+- ✅〔金鑰〕`data/serviceAccountKey.json` 已就位（`cy-wedding-aad98`，gitignored）
+- ✅〔套件〕`firebase-admin 7.4.0` + `openpyxl 3.1.5` 已裝
+- ✅〔匯入〕`python3 data/import_firestore.py` 已跑（2026-06-19）：10 位女方寫進 Firestore `vouchers`，
+   全部 `side=bride`、`redeemed=False`；姓名雜湊 10/10 與 `guests.json` 一致、兌換碼 26091201~10 對齊
+   （⚠️ 兌換碼目前仍為**測試值**，定案後更新主檔重跑即覆蓋，`redeemed` 狀態會保留）
+- ⏳〔使用者·主控台·尚缺〕Firestore→規則 貼上 `firestore.rules` 內容並**發布**
+   —— 匯入用 Admin SDK 會跳過規則，但**前端 client（賓客 onSnapshot 讀、工作人員 updateDoc 寫）需規則發布後才能運作**
+- ⏳〔端到端測試〕①帶某位女方 `?g=` 開站 → 撕券 → 出現 QR；②另一裝置/手機掃 QR 開 verify → 用
+   `kicl1143057@gmail.com` 登入 → 按「確認核銷」→ ③回賓客那張券應**即時浮現「已領取」印章**；再測「取消核銷」撤章
+- ⏳〔收尾〕跑通後 commit → 合併 master → push
 - ⚠️ 跨機器：原始 Excel、`serviceAccountKey.json` 等個資/機密**不在 git**，換機器要另外帶；`guests.json` 在 git。
+- ⚠️ QR 走外部 CDN（qrcodejs）：現場若無網路，QR 與 Firebase 皆不可用 → 仍以「兌換碼 + 名單劃記」為後備。
