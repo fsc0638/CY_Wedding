@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>喜餅兌換券核銷 — 工作人員</title>
+<style>
+  :root {
+    --bg: #f4f3ea; --card: #ffffff; --ink: #2d2b25; --soft: #6b6a5f;
+    --line: #e0ddd0; --green: #3a4a32; --green-d: #2e3a2c;
+    --red: #c0392b; --gold: #b08d3f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--ink);
+    min-height: 100vh; padding: 1.2rem; line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 440px; margin: 0 auto; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.2rem; gap: 0.6rem;
+  }
+  header.top h1 { font-size: 1.05rem; margin: 0; letter-spacing: 0.04em; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 1.5rem 1.3rem;
+    box-shadow: 0 10px 28px rgba(45, 43, 37, 0.08);
+  }
+  label { display: block; font-size: 0.82rem; color: var(--soft); margin: 0 0 0.35rem; }
+  input {
+    width: 100%; padding: 0.7rem 0.85rem; font-size: 1rem;
+    border: 1px solid var(--line); border-radius: 10px; background: #fbfbf6;
+    color: var(--ink); margin-bottom: 0.9rem;
+  }
+  input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+  button {
+    font: inherit; cursor: pointer; border: none; border-radius: 10px;
+    padding: 0.78rem 1rem; font-size: 0.98rem; letter-spacing: 0.04em;
+    transition: filter 0.2s ease, opacity 0.2s ease;
+  }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:active { filter: brightness(0.94); }
+  .btn-primary { background: var(--green); color: #fff; width: 100%; }
+  .btn-redeem { background: var(--green); color: #fff; width: 100%; font-weight: 600; }
+  .btn-cancel { background: transparent; color: var(--red); border: 1px solid var(--red); width: 100%; }
+  .btn-ghost {
+    background: transparent; color: var(--soft); border: 1px solid var(--line);
+    padding: 0.4rem 0.8rem; font-size: 0.8rem;
+  }
+  .msg { font-size: 0.86rem; margin: 0.4rem 0 0; min-height: 1.2em; }
+  .msg.err { color: var(--red); }
+  .msg.ok { color: var(--green); }
+  [hidden] { display: none !important; }
+
+  /* 賓客資訊 */
+  .who { text-align: center; margin-bottom: 1.2rem; }
+  .who .name { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.06em; }
+  .who .code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 1.05rem; color: var(--gold); letter-spacing: 0.18em; margin-top: 0.3rem;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin: 1rem auto 0; padding: 0.45rem 1.1rem; border-radius: 999px;
+    font-weight: 600; font-size: 0.95rem;
+  }
+  .status-pill.unredeemed { background: #eef1ea; color: var(--green-d); }
+  .status-pill.redeemed { background: rgba(192, 57, 43, 0.1); color: var(--red); }
+  .status-pill .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+  .redeemed-at { font-size: 0.78rem; color: var(--soft); text-align: center; margin: 0.5rem 0 0; }
+  .actions { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .foot { text-align: center; color: var(--soft); font-size: 0.72rem; margin-top: 1.6rem; }
+  .loading { text-align: center; color: var(--soft); padding: 2rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>喜餅兌換券 · 核銷</h1>
+    <button class="btn-ghost" id="logoutBtn" hidden>登出</button>
+  </header>
+
+  <!-- 1) 登入（工作人員一次登入即記住）-->
+  <section class="card" id="loginCard" hidden>
+    <label for="email">工作人員帳號</label>
+    <input type="email" id="email" autocomplete="username" inputmode="email" placeholder="email@example.com" />
+    <label for="password">密碼</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="密碼" />
+    <button class="btn-primary" id="loginBtn">登入</button>
+    <p class="msg err" id="loginMsg"></p>
+  </section>
+
+  <!-- 2) 核銷面板 -->
+  <section class="card" id="panel" hidden>
+    <div class="loading" id="panelLoading">讀取中⋯</div>
+
+    <div id="voucherInfo" hidden>
+      <div class="who">
+        <div class="name" id="vName">—</div>
+        <div class="code" id="vCode">—</div>
+        <div class="status-pill" id="vPill"><span class="dot"></span><span id="vPillText">—</span></div>
+        <p class="redeemed-at" id="vAt" hidden></p>
+      </div>
+      <div class="actions">
+        <button class="btn-redeem" id="redeemBtn" hidden>確認核銷（標記已領取）</button>
+        <button class="btn-cancel" id="cancelBtn" hidden>取消核銷</button>
+      </div>
+      <p class="msg" id="actionMsg"></p>
+    </div>
+
+    <p class="msg err" id="panelErr" hidden></p>
+  </section>
+
+  <p class="foot">CY Wedding · 內部核銷用</p>
+</div>
+
+<script type="module">
+  import { db, auth } from "./firebase.js";
+  import {
+    onAuthStateChanged, signInWithEmailAndPassword, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    doc, onSnapshot, updateDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const $ = (id) => document.getElementById(id);
+  const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
+  const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
+
+  // 取 ?h=<姓名雜湊>
+  let hash = null;
+  try { hash = new URLSearchParams(location.search).get("h"); } catch (e) {}
+  if (hash) hash = hash.trim().toLowerCase();
+  const validHash = !!hash && /^[0-9a-f]{64}$/.test(hash);
+
+  // ---- 登入 ----
+  $("loginBtn").addEventListener("click", doLogin);
+  $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+  function doLogin() {
+    const email = $("email").value.trim();
+    const pw = $("password").value;
+    const msg = $("loginMsg");
+    msg.textContent = "";
+    if (!email || !pw) { msg.textContent = "請輸入帳號與密碼"; return; }
+    $("loginBtn").disabled = true;
+    signInWithEmailAndPassword(auth, email, pw)
+      .catch((err) => {
+        const m = { "auth/invalid-credential": "帳號或密碼錯誤", "auth/invalid-email": "Email 格式錯誤",
+                    "auth/too-many-requests": "嘗試次數過多，請稍後再試", "auth/network-request-failed": "網路連線失敗" };
+        msg.textContent = m[err && err.code] || ("登入失敗：" + (err && err.code || err));
+      })
+      .finally(() => { $("loginBtn").disabled = false; });
+  }
+  logoutBtn.addEventListener("click", () => signOut(auth));
+
+  // ---- 登入狀態切換 ----
+  let unsub = null;
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginCard.hidden = true;
+      logoutBtn.hidden = false;
+      panel.hidden = false;
+      startWatch();
+    } else {
+      if (unsub) { unsub(); unsub = null; }
+      panel.hidden = true;
+      logoutBtn.hidden = true;
+      loginCard.hidden = false;
+      $("password").value = "";
+    }
+  });
+
+  // ---- 監聽該券即時狀態 ----
+  function startWatch() {
+    if (!validHash) {
+      panelLoading.hidden = true;
+      panelErr.hidden = false;
+      panelErr.textContent = "QR 連結無效或缺少券代碼，請重新掃描賓客的 QR。";
+      return;
+    }
+    if (unsub) return; // 已在監聽
+    unsub = onSnapshot(doc(db, "vouchers", hash), (snap) => {
+      panelLoading.hidden = true;
+      if (!snap.exists()) {
+        voucherInfo.hidden = true;
+        panelErr.hidden = false;
+        panelErr.textContent = "查無此券（可能不是女方賓客名單，或尚未匯入）。";
+        return;
+      }
+      panelErr.hidden = true;
+      render(snap.data());
+    }, (err) => {
+      panelLoading.hidden = true;
+      panelErr.hidden = false;
+      panelErr.textContent = "讀取失敗：" + (err && err.code || err);
+    });
+  }
+
+  function fmt(ts) {
+    try {
+      const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : null);
+      if (!d) return "";
+      const p = (n) => (n < 10 ? "0" : "") + n;
+      return d.getFullYear() + "/" + p(d.getMonth() + 1) + "/" + p(d.getDate()) +
+             " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    } catch (e) { return ""; }
+  }
+
+  function render(d) {
+    voucherInfo.hidden = false;
+    $("vName").textContent = d.name || "（未命名）";
+    $("vCode").textContent = d.code ? ("NO. " + d.code) : "";
+    const pill = $("vPill"), redeemed = !!d.redeemed;
+    pill.className = "status-pill " + (redeemed ? "redeemed" : "unredeemed");
+    $("vPillText").textContent = redeemed ? "已領取" : "尚未領取";
+    const at = $("vAt"), atStr = redeemed ? fmt(d.redeemedAt) : "";
+    at.hidden = !atStr;
+    at.textContent = atStr ? ("核銷時間：" + atStr) : "";
+    $("redeemBtn").hidden = redeemed;
+    $("cancelBtn").hidden = !redeemed;
+    $("actionMsg").textContent = "";
+    $("actionMsg").className = "msg";
+  }
+
+  // ---- 核銷 / 取消 ----
+  $("redeemBtn").addEventListener("click", () => setRedeemed(true));
+  $("cancelBtn").addEventListener("click", () => {
+    if (confirm("確定要『取消核銷』嗎？此券將回到尚未領取狀態。")) setRedeemed(false);
+  });
+  function setRedeemed(on) {
+    const msg = $("actionMsg");
+    $("redeemBtn").disabled = $("cancelBtn").disabled = true;
+    updateDoc(doc(db, "vouchers", hash), {
+      redeemed: on,
+      redeemedAt: on ? serverTimestamp() : null
+    }).then(() => {
+      msg.className = "msg ok";
+      msg.textContent = on ? "✓ 已核銷，賓客畫面將浮現「已領取」印章。" : "已取消核銷。";
+    }).catch((err) => {
+      msg.className = "msg err";
+      msg.textContent = "操作失敗：" + (err && err.code || err);
+    }).finally(() => {
+      $("redeemBtn").disabled = $("cancelBtn").disabled = false;
+    });
+  }
+</script>
+</body>
+</html>

@@ -19,6 +19,11 @@ data/einvite_links_reference.csv
 __pycache__/
 *.pyc
 
+# Firebase 服務帳戶金鑰（管理員權限·絕對機密），不可進 repo
+data/serviceAccountKey.json
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
+
 # 每位賓客的喜餅兌換券成品圖（含姓名與兌換碼），供私下發送、不進公開 repo
 vouchers/
 

@@ -66,6 +66,8 @@
       "voucher.subtitle": "喜餅兌換券",
       "voucher.for": "此券專屬於",
       "voucher.note": "請於婚禮當天憑此畫面至收禮台領取喜餅 🍪",
+      "voucher.qr.note": "請於領取喜餅時，出示此 QR 碼給工作人員掃描核銷",
+      "voucher.stamp": "已領取",
       "voucher.tear": "輕觸撕開 ✂",
       "voucher.tear.aria": "撕開兌換券票根",
       "voucher.restore": "復原",
@@ -136,6 +138,8 @@
       "voucher.subtitle": "Pastry Voucher",
       "voucher.for": "Issued to",
       "voucher.note": "Show this screen at the gift desk on the wedding day to receive your pastry 🍪",
+      "voucher.qr.note": "Show this QR code to our staff to redeem your pastry",
+      "voucher.stamp": "REDEEMED",
       "voucher.tear": "Tap to tear ✂",
       "voucher.tear.aria": "Tear off the voucher stub",
       "voucher.restore": "Restore",
@@ -206,6 +210,8 @@
       "voucher.subtitle": "引き菓子引換券",
       "voucher.for": "ご利用者",
       "voucher.note": "挙式当日、この画面を受付にご提示のうえ引き菓子をお受け取りください 🍪",
+      "voucher.qr.note": "引き菓子のお受け取りの際、このQRコードをスタッフにご提示ください",
+      "voucher.stamp": "引換済",
       "voucher.tear": "タップで切り取る ✂",
       "voucher.tear.aria": "引換券の半券を切り取る",
       "voucher.restore": "元に戻す",
@@ -276,6 +282,8 @@
       "voucher.subtitle": "답례품 교환권",
       "voucher.for": "받는 분",
       "voucher.note": "예식 당일 이 화면을 접수처에 제시하고 답례품을 받으세요 🍪",
+      "voucher.qr.note": "답례품을 받으실 때 이 QR 코드를 직원에게 보여주세요",
+      "voucher.stamp": "수령완료",
       "voucher.tear": "탭하여 뜯기 ✂",
       "voucher.tear.aria": "교환권 절취선 뜯기",
       "voucher.restore": "복원",
@@ -770,6 +778,7 @@
     var tear = document.getElementById("voucherTear");
     var stub = document.getElementById("voucherStub");
     var restoreBtn = document.getElementById("voucherRestore");
+    var section = document.getElementById("voucher");
     if (!tear || !stub) return;
 
     var raw;
@@ -781,6 +790,7 @@
     function setTorn(on, instant) {
       if (instant) tear.classList.add("is-initial");
       tear.classList.toggle("torn", on);
+      if (section) section.classList.toggle("is-torn", on);   // 撕券後才顯示專屬核銷 QR
       if (restoreBtn) restoreBtn.hidden = !on;
       if (instant) { void tear.offsetWidth; tear.classList.remove("is-initial"); }
       try {
