@@ -30,23 +30,65 @@ import {
   if (!norm) return;
   if (!(window.crypto && window.crypto.subtle)) return;
 
-  function renderQr(url) {
-    if (!qrBox) return;
-    qrBox.innerHTML = "";
+  var qrUrl = null;
+
+  function drawQr(box, url, size) {
+    box.innerHTML = "";
     if (window.QRCode) {
       try {
-        new window.QRCode(qrBox, {
-          text: url, width: 240, height: 240,
+        new window.QRCode(box, {
+          text: url, width: size, height: size,
           colorDark: "#000000", colorLight: "#ffffff",
           correctLevel: window.QRCode.CorrectLevel.L  // 最低糾錯 → 模組最少、外觀最簡潔
         });
-        return;
+        return true;
       } catch (e) { /* 失敗 → 退回文字連結 */ }
     }
     var a = document.createElement("a");
     a.href = url; a.textContent = url; a.className = "vq-fallback";
     a.target = "_blank"; a.rel = "noopener";
-    qrBox.appendChild(a);
+    box.appendChild(a);
+    return false;
+  }
+
+  // 點一下小 QR → 全螢幕放大，方便工作人員掃描
+  function openZoom() {
+    if (!qrUrl) return;
+    var ov = document.getElementById("vqZoom");
+    if (!ov) {
+      ov = document.createElement("div");
+      ov.id = "vqZoom";
+      ov.className = "vq-zoom";
+      var inner = document.createElement("div");
+      inner.className = "vq-zoom-inner";
+      var box = document.createElement("div");
+      box.className = "vq-zoom-qr";
+      box.id = "vqZoomQr";
+      var cap = document.createElement("p");
+      cap.className = "vq-zoom-cap";
+      cap.textContent = "出示此 QR 給工作人員掃描 · 點任意處關閉";
+      inner.appendChild(box);
+      inner.appendChild(cap);
+      ov.appendChild(inner);
+      document.body.appendChild(ov);
+      ov.addEventListener("click", function () { ov.classList.remove("show"); });
+    }
+    drawQr(document.getElementById("vqZoomQr"), qrUrl, 320);
+    ov.classList.add("show");
+  }
+
+  function renderQr(url) {
+    if (!qrBox) return;
+    qrUrl = url;
+    drawQr(qrBox, url, 240);
+    qrBox.style.cursor = "zoom-in";
+    qrBox.setAttribute("role", "button");
+    qrBox.setAttribute("tabindex", "0");
+    qrBox.setAttribute("aria-label", "放大 QR 碼");
+    qrBox.addEventListener("click", openZoom);
+    qrBox.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openZoom(); }
+    });
   }
 
   function setStamped(on) {

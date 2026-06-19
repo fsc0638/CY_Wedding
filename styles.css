@@ -1346,6 +1346,45 @@ a:focus-visible, button:focus-visible {
 }
 #voucher.is-torn .voucher-qr-note { display: block; }
 
+/* 點擊小 QR 後的全螢幕放大層（方便工作人員掃描）*/
+.vq-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.82);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6vw;
+}
+.vq-zoom.show { display: flex; }
+.vq-zoom-inner {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.vq-zoom-qr {
+  width: min(74vw, 320px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.vq-zoom-qr img,
+.vq-zoom-qr canvas { display: block; width: 100% !important; height: 100% !important; }
+.vq-zoom-cap {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  color: #555;
+  text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* 撕票為一次性動畫，刻意保留；僅關閉提示脈動 */
   .vt-hint { animation: none; }
