@@ -193,3 +193,31 @@
 - ⚠️ **評估結論（電話+簡訊OTP 驗證身分）：不做**。理由：①靜態站無後端，OTP 需外接 Firebase/Twilio
   等付費服務 ②比對「表單電話」會逼電話個資上前端或後端 ③撕除狀態存 localStorage，清快取/換裝置即繞過，
   OTP 擋不到重複領。真正核銷交給現場「兌換碼 + 名單劃記」即可，不需後端。
+
+## 2026-06-19 掃碼核銷 + 即時蓋章（Firebase）— 進行中 / 交接
+目標：賓客撕券後顯示專屬 QR → 工作人員 iPhone 掃 → verify 頁顯示賓客資訊 + 已領取/取消 →
+寫 Firestore → 賓客那張券**即時浮現紅色「已領取」電子印章**（仿公文印章風）。
+
+**架構**
+- Firestore 集合 `vouchers`，doc id = **姓名雜湊**（`sha256(salt + 正規化姓名)`，與網站 `?g=` 解鎖、
+  `guests.json` 同一套；salt 取自 `guests.json`），欄位 `{ name, side:'bride', code, redeemed, redeemedAt }`，只放 10 位女方
+- QR 內容 = `verify.html?h=<雜湊>`；賓客券頁用 `onSnapshot` 監聽自己那筆 → `redeemed:true` 就蓋章
+- 工作人員以 Firebase Auth（email/密碼）登入**一次**即記住；安全規則限定只有登入者能改 `redeemed/redeemedAt`
+
+**Firebase 專案（已建）**：`cy-wedding-aad98`｜Firestore `asia-east1` 正式版｜Auth email/密碼啟用｜
+工作人員帳號 `kicl1143057@gmail.com`｜web config 已存於 `firebase-config.js`
+
+**已完成（本 repo）**
+- `firebase-config.js`（公開安全的 web config）
+- `firestore.rules`（安全規則：賓客可讀、僅登入者可改 redeemed/redeemedAt、前端不可增刪）
+- `data/import_firestore.py`（用服務帳戶金鑰把 10 位女方匯入 Firestore；既有文件保留領取狀態）
+- `.gitignore` 已擋 `serviceAccountKey.json`（管理員機密）
+
+**待辦（接手從這裡繼續）**
+1. 〔使用者·主控台〕Firestore→ルール 貼上 `firestore.rules` 內容並「公開」
+2. 〔使用者·主控台〕專案設定→服務帳戶→產生新私密金鑰 → 改名 `serviceAccountKey.json` 放 `data/`
+3. 〔執行〕`pip install firebase-admin` → `python data/import_firestore.py`（把 10 位女方建進 Firestore）
+4. 〔前端·待建〕撕券後產生 QR（指向 verify 頁）；`verify.html`（工作人員登入 + 顯示資訊 + 已領取/取消）；
+   賓客券即時「已領取」印章（CSS/SVG 仿印章）+ `onSnapshot` 監聽；以上用 Firebase JS SDK（gstatic CDN, ESM）
+5. 〔測試〕本機連真 Firebase 跑通整條流程 → commit → 合併 master → push
+- ⚠️ 跨機器：原始 Excel、`serviceAccountKey.json` 等個資/機密**不在 git**，換機器要另外帶；`guests.json` 在 git。
