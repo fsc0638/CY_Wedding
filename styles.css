@@ -1150,7 +1150,7 @@ a:focus-visible, button:focus-visible {
 .vt-no {
   position: absolute;
   left: 84%;
-  top: 30%;
+  top: 31%;            /* 緊貼券面「NO.」上方 */
   z-index: 3;
   transform: translate(-50%, 0) rotate(-90deg);
   transform-origin: center;
@@ -1159,7 +1159,7 @@ a:focus-visible, button:focus-visible {
   color: #3a4a32;                /* 與券面「NO.」同色（深綠）*/
   font-family: "aquavit", sans-serif;
   font-weight: 400;
-  font-size: 4.3cqw;
+  font-size: 5.4cqw;   /* 與券面「NO.」字級相近 */
   line-height: 1;
   pointer-events: none;
 }
