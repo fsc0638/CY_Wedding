@@ -1013,21 +1013,6 @@ a:focus-visible, button:focus-visible {
   gap: clamp(1rem, 4vw, 2.2rem);
   margin-top: clamp(2rem, 5vw, 3rem);
 }
-.wishes-legend { display: inline-flex; gap: clamp(1rem, 3vw, 1.6rem); }
-.wl-item {
-  display: inline-flex; align-items: center; gap: 0.5em;
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: var(--light-soft);
-}
-.wl-item i {
-  width: 11px; height: 11px; border-radius: 50%;
-  display: inline-block; flex-shrink: 0;
-}
-.wl-groom i { background: var(--wish-groom); }
-.wl-bride i { background: var(--wish-bride); }
-
 .wishes-refresh {
   display: inline-flex; align-items: center; gap: 0.5em;
   padding: 0.55em 1.1em;
@@ -1072,9 +1057,9 @@ a:focus-visible, button:focus-visible {
   font-size: clamp(0.86rem, 2.2vw, 0.98rem);
   line-height: 1.85;
   letter-spacing: 0.02em;
-  color: var(--light);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #2b2b28;
+  background: rgb(239, 231, 218);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
@@ -1089,14 +1074,6 @@ a:focus-visible, button:focus-visible {
 }
 .wish-bubble.f2 { animation-name: wishIn, wishFloat2; }
 .wish-bubble.f3 { animation-name: wishIn, wishFloat3; }
-.wish-bubble.groom {
-  background: rgba(111, 147, 168, 0.16);
-  border-color: rgba(111, 147, 168, 0.5);
-}
-.wish-bubble.bride {
-  background: rgba(201, 138, 152, 0.16);
-  border-color: rgba(201, 138, 152, 0.5);
-}
 @keyframes wishIn { from { opacity: 0; } to { opacity: 1; } }
 /* 固定數值的浮動關鍵影格（避開 iOS Safari 對 keyframe 內 var()/calc() transform 的問題）*/
 @keyframes wishFloat {
