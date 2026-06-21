@@ -15,7 +15,7 @@
       "nav.invite": "Timeline",
       "nav.dresscode": "Dress Code",
       "nav.travel": "Getting There",
-      "nav.wishes": "Wishes",
+      "nav.wishes": "Words of Love",
       "nav.menu": "選單",
       "bgm.play": "播放背景音樂",
       "bgm.pause": "暫停背景音樂",
@@ -87,7 +87,7 @@
       "nav.invite": "Timeline",
       "nav.dresscode": "Dress Code",
       "nav.travel": "Getting There",
-      "nav.wishes": "Wishes",
+      "nav.wishes": "Words of Love",
       "nav.menu": "Menu",
       "bgm.play": "Play background music",
       "bgm.pause": "Pause background music",
@@ -660,7 +660,7 @@
         var b = document.createElement("div");
         // 三種浮動路徑變體輪流（f1 為預設、f2/f3 換 keyframe），加上各自隨機時長/相位
         var variant = idx % 3;
-        b.className = "wish-bubble " + (w.side === "bride" ? "bride" : "groom") +
+        b.className = "wish-bubble" +
           (variant === 1 ? " f2" : variant === 2 ? " f3" : "");
         b.textContent = w.text;
         b.style.setProperty("--dur", rand(7, 13).toFixed(2) + "s");

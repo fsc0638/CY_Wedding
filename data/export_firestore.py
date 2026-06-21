@@ -3,8 +3,8 @@
 export_firestore.py — 婚禮後從 Firestore 匯出喜餅核銷「正式報表」(xlsx)
 
 讀取 vouchers 集合（女方賓客），輸出兩頁：
-  1) 明細：姓名 / 兌換碼 / 喜餅樣式 / 滿月禮 / 領取狀態 / 核銷時間 / 備註
-  2) 統計：總數、已領 / 未領、中式 / 西式、滿月禮，及未領清單
+  1) 明細：姓名 / 兌換碼 / 喜餅樣式 / 領取狀態 / 核銷時間 / 備註
+  2) 統計：總數、已領 / 未領、中式 / 西式，及未領清單
 
 需要：
   - data/serviceAccountKey.json  Firebase 服務帳戶金鑰（admin 權限，勿外流、勿提交）
@@ -64,8 +64,6 @@ def main():
             "code": str(d.get("code") or ""),
             "gift": GIFT_LABEL.get(gift, "中式"),
             "western": gift == "western",
-            "fullmoon": "滿月禮" if "滿月" in note else "",
-            "is_fullmoon": "滿月" in note,
             "status": "已領取" if redeemed else "未領取",
             "redeemed": redeemed,
             "at": fmt_ts(d.get("redeemedAt")) if redeemed else "",
@@ -82,7 +80,6 @@ def main():
     head_fill = PatternFill("solid", fgColor="3A4A32")
     head_font = Font(bold=True, color="FFFFFF")
     done_fill = PatternFill("solid", fgColor="FBEAE8")   # 已領取淡紅
-    moon_font = Font(color="B08D3F", bold=True)
     center = Alignment(horizontal="center", vertical="center")
     left = Alignment(horizontal="left", vertical="center")
     thin = Side(style="thin", color="DDDDDD")
@@ -93,7 +90,7 @@ def main():
     # ===== 明細頁 =====
     ws = wb.active
     ws.title = "明細"
-    headers = ["姓名", "喜餅兌換碼", "喜餅樣式", "滿月禮", "領取狀態", "核銷時間", "備註"]
+    headers = ["姓名", "喜餅兌換碼", "喜餅樣式", "領取狀態", "核銷時間", "備註"]
     ws.append(headers)
     for c in range(1, len(headers) + 1):
         cell = ws.cell(row=1, column=c)
@@ -103,19 +100,17 @@ def main():
         cell.border = border
 
     for r in rows:
-        ws.append([r["name"], r["code"], r["gift"], r["fullmoon"], r["status"], r["at"], r["note"]])
+        ws.append([r["name"], r["code"], r["gift"], r["status"], r["at"], r["note"]])
         ri = ws.max_row
         for c in range(1, len(headers) + 1):
             cell = ws.cell(row=ri, column=c)
             cell.border = border
-            cell.alignment = left if c in (1, 7) else center
+            cell.alignment = left if c in (1, 6) else center
         if r["redeemed"]:
             for c in range(1, len(headers) + 1):
                 ws.cell(row=ri, column=c).fill = done_fill
-        if r["is_fullmoon"]:
-            ws.cell(row=ri, column=4).font = moon_font
 
-    widths = [12, 14, 10, 8, 10, 18, 28]
+    widths = [12, 14, 10, 10, 18, 28]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws.freeze_panes = "A2"
@@ -125,10 +120,8 @@ def main():
     done = sum(1 for r in rows if r["redeemed"])
     west = sum(1 for r in rows if r["western"])
     cn = total - west
-    moon = sum(1 for r in rows if r["is_fullmoon"])
     west_done = sum(1 for r in rows if r["western"] and r["redeemed"])
     cn_done = sum(1 for r in rows if not r["western"] and r["redeemed"])
-    moon_done = sum(1 for r in rows if r["is_fullmoon"] and r["redeemed"])
 
     ws2 = wb.create_sheet("統計")
     stat_rows = [
@@ -141,9 +134,6 @@ def main():
         ("中式喜餅 — 已送出", cn_done),
         ("西式喜餅 — 總數", west),
         ("西式喜餅 — 已送出", west_done),
-        ("", ""),
-        ("滿月禮 — 總數", moon),
-        ("滿月禮 — 已送出", moon_done),
     ]
     for i, (k, v) in enumerate(stat_rows, start=1):
         ws2.cell(row=i, column=1, value=k)
@@ -176,8 +166,8 @@ def main():
 
     out = os.path.join(HERE, "喜餅核銷報表_%s.xlsx" % datetime.now(TPE).strftime("%Y%m%d_%H%M"))
     wb.save(out)
-    print("完成：%d 位女方賓客，已送出 %d（中式 %d / 西式 %d，滿月禮 %d）"
-          % (total, done, cn_done, west_done, moon_done))
+    print("完成：%d 位女方賓客，已送出 %d（中式 %d / 西式 %d）"
+          % (total, done, cn_done, west_done))
     print("報表已輸出 → %s" % out)
 
 
