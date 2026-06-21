@@ -1144,7 +1144,26 @@ a:focus-visible, button:focus-visible {
   width: 100%;
   aspect-ratio: 2000 / 1419;
   filter: drop-shadow(0 16px 30px rgba(45, 43, 37, 0.22));
+  container-type: inline-size;   /* 供券面編號以 cqw 隨卡片寬度等比縮放 */
 }
+/* 券面右側票根「NO.」後方的兌換編號（直書，下→上，與 NO. 同欄 x≈84%）*/
+.vt-no {
+  position: absolute;
+  left: 84%;
+  top: 31%;            /* 緊貼券面「NO.」上方 */
+  z-index: 3;
+  transform: translate(-50%, 0) rotate(-90deg);
+  transform-origin: center;
+  white-space: nowrap;
+  letter-spacing: 0.12em;
+  color: #3a4a32;                /* 與券面「NO.」同色（深綠）*/
+  font-family: "aquavit", sans-serif;
+  font-weight: 400;
+  font-size: 5.4cqw;   /* 與券面「NO.」字級相近 */
+  line-height: 1;
+  pointer-events: none;
+}
+.vt-no:empty { display: none; }
 .vt-img {
   position: absolute;
   inset: 0;
@@ -1421,6 +1440,12 @@ a:focus-visible, button:focus-visible {
   border-radius: 10px;
   padding: 0.5em 0.8em;
   margin: 0 0 1.1rem;
+}
+.vm-code-num {
+  font-family: "aquavit", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  font-size: 1.12em;
 }
 .vm-msg {
   font-family: var(--serif-tc);

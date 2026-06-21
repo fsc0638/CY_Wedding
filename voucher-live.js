@@ -11,6 +11,7 @@ import {
   var card = document.querySelector(".voucher-card");
   var qrBox = document.getElementById("voucherQr");
   var stamp = document.getElementById("voucherStamp");
+  var noEl = document.getElementById("voucherNo");   // 券面「NO.」後方的兌換編號
   if (!card) return;
 
   // 與 build_guests.py / script.js 完全一致的正規化
@@ -112,6 +113,7 @@ import {
           onSnapshot(doc(db, "vouchers", hex), function (snap) {
             var d = snap.exists() ? snap.data() : null;
             setStamped(!!(d && d.redeemed));
+            if (noEl && d && d.code) noEl.textContent = String(d.code);  // 填入券面編號
           }, function () { /* 連線失敗：靜默，券仍可正常顯示 */ });
         });
     })
