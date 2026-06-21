@@ -62,11 +62,16 @@ def cleanup_tmp(tmp):
             pass
 
 
+# export_firestore.py 產出的核銷報表前綴；這類檔是「輸出」，不能被當成賓客來源讀回
+EXPORT_PREFIXES = ("喜餅核銷報表",)
+
+
 def find_latest_xlsx(folder):
     files = [f for f in glob.glob(os.path.join(folder, "*.xlsx"))
-             if not os.path.basename(f).startswith("~$")]
+             if not os.path.basename(f).startswith("~$")            # Excel 鎖檔暫存
+             and not os.path.basename(f).startswith(EXPORT_PREFIXES)]  # 排除 export 產出的報表
     if not files:
-        sys.exit("找不到任何 .xlsx，請將表單匯出的 Excel 放進 data/ 後再執行。")
+        sys.exit("找不到任何賓客回覆 .xlsx，請將表單匯出的 Excel 放進 data/ 後再執行。")
     return max(files, key=os.path.getmtime)
 
 
