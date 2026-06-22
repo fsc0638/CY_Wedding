@@ -159,6 +159,35 @@
   .w-at { color: var(--soft); font-size: 0.74rem; display: block; margin-top: 0.25rem; }
   .w-del { flex: 0 0 auto; color: var(--red); border-color: var(--red); }
 
+  /* 禮金統計 */
+  .gift-kpi { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .gift-kpi-item {
+    flex: 1; text-align: center; border: 1px solid var(--line);
+    border-radius: 10px; padding: 0.55rem 0.4rem;
+  }
+  .gift-kpi-item b { display: block; font-size: 1.05rem; color: var(--green); font-weight: 700; }
+  .gift-kpi-item span { font-size: 0.68rem; color: var(--soft); }
+  .gift-row { display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
+  .gift-row input { margin-bottom: 0; font-size: 0.9rem; padding: 0.55rem 0.65rem; }
+  .g-inp-name { flex: 3; }
+  .g-inp-amt  { flex: 2; -moz-appearance: textfield; appearance: textfield; }
+  .g-inp-amt::-webkit-outer-spin-button,
+  .g-inp-amt::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .g-del-row {
+    flex: 0 0 auto; padding: 0.5rem 0.7rem; font-size: 0.85rem;
+    color: var(--red); border-color: var(--red);
+  }
+  .g-list-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: 1.1rem 0 0.5rem;
+  }
+  .g-list-head span { font-size: 0.82rem; color: var(--soft); }
+  .g-name-lbl { font-weight: 600; }
+  .g-amt-lbl  { color: var(--green); font-weight: 700; margin-left: 0.5em; }
+  .g-note-lbl { color: var(--soft); font-size: 0.78rem; }
+  .g-at       { color: var(--soft); font-size: 0.74rem; display: block; margin-top: 0.2rem; }
+  .g-del      { color: var(--red); border-color: var(--red); }
+
   /* 掃描下一位 */
   .btn-scan {
     width: 100%; margin: 1.5rem 0; font-weight: 600;
@@ -278,6 +307,28 @@
     <p class="roster-empty" id="wishesEmpty" hidden>目前沒有匿名留言。</p>
   </section>
 
+  <!-- 5) 禮金統計 -->
+  <section class="card roster" id="giftsCard" hidden>
+    <div class="roster-head">
+      <h2>禮金統計</h2>
+    </div>
+    <div class="gift-kpi">
+      <div class="gift-kpi-item"><b id="gKpiTotal">NT$ 0</b><span>禮金總額</span></div>
+      <div class="gift-kpi-item"><b id="gKpiCount">0 筆</b><span>筆數</span></div>
+      <div class="gift-kpi-item"><b id="gKpiAvg">—</b><span>平均金額</span></div>
+    </div>
+    <div id="giftEntryArea"></div>
+    <button class="btn-ghost" id="giftAddBtn" style="width:100%;margin-bottom:0.8rem">＋ 新增項目</button>
+    <button class="btn-primary" id="giftCommitBtn" disabled>確認入帳</button>
+    <p class="msg" id="giftMsg"></p>
+    <div id="giftListWrap" hidden>
+      <div class="g-list-head"><span>已入帳明細</span></div>
+      <ul class="roster-list" id="giftList"></ul>
+      <p class="roster-empty" id="giftEmpty" hidden>尚無禮金記錄。</p>
+      <button class="btn-ghost roster-export" id="giftExportBtn">匯出 CSV</button>
+    </div>
+  </section>
+
   <p class="foot">CY Wedding · 內部核銷用</p>
 </div>
 
@@ -301,14 +352,14 @@
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
     doc, collection, onSnapshot, updateDoc, serverTimestamp,
-    deleteDoc, query, orderBy, limit
+    deleteDoc, query, orderBy, limit, addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const $ = (id) => document.getElementById(id);
   const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
   const rosterCard = $("rosterCard"), wishesCard = $("wishesCard"), scanBtn = $("scanBtn");
-  const overview = $("overview");
+  const overview = $("overview"), giftsCard = $("giftsCard");
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
@@ -337,7 +388,7 @@
   logoutBtn.addEventListener("click", () => signOut(auth));
 
   // ---- 登入狀態切換 ----
-  let unsub = null, rosterUnsub = null, wishesUnsub = null;
+  let unsub = null, rosterUnsub = null, wishesUnsub = null, giftsUnsub = null;
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginCard.hidden = true;
@@ -346,19 +397,23 @@
       panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
       rosterCard.hidden = false;
       wishesCard.hidden = false;
+      giftsCard.hidden = false;
       scanBtn.hidden = false;
       startWatch();
       startRosterWatch();
       startWishesWatch();
+      startGiftsWatch();
     } else {
       if (unsub) { unsub(); unsub = null; }
       if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
       if (wishesUnsub) { wishesUnsub(); wishesUnsub = null; }
+      if (giftsUnsub) { giftsUnsub(); giftsUnsub = null; }
       closeScanner();
       overview.hidden = true;
       panel.hidden = true;
       rosterCard.hidden = true;
       wishesCard.hidden = true;
+      giftsCard.hidden = true;
       scanBtn.hidden = true;
       logoutBtn.hidden = true;
       loginCard.hidden = false;
@@ -598,6 +653,161 @@
     // onSnapshot 會自動把該則從列表移除
   });
   $("wishesSearch").addEventListener("input", renderWishes);
+
+  // ---- 禮金統計（手動輸入 + Firestore 即時同步）----
+  let giftDocs = [];
+
+  function startGiftsWatch() {
+    if (giftsUnsub) return;
+    giftsUnsub = onSnapshot(
+      query(collection(db, "gifts"), orderBy("createdAt", "desc"), limit(500)),
+      (snap) => {
+        giftDocs = [];
+        snap.forEach((d) => {
+          const g = d.data() || {};
+          giftDocs.push({ id: d.id, name: g.name || "", amount: g.amount || 0,
+                          note: (g.note || "").trim(), createdAt: g.createdAt || null });
+        });
+        renderGifts();
+      },
+      (err) => { console.error("gifts watch error", err && err.code || err); }
+    );
+  }
+
+  function renderGifts() {
+    const total = giftDocs.reduce((s, g) => s + (g.amount || 0), 0);
+    const count = giftDocs.length;
+    const avg   = count ? Math.round(total / count) : 0;
+    $("gKpiTotal").textContent = "NT$ " + total.toLocaleString();
+    $("gKpiCount").textContent = count + " 筆";
+    $("gKpiAvg").textContent   = count ? "NT$ " + avg.toLocaleString() : "—";
+
+    const listWrap = $("giftListWrap");
+    listWrap.hidden = !count;
+    if (!count) { $("giftEmpty").hidden = false; $("giftList").innerHTML = ""; return; }
+    $("giftEmpty").hidden = true;
+
+    const frag = document.createDocumentFragment();
+    for (const g of giftDocs) {
+      const at = fmt(g.createdAt);
+      const li = document.createElement("li");
+      li.innerHTML =
+        '<span class="r-main">' +
+          '<span class="g-name-lbl"></span>' +
+          '<span class="g-amt-lbl">NT$ ' + escapeHtml(g.amount.toLocaleString()) + '</span>' +
+          (g.note ? '<span class="g-note-lbl"> · ' + escapeHtml(g.note) + '</span>' : '') +
+          (at ? '<span class="g-at">' + escapeHtml(at) + '</span>' : '') +
+        '</span>' +
+        '<button class="btn-ghost g-del" data-gid="' + escapeHtml(g.id) + '">刪除</button>';
+      li.querySelector(".g-name-lbl").textContent = g.name;
+      frag.appendChild(li);
+    }
+    $("giftList").innerHTML = "";
+    $("giftList").appendChild(frag);
+  }
+
+  // 新增一列手動輸入
+  function addGiftRow() {
+    const area = $("giftEntryArea");
+    const row = document.createElement("div");
+    row.className = "gift-row";
+    row.innerHTML =
+      '<input type="text"   class="g-inp-name" placeholder="姓名 *" autocomplete="off" />' +
+      '<input type="number" class="g-inp-amt"  placeholder="金額 *" min="1" inputmode="numeric" />' +
+      '<button class="btn-ghost g-del-row">✕</button>';
+    row.querySelector(".g-del-row").addEventListener("click", () => { row.remove(); syncCommitBtn(); });
+    row.querySelector(".g-inp-name").addEventListener("input", syncCommitBtn);
+    row.querySelector(".g-inp-amt").addEventListener("input", syncCommitBtn);
+    area.appendChild(row);
+    row.querySelector(".g-inp-name").focus();
+    syncCommitBtn();
+  }
+
+  function syncCommitBtn() {
+    const rows  = Array.from(document.querySelectorAll("#giftEntryArea .gift-row"));
+    const valid = rows.filter((r) => {
+      const name = (r.querySelector(".g-inp-name").value || "").trim();
+      const amt  = parseInt(r.querySelector(".g-inp-amt").value, 10);
+      return name && amt > 0;
+    });
+    const btn = $("giftCommitBtn");
+    btn.disabled = !valid.length;
+    btn.textContent = valid.length > 0 ? "確認入帳 " + valid.length + " 筆" : "確認入帳";
+  }
+
+  $("giftAddBtn").addEventListener("click", addGiftRow);
+
+  $("giftCommitBtn").addEventListener("click", async () => {
+    const rows = Array.from(document.querySelectorAll("#giftEntryArea .gift-row"));
+    const valid = rows.map((r) => ({
+      name:   (r.querySelector(".g-inp-name").value || "").trim(),
+      amount: parseInt(r.querySelector(".g-inp-amt").value, 10)
+    })).filter((g) => g.name && g.amount > 0);
+    if (!valid.length) return;
+
+    const msg = $("giftMsg");
+    $("giftCommitBtn").disabled = true;
+    msg.className = "msg"; msg.textContent = "入帳中⋯";
+
+    const user = auth.currentUser;
+    try {
+      for (const g of valid) {
+        await addDoc(collection(db, "gifts"), {
+          name: g.name, amount: g.amount, note: "",
+          source: "manual", confidence: null,
+          createdAt: serverTimestamp(),
+          by: user ? user.email : ""
+        });
+      }
+      msg.className = "msg ok";
+      msg.textContent = "✓ 已入帳 " + valid.length + " 筆。";
+      $("giftEntryArea").innerHTML = "";
+      syncCommitBtn();
+      setTimeout(() => { msg.textContent = ""; }, 3000);
+    } catch (err) {
+      msg.className = "msg err";
+      msg.textContent = "入帳失敗：" + (err && err.code || err);
+      $("giftCommitBtn").disabled = false;
+    }
+  });
+
+  // 刪除一筆禮金
+  $("giftList").addEventListener("click", (e) => {
+    const btn = e.target.closest(".g-del");
+    if (!btn) return;
+    const id = btn.dataset.gid;
+    if (!id) return;
+    if (!confirm("確定刪除此筆禮金記錄？（若誤刪請重新輸入）")) return;
+    btn.disabled = true;
+    deleteDoc(doc(db, "gifts", id)).catch((err) => {
+      btn.disabled = false;
+      alert("刪除失敗：" + (err && err.code || err));
+    });
+  });
+
+  // 匯出禮金 CSV
+  $("giftExportBtn").addEventListener("click", () => {
+    if (!giftDocs.length) { alert("目前沒有禮金記錄可匯出。"); return; }
+    const header = ["姓名", "金額 (NT$)", "備註", "入帳時間"];
+    const lines  = [header.map(csvCell).join(",")];
+    for (const g of [...giftDocs].reverse()) {      // 由舊到新排列
+      lines.push([csvCell(g.name), csvCell(g.amount), csvCell(g.note), csvCell(fmt(g.createdAt))].join(","));
+    }
+    const total = giftDocs.reduce((s, g) => s + g.amount, 0);
+    lines.push("", csvCell("合計") + "," + csvCell("NT$ " + total.toLocaleString()) + "," +
+                   csvCell("共 " + giftDocs.length + " 筆"));
+    const csv  = "﻿" + lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    const now  = new Date();
+    const p    = (n) => (n < 10 ? "0" : "") + n;
+    a.href = url;
+    a.download = "禮金統計_" + now.getFullYear() + p(now.getMonth() + 1) + p(now.getDate()) +
+                 "_" + p(now.getHours()) + p(now.getMinutes()) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
 
   // ---- 匯出 CSV（前端即時下載，含 BOM 讓 Excel 正確顯示中文）----
   function csvCell(v) {
