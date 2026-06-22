@@ -144,6 +144,12 @@
   .rf.active { background: var(--green); color: #fff; border-color: var(--green); }
   .r-gifts { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
   .r-gift { transform: scale(0.92); transform-origin: left center; }
+
+  /* 匿名留言管理 */
+  #wishesList li { align-items: flex-start; }
+  .w-text { font-size: 0.92rem; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
+  .w-at { color: var(--soft); font-size: 0.74rem; display: block; margin-top: 0.25rem; }
+  .w-del { flex: 0 0 auto; color: var(--red); border-color: var(--red); }
 </style>
 </head>
 <body>
@@ -205,6 +211,17 @@
     <p class="roster-empty" id="rosterEmpty" hidden>目前沒有名單資料。</p>
   </section>
 
+  <!-- 4) 匿名留言管理（祝福牆免表單留言的後台刪除）-->
+  <section class="card roster" id="wishesCard" hidden>
+    <div class="roster-head">
+      <h2>匿名留言管理</h2>
+      <span class="roster-count" id="wishesCount"></span>
+    </div>
+    <input type="text" class="roster-search" id="wishesSearch" placeholder="搜尋留言內容⋯" autocomplete="off" />
+    <ul class="roster-list" id="wishesList"></ul>
+    <p class="roster-empty" id="wishesEmpty" hidden>目前沒有匿名留言。</p>
+  </section>
+
   <p class="foot">CY Wedding · 內部核銷用</p>
 </div>
 
@@ -214,13 +231,14 @@
     onAuthStateChanged, signInWithEmailAndPassword, signOut
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import {
-    doc, collection, onSnapshot, updateDoc, serverTimestamp
+    doc, collection, onSnapshot, updateDoc, serverTimestamp,
+    deleteDoc, query, orderBy, limit
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const $ = (id) => document.getElementById(id);
   const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
-  const rosterCard = $("rosterCard");
+  const rosterCard = $("rosterCard"), wishesCard = $("wishesCard");
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
@@ -249,20 +267,24 @@
   logoutBtn.addEventListener("click", () => signOut(auth));
 
   // ---- 登入狀態切換 ----
-  let unsub = null, rosterUnsub = null;
+  let unsub = null, rosterUnsub = null, wishesUnsub = null;
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginCard.hidden = true;
       logoutBtn.hidden = false;
       panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
       rosterCard.hidden = false;
+      wishesCard.hidden = false;
       startWatch();
       startRosterWatch();
+      startWishesWatch();
     } else {
       if (unsub) { unsub(); unsub = null; }
       if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
+      if (wishesUnsub) { wishesUnsub(); wishesUnsub = null; }
       panel.hidden = true;
       rosterCard.hidden = true;
+      wishesCard.hidden = true;
       logoutBtn.hidden = true;
       loginCard.hidden = false;
       $("password").value = "";
@@ -435,6 +457,69 @@
   }
 
   rosterSearch.addEventListener("input", renderRoster);
+
+  // ---- 匿名留言管理（即時列表 + 刪除）----
+  let wishDocs = [];
+  function startWishesWatch() {
+    if (wishesUnsub) return;
+    wishesUnsub = onSnapshot(
+      query(collection(db, "wishes"), orderBy("createdAt", "desc"), limit(500)),
+      (snap) => {
+        wishDocs = [];
+        snap.forEach((d) => {
+          const w = d.data() || {};
+          wishDocs.push({ id: d.id, text: w.text || "", createdAt: w.createdAt || null });
+        });
+        renderWishes();
+      },
+      (err) => {
+        $("wishesList").innerHTML = "";
+        $("wishesCount").textContent = "讀取失敗：" + (err && err.code || err);
+        $("wishesEmpty").hidden = true;
+      }
+    );
+  }
+  function renderWishes() {
+    const kw = ($("wishesSearch").value || "").trim().toLowerCase();
+    const shown = wishDocs.filter((w) => !kw || w.text.toLowerCase().includes(kw));
+    $("wishesCount").textContent = "共 " + wishDocs.length + " 則";
+    const list = $("wishesList");
+    list.innerHTML = "";
+    if (!shown.length) {
+      $("wishesEmpty").hidden = false;
+      $("wishesEmpty").textContent = wishDocs.length ? "查無符合的留言。" : "目前沒有匿名留言。";
+      return;
+    }
+    $("wishesEmpty").hidden = true;
+    const frag = document.createDocumentFragment();
+    for (const w of shown) {
+      const at = fmt(w.createdAt);
+      const li = document.createElement("li");
+      li.innerHTML =
+        '<span class="r-main"><span class="w-text"></span>' +
+        (at ? '<span class="w-at">' + escapeHtml(at) + "</span>" : "") +
+        "</span>" +
+        '<button class="btn-ghost w-del">刪除</button>';
+      li.querySelector(".w-text").textContent = w.text;
+      li.querySelector(".w-del").dataset.id = w.id;
+      frag.appendChild(li);
+    }
+    list.appendChild(frag);
+  }
+  $("wishesList").addEventListener("click", (e) => {
+    const btn = e.target.closest(".w-del");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+    if (!confirm("確定刪除這則留言？刪除後祝福牆將不再顯示。")) return;
+    btn.disabled = true;
+    deleteDoc(doc(db, "wishes", id)).catch((err) => {
+      btn.disabled = false;
+      alert("刪除失敗：" + (err && err.code || err));
+    });
+    // onSnapshot 會自動把該則從列表移除
+  });
+  $("wishesSearch").addEventListener("input", renderWishes);
 
   // ---- 匯出 CSV（前端即時下載，含 BOM 讓 Excel 正確顯示中文）----
   function csvCell(v) {

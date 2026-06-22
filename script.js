@@ -57,11 +57,23 @@
       "wishes.subtitle": "賓客的祝福",
       "wishes.groom": "俊郁朋友",
       "wishes.bride": "雁婷朋友",
-      "wishes.refresh": "重新整理",
-      "wishes.refresh.aria": "重新整理祝福留言",
+      "wishes.refresh": "重新抽取",
+      "wishes.refresh.aria": "重新抽取祝福留言",
       "wishes.loading": "載入中⋯",
       "wishes.empty": "目前還沒有祝福留言，敬請期待 ♡",
       "wishes.error": "讀取資料失敗，請稍後再試",
+      "wishes.post": "匿名留言",
+      "wishes.post.title": "留下祝福",
+      "wishes.post.sub": "您的祝福會匿名顯示在祝福牆上 ♡",
+      "wishes.post.placeholder": "寫下想對新人說的話⋯",
+      "wishes.post.submit": "送出",
+      "wishes.post.cancel": "取消",
+      "wishes.post.close": "關閉",
+      "wishes.post.done": "已送出，感謝您的祝福 ♡",
+      "wishes.post.empty": "請先輸入祝福內容",
+      "wishes.post.cooldown": "您剛送出過，請稍候再留言",
+      "wishes.post.error": "送出失敗，請稍後再試",
+      "wishes.post.blocked": "留言含不當字詞，請修改後再送出",
       "nav.voucher": "喜餅兌換券",
       "voucher.subtitle": "喜餅兌換券",
       "voucher.for": "此券專屬於",
@@ -129,11 +141,23 @@
       "wishes.subtitle": "Words from our guests",
       "wishes.groom": "ChunYu's friends",
       "wishes.bride": "YanTing's friends",
-      "wishes.refresh": "Refresh",
-      "wishes.refresh.aria": "Reload guest messages",
+      "wishes.refresh": "Draw again",
+      "wishes.refresh.aria": "Draw a new set of messages",
       "wishes.loading": "Loading…",
       "wishes.empty": "No messages yet — check back soon ♡",
       "wishes.error": "Couldn't load messages, please try again",
+      "wishes.post": "Leave a wish",
+      "wishes.post.title": "Leave a wish",
+      "wishes.post.sub": "Your message will appear anonymously on the wall ♡",
+      "wishes.post.placeholder": "Write your wishes for the couple…",
+      "wishes.post.submit": "Send",
+      "wishes.post.cancel": "Cancel",
+      "wishes.post.close": "Close",
+      "wishes.post.done": "Sent — thank you for your wishes ♡",
+      "wishes.post.empty": "Please write something first",
+      "wishes.post.cooldown": "You just posted — please wait a moment",
+      "wishes.post.error": "Couldn't send, please try again",
+      "wishes.post.blocked": "Your message contains inappropriate words — please revise",
       "nav.voucher": "Pastry Voucher",
       "voucher.subtitle": "Pastry Voucher",
       "voucher.for": "Issued to",
@@ -201,11 +225,23 @@
       "wishes.subtitle": "ゲストからの祝福",
       "wishes.groom": "俊郁の友人",
       "wishes.bride": "雁婷の友人",
-      "wishes.refresh": "更新",
-      "wishes.refresh.aria": "祝福メッセージを再読み込み",
+      "wishes.refresh": "引き直す",
+      "wishes.refresh.aria": "メッセージを引き直す",
       "wishes.loading": "読み込み中…",
       "wishes.empty": "まだメッセージがありません ♡",
       "wishes.error": "読み込みに失敗しました。もう一度お試しください",
+      "wishes.post": "メッセージを送る",
+      "wishes.post.title": "祝福を送る",
+      "wishes.post.sub": "メッセージは匿名で祝福ウォールに表示されます ♡",
+      "wishes.post.placeholder": "新郎新婦へのメッセージ…",
+      "wishes.post.submit": "送信",
+      "wishes.post.cancel": "キャンセル",
+      "wishes.post.close": "閉じる",
+      "wishes.post.done": "送信しました。ありがとうございます ♡",
+      "wishes.post.empty": "メッセージを入力してください",
+      "wishes.post.cooldown": "先ほど送信しました。少し待ってください",
+      "wishes.post.error": "送信に失敗しました。もう一度お試しください",
+      "wishes.post.blocked": "不適切な語句が含まれています。修正してください",
       "nav.voucher": "引き菓子券",
       "voucher.subtitle": "引き菓子引換券",
       "voucher.for": "ご利用者",
@@ -273,11 +309,23 @@
       "wishes.subtitle": "하객들의 축하 메시지",
       "wishes.groom": "ChunYu의 친구",
       "wishes.bride": "YanTing의 친구",
-      "wishes.refresh": "새로고침",
-      "wishes.refresh.aria": "축하 메시지 새로고침",
+      "wishes.refresh": "다시 뽑기",
+      "wishes.refresh.aria": "메시지 다시 뽑기",
       "wishes.loading": "불러오는 중…",
       "wishes.empty": "아직 메시지가 없습니다 ♡",
       "wishes.error": "불러오지 못했습니다. 다시 시도해 주세요",
+      "wishes.post": "축하 남기기",
+      "wishes.post.title": "축하 메시지 남기기",
+      "wishes.post.sub": "메시지는 익명으로 축하 월에 표시됩니다 ♡",
+      "wishes.post.placeholder": "신랑신부에게 한마디…",
+      "wishes.post.submit": "보내기",
+      "wishes.post.cancel": "취소",
+      "wishes.post.close": "닫기",
+      "wishes.post.done": "전송되었습니다. 축하해 주셔서 감사합니다 ♡",
+      "wishes.post.empty": "내용을 입력해 주세요",
+      "wishes.post.cooldown": "방금 보내셨습니다. 잠시 후 다시 시도해 주세요",
+      "wishes.post.error": "전송하지 못했습니다. 다시 시도해 주세요",
+      "wishes.post.blocked": "부적절한 표현이 포함되어 있습니다. 수정해 주세요",
       "nav.voucher": "답례품 교환권",
       "voucher.subtitle": "답례품 교환권",
       "voucher.for": "받는 분",
@@ -645,6 +693,17 @@
       return arr;
     }
 
+    // 建一顆泡泡（三種浮動變體輪流 f1/f2/f3 + 各自隨機時長/相位）
+    function makeBubble(text, idx) {
+      var b = document.createElement("div");
+      var variant = idx % 3;
+      b.className = "wish-bubble" + (variant === 1 ? " f2" : variant === 2 ? " f3" : "");
+      b.textContent = text;
+      b.style.setProperty("--dur", rand(7, 13).toFixed(2) + "s");
+      b.style.setProperty("--delay", (-rand(0, 6)).toFixed(2) + "s");
+      return b;
+    }
+
     function renderBubbles(wishes) {
       field.innerHTML = "";
       if (!wishes || !wishes.length) {
@@ -652,20 +711,12 @@
         return;
       }
       setStatus(null, false);
-      // 每次隨機抽取 10–15 則（總數不足則全部顯示）；每次重新整理都會重新抽取
+      // 每次隨機抽取 10–15 則（總數不足則全部顯示）；每次重新抽取都重抽
       var pool = shuffle(wishes.slice());
       var take = Math.min(pool.length, 10 + Math.floor(Math.random() * 6));  // 10..15
       var frag = document.createDocumentFragment();
       pool.slice(0, take).forEach(function (w, idx) {
-        var b = document.createElement("div");
-        // 三種浮動路徑變體輪流（f1 為預設、f2/f3 換 keyframe），加上各自隨機時長/相位
-        var variant = idx % 3;
-        b.className = "wish-bubble" +
-          (variant === 1 ? " f2" : variant === 2 ? " f3" : "");
-        b.textContent = w.text;
-        b.style.setProperty("--dur", rand(7, 13).toFixed(2) + "s");
-        b.style.setProperty("--delay", (-rand(0, 6)).toFixed(2) + "s");
-        frag.appendChild(b);
+        frag.appendChild(makeBubble(w.text, idx));
       });
       field.appendChild(frag);
     }
@@ -676,20 +727,21 @@
         if (refreshBtn) refreshBtn.classList.add("spinning");
         field.classList.add("fading");
       }
-      var fetchP = fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        });
+      // 池 = 表單匯入(wishes.json) + Firestore 匿名留言；任一來源失敗都不影響另一個
+      var jsonP = fetch(DATA_URL + "?v=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (d) { return (d && d.wishes) || []; })
+        .catch(function () { return []; });
+      var fsP = (window.__cyWishesLive && window.__cyWishesLive.fetchWishes)
+        ? window.__cyWishesLive.fetchWishes() : Promise.resolve([]);
       var delayP = new Promise(function (res) { setTimeout(res, initial ? 0 : 360); });
 
-      Promise.all([fetchP, delayP]).then(function (vals) {
-        var data = vals[0];
+      Promise.all([jsonP, fsP, delayP]).then(function (vals) {
         field.classList.remove("fading");
-        renderBubbles((data && data.wishes) || []);
+        var pool = (vals[0] || []).concat(vals[1] || []);
+        renderBubbles(pool);
       }).catch(function () {
         field.classList.remove("fading");
-        // 失敗時若畫面已有泡泡則保留，僅在無內容時顯示錯誤
         if (!field.children.length) setStatus("wishes.error", true);
       }).then(function () {
         if (refreshBtn) {
@@ -718,6 +770,109 @@
     } else {
       load(true);
     }
+
+    /* ---------- 匿名留言：寫入 Firestore（wishes-live.js）+ 立即顯示自己那則 ---------- */
+    (function () {
+      var postBtn = document.getElementById("wishPostBtn");
+      var modal = document.getElementById("wishModal");
+      var input = document.getElementById("wishInput");
+      var countEl = document.getElementById("wishCount");
+      var submitBtn = document.getElementById("wishSubmit");
+      var cancelBtn = document.getElementById("wishCancel");
+      var closeBtn = document.getElementById("wishModalClose");
+      var toast = document.getElementById("wishToast");
+      var errorEl = document.getElementById("wishError");
+      if (!postBtn || !modal) return;
+
+      var MAX = 150, COOLDOWN = 10000;
+      var canDialog = typeof modal.showModal === "function";
+      var toastTimer = null;
+
+      // 敏感字詞黑名單（前端第一道防線，擋明顯髒話；可在此自由增減）。
+      // 限制：純前端可被繞過、且抓不到誹謗/謾罵等情境性內容 → 最終把關仍靠後台刪除(verify.html)。
+      var BANNED = [
+        "幹你娘", "幹妳娘", "干你娘", "操你媽", "操你妈", "肏你", "你媽的", "你妈的", "他媽的", "去你媽",
+        "媽的", "妈的", "雞掰", "機掰", "雞巴", "屌你", "王八蛋", "婊子", "賤人", "賤貨", "賤種", "妓女",
+        "靠北", "靠盃", "靠杯", "死全家", "智障", "腦殘", "狗娘養", "龜兒子", "雜種", "騷貨", "蕩婦", "死娘炮",
+        "fuck", "shit", "bitch", "bastard", "asshole", "dick", "cunt", "slut", "whore", "motherf", "retard"
+      ];
+      function normForCheck(s) { return (s || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase(); }
+      function isBanned(text) {
+        var n = normForCheck(text);
+        for (var i = 0; i < BANNED.length; i++) {
+          if (n.indexOf(BANNED[i]) >= 0) return true;
+        }
+        return false;
+      }
+
+      function showToast(msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.hidden = false;
+        // 強制重繪後加 show 才有過場
+        void toast.offsetWidth;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove("show");
+          setTimeout(function () { toast.hidden = true; }, 300);
+        }, 2600);
+      }
+      // 彈窗內、文字框下方的警示（不雅字詞 / 空白 / 冷卻 / 送出失敗）
+      function showError(msg) {
+        if (!errorEl) { showToast(msg); return; }
+        errorEl.textContent = msg;
+        errorEl.hidden = false;
+      }
+      function clearError() { if (errorEl) { errorEl.hidden = true; errorEl.textContent = ""; } }
+
+      function updateCount() {
+        if (countEl && input) countEl.textContent = String(input.value.length);
+        clearError();   // 一邊打字一邊清掉警示
+      }
+      function openModal() {
+        if (input) input.value = "";
+        clearError();
+        updateCount();
+        if (canDialog) {
+          modal.showModal();
+          setTimeout(function () { if (input) input.focus(); }, 30);
+        }
+      }
+      function closeModal() { if (canDialog && modal.open) modal.close(); }
+
+      function submit() {
+        var text = (input && input.value ? input.value : "").trim();
+        if (!text) { showError(t("wishes.post.empty")); return; }
+        if (text.length > MAX) text = text.slice(0, MAX);
+        if (isBanned(text)) { showError(t("wishes.post.blocked")); return; }
+        var last = 0;
+        try { last = parseInt(localStorage.getItem("cy.wish.last") || "0", 10); } catch (e) {}
+        if (Date.now() - last < COOLDOWN) { showError(t("wishes.post.cooldown")); return; }
+        if (!(window.__cyWishesLive && window.__cyWishesLive.post)) { showError(t("wishes.post.error")); return; }
+
+        if (submitBtn) submitBtn.disabled = true;
+        window.__cyWishesLive.post(text).then(function () {
+          try { localStorage.setItem("cy.wish.last", String(Date.now())); } catch (e) {}
+          closeModal();
+          // 立即把自己那則排到最前面（保證看得到）
+          setStatus(null, false);
+          field.insertBefore(makeBubble(text, 0), field.firstChild);
+          showToast(t("wishes.post.done"));
+        }).catch(function () {
+          showError(t("wishes.post.error"));
+        }).then(function () {
+          if (submitBtn) submitBtn.disabled = false;
+        });
+      }
+
+      postBtn.addEventListener("click", openModal);
+      if (input) input.addEventListener("input", updateCount);
+      if (submitBtn) submitBtn.addEventListener("click", submit);
+      if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    })();
   })();
 
   /* ---------- 喜餅兌換券：依網址 ?g=<姓名> 判斷女方親友才解鎖 ---------- */

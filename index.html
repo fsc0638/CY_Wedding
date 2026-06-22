@@ -273,8 +273,9 @@
   <p class="wishes-zh reveal" data-i18n="wishes.subtitle">賓客的祝福</p>
 
   <div class="wishes-bar reveal">
+    <button class="wishes-post" id="wishPostBtn" type="button" data-i18n="wishes.post">匿名留言</button>
     <button class="wishes-refresh" id="wishes-refresh" type="button"
-            data-i18n-aria="wishes.refresh.aria" aria-label="重新整理">
+            data-i18n-aria="wishes.refresh.aria" aria-label="重新抽取">
       <svg class="wr-ico" viewBox="0 0 24 24" width="16" height="16" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round"
            stroke-linejoin="round" aria-hidden="true">
@@ -282,13 +283,34 @@
         <polyline points="1 20 1 14 7 14"></polyline>
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
       </svg>
-      <span data-i18n="wishes.refresh">重新整理</span>
+      <span data-i18n="wishes.refresh">重新抽取</span>
     </button>
   </div>
 
   <div class="wish-field" id="wishField" aria-live="polite"></div>
   <p class="wish-status mono" id="wishStatus" data-i18n="wishes.loading">載入中…</p>
 </section>
+
+<!-- 匿名留言彈窗 -->
+<dialog class="wish-modal" id="wishModal" aria-labelledby="wishModalTitle">
+  <div class="wm-card">
+    <button type="button" class="wm-close" id="wishModalClose"
+            aria-label="關閉" data-i18n-aria="wishes.post.close">&times;</button>
+    <h3 class="wm-title" id="wishModalTitle" data-i18n="wishes.post.title">留下祝福</h3>
+    <p class="wm-sub" data-i18n="wishes.post.sub">您的祝福會匿名顯示在祝福牆上 ♡</p>
+    <textarea class="wm-input" id="wishInput" rows="3" maxlength="150"
+              data-i18n-ph="wishes.post.placeholder" placeholder="寫下想對新人說的話⋯"></textarea>
+    <p class="wm-error" id="wishError" role="alert" hidden></p>
+    <p class="wm-count mono"><span id="wishCount">0</span> / 150</p>
+    <div class="wm-actions">
+      <button type="button" class="wm-btn wm-cancel" id="wishCancel" data-i18n="wishes.post.cancel">取消</button>
+      <button type="button" class="wm-btn wm-submit" id="wishSubmit" data-i18n="wishes.post.submit">送出</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- 送出提示 toast -->
+<div class="wish-toast mono" id="wishToast" role="status" aria-live="polite" hidden></div>
 
 <!-- ===== 喜餅兌換券（女方專屬·預設隱藏，由 script.js 依網址姓名解鎖）===== -->
 <section class="voucher" id="voucher" hidden>
@@ -385,6 +407,7 @@
   <div class="seeyou-veil"></div>
   <div class="seeyou-inner">
     <p class="seeyou-text reveal">See <span>you</span> Soon!</p>
+    <a class="seeyou-admin" href="verify.html">婚禮管理後台</a>
   </div>
 </footer>
 
@@ -393,5 +416,6 @@
 <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@04f46c6a0708418cb7b96fc563eacae0fbf77674/qrcode.min.js"></script>
 <!-- 掃碼核銷即時狀態（Firebase）-->
 <script type="module" src="voucher-live.js"></script>
+<script type="module" src="wishes-live.js"></script>
 </body>
 </html>
