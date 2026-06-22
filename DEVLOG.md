@@ -280,6 +280,33 @@
 - ⚠️ 需 HTTPS（線上可用）；相機實測需於真機 iPhone Safari
 - 本機驗證：jsQR 載入、掃描器元件齊全、無 console error（相機/掃描本身無法在預覽測）
 
+## 2026-06-22 禮金統計 — Phase 1（手動入帳 + 即時報表 + CSV 匯出）
+
+### 背景
+- 禮金簿由現場人員手寫，登簿者不在旁邊→工作流程是批次（登一段後拍照/拿到後台）
+- 金額格式：繁體大寫（壹仟陸佰）、簡體中文（一千六百）、阿拉伯數字，無外幣/支票
+- Phase 2 將接 Firebase AI Logic + Gemini 視覺辨識，低信心策略 C：
+  姓名低信心 → 留空必填；金額低信心 → 顯示猜測值但標紅
+
+### 本次完成（Phase 1）
+- **`firestore.rules`** 新增 `gifts` 集合規則：**讀寫皆需登入工作人員**（財務敏感，永不公開）
+  ⚠️ 規則需手動到 Firebase 主控台貼上並**發布**
+- **`verify.html`** 新增「禮金統計」卡（工作人員登入後顯示）：
+  - KPI 列：禮金總額 NT$ ___ ｜ 筆數 ｜ 平均金額（即時更新）
+  - 手動輸入：[＋ 新增項目] → 姓名 / 金額 彈出列 → 可加多列 → [確認入帳 N 筆] 批次寫入 Firestore
+  - 已入帳明細：`onSnapshot` 即時顯示，每筆可刪除（誤刪重輸）
+  - [匯出 CSV]：含 BOM、由舊到新、末尾附合計，可直接 Excel 開啟（中文不亂碼）
+  - 登入/登出時正確顯示/隱藏，`giftsUnsub` 取消監聽
+- **資料結構** `gifts/{id}`：`{ name, amount:Number, note, source:'manual', confidence:null, createdAt, by }`
+  （Phase 2 OCR 入帳時 source='ocr'，confidence='high'/'low'）
+
+### 尚待使用者
+1. Firebase 主控台 → Firestore → 規則 → 貼上新的 `firestore.rules` 內容 → 發布
+2. 登入後台測試：新增幾筆手動金額 → KPI 更新 → 匯出 CSV 確認
+3. Phase 2（Gemini OCR）待禮金簿確認後開發；有禮金簿空白版面可拍一張給我調 prompt
+
+---
+
 ## 2026-06-19 後台進化為「婚禮管理後台」+ 掃描鈕置中 + 管理連結移至頁尾左下
 - ①「掃描下一位」鈕上下間距相等：改 `margin:1.5rem 0` + `.btn-scan + .card{margin-top:0}`（中和 .roster 的 1.1rem）→ 實測上下各 24px
 - ②verify.html 進化：標題改「婚禮管理後台」；登入後加「總覽」KPI 卡（喜餅已領 X/10、中式·西式、匿名留言數），

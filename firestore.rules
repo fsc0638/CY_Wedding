@@ -27,6 +27,10 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if request.auth != null;
     }
+    // 禮金統計：工作人員限定（財務敏感，一律不公開；未登入者無任何讀寫權限）
+    match /gifts/{id} {
+      allow read, create, update, delete: if request.auth != null;
+    }
     match /{document=**} {
       allow read, write: if false;
     }
