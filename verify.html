@@ -245,13 +245,32 @@
   .btn-danger  { background: var(--red); color: #fff; }
   .btn-neutral { background: transparent; color: var(--soft); border: 1px solid var(--line); }
 
+  /* 幕前功能分頁（Tabs）*/
+  .tabs {
+    display: flex; gap: 0.35rem; margin: 0 0 1.1rem;
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg); padding: 0.5rem 0;
+  }
+  .tab {
+    flex: 1; background: transparent; color: var(--soft);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.5rem 0.3rem; font-size: 0.9rem; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+  }
+  .tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .tab-count {
+    font-size: 0.7rem; font-weight: 700; line-height: 1;
+    background: rgba(45, 43, 37, 0.12); color: inherit;
+    border-radius: 999px; padding: 0.15rem 0.4rem; min-width: 1.5em; text-align: center;
+  }
+  .tab.active .tab-count { background: rgba(255, 255, 255, 0.28); }
+
   /* 掃描下一位 */
   .btn-scan {
     width: 100%; margin: 1.5rem 0; font-weight: 600;
     background: var(--gold); color: #fff;
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
-  .btn-scan + .card { margin-top: 0; }   /* 讓「掃描下一位」與上下卡片間距相等 */
   .scan-overlay {
     position: fixed; inset: 0; z-index: 2000;
     background: rgba(20, 22, 18, 0.96);
@@ -291,6 +310,14 @@
     </div>
   </section>
 
+  <!-- 幕前功能分頁（登入後顯示）-->
+  <nav class="tabs" id="tabs" hidden>
+    <button class="tab active" data-tab="redeem">核銷</button>
+    <button class="tab" data-tab="roster">名單<span class="tab-count" id="tabRosterCount" hidden></span></button>
+    <button class="tab" data-tab="wishes">留言<span class="tab-count" id="tabWishesCount" hidden></span></button>
+    <button class="tab" data-tab="gifts">禮金<span class="tab-count" id="tabGiftsCount" hidden></span></button>
+  </nav>
+
   <!-- 1) 登入（工作人員一次登入即記住）-->
   <section class="card" id="loginCard" hidden>
     <label for="email">工作人員帳號</label>
@@ -322,6 +349,11 @@
     </div>
 
     <p class="msg err" id="panelErr" hidden></p>
+  </section>
+
+  <!-- 核銷分頁：尚未載入券時的提示 -->
+  <section class="card" id="redeemHint" hidden>
+    <p class="v-note" style="margin:0">尚未載入兌換券。請按下方「掃描下一位」掃描賓客 QR，或從賓客的核銷連結進入。</p>
   </section>
 
   <!-- 掃描下一位（頁面內開相機）-->
@@ -456,6 +488,7 @@
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
   const rosterCard = $("rosterCard"), wishesCard = $("wishesCard"), scanBtn = $("scanBtn");
   const overview = $("overview"), giftsCard = $("giftsCard");
+  const tabsBar = $("tabs"), redeemHint = $("redeemHint");
 
   // ===== 後台共用 UI：確認/提示對話框 + 等待中（全部後台風格，取代瀏覽器 confirm/alert）=====
   const uiModalEl = $("uiModal"), uiBusyEl = $("uiBusy");
@@ -497,6 +530,30 @@
   if (hash) hash = hash.trim().toLowerCase();
   let validHash = !!hash && /^[0-9a-f]{64}$/.test(hash);
 
+  // ===== 幕前功能分頁（核銷／名單／留言／禮金）=====
+  let activeTab = "redeem";
+  function setTab(name) {
+    activeTab = name;
+    document.querySelectorAll("#tabs .tab").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    const isRedeem = name === "redeem";
+    scanBtn.hidden    = !isRedeem;
+    panel.hidden      = !(isRedeem && validHash);   // 有帶券才顯示面板
+    redeemHint.hidden = !(isRedeem && !validHash);  // 沒帶券顯示提示
+    rosterCard.hidden = name !== "roster";
+    wishesCard.hidden = name !== "wishes";
+    giftsCard.hidden  = name !== "gifts";
+  }
+  function setTabCount(id, n) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = String(n);
+    el.hidden = !n;
+  }
+  $("tabs").addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab");
+    if (btn) setTab(btn.dataset.tab);
+  });
+
   // ---- 登入 ----
   $("loginBtn").addEventListener("click", doLogin);
   $("password").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
@@ -524,15 +581,12 @@
       loginCard.hidden = true;
       logoutBtn.hidden = false;
       overview.hidden = false;
-      panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
-      rosterCard.hidden = false;
-      wishesCard.hidden = false;
-      giftsCard.hidden = false;
-      scanBtn.hidden = false;
+      tabsBar.hidden = false;
       startWatch();
       startRosterWatch();
       startWishesWatch();
       startGiftsWatch();
+      setTab(activeTab);             // 套用目前分頁（預設核銷；帶券即顯示面板）
     } else {
       if (unsub) { unsub(); unsub = null; }
       if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
@@ -540,7 +594,9 @@
       if (giftsUnsub) { giftsUnsub(); giftsUnsub = null; }
       closeScanner();
       overview.hidden = true;
+      tabsBar.hidden = true;
       panel.hidden = true;
+      redeemHint.hidden = true;
       rosterCard.hidden = true;
       wishesCard.hidden = true;
       giftsCard.hidden = true;
@@ -666,6 +722,7 @@
     const cn = total - west;
     $("ovRedeemed").textContent = done + " / " + total;
     $("ovGift").textContent = "中 " + cn + " · 西 " + west;
+    setTabCount("tabRosterCount", total);
     rosterStats.innerHTML =
       "已領取 <b>" + done + "</b> / " + total +
       '<span class="sep">|</span>中式 ' + cn + " · 西式 " + west;
@@ -746,6 +803,7 @@
     const shown = wishDocs.filter((w) => !kw || w.text.toLowerCase().includes(kw));
     $("wishesCount").textContent = "共 " + wishDocs.length + " 則";
     $("ovWishes").textContent = String(wishDocs.length);
+    setTabCount("tabWishesCount", wishDocs.length);
     const list = $("wishesList");
     list.innerHTML = "";
     if (!shown.length) {
@@ -820,6 +878,7 @@
     const avg   = count ? Math.round(total / count) : 0;
     $("gKpiTotal").textContent = "NT$ " + total.toLocaleString();
     $("gKpiCount").textContent = count + " 筆";
+    setTabCount("tabGiftsCount", count);
     $("gKpiAvg").textContent   = count ? "NT$ " + avg.toLocaleString() : "—";
 
     const listWrap = $("giftListWrap");
@@ -1177,13 +1236,13 @@
     hash = h;
     validHash = true;
     history.replaceState(null, "", "verify.html?h=" + h);
-    panel.hidden = false;
     panelLoading.hidden = false;
     voucherInfo.hidden = true;
     panelErr.hidden = true;
+    setTab("redeem");              // 切到核銷分頁並顯示面板
     if (unsub) { unsub(); unsub = null; }
     startWatch();
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     return true;
   }
 

@@ -346,6 +346,19 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-06-22 婚禮管理後台幕前功能分頁化（Tabs）
+- 動機：資料量長到 1–200 筆時單頁會拉很長；改成分頁讓每頁短、好操作
+- verify.html 登入後改為：總覽 KPI 常駐 + **sticky 分頁列**（核銷／名單／留言／禮金）
+  - `setTab(name)`：toggle `.tab.active` + 控制各卡 hidden；核銷分頁 = 掃描鈕 + 面板(帶券)/提示(無券)
+  - 分頁帶**數量徽章**（名單/留言/禮金筆數，由 render 函式經 `setTabCount()` 即時更新）
+  - 掃 QR / `loadVoucher()` → `setTab("redeem")` 自動跳核銷分頁顯示面板；onAuthStateChanged 登入套用 activeTab
+  - 移除舊 `.btn-scan + .card{margin-top:0}`（單頁版等距用，分頁後無意義且讓名單卡間距不一致）
+- 不改任何既有邏輯：核銷/取消/即時蓋章、名單篩選/搜尋/CSV、留言刪除、禮金 OCR/手動/入帳/刪除/匯出、頁內掃描
+  全部沿用（卡片只是「隱藏」非「移除」，監聽只綁一次，render 照常在快照觸發）
+- ✅ 驗證：本機實測四分頁切換/各自單卡/active 狀態、redeem 帶券→面板 vs 無券→提示、sticky+綠底+徽章樣式、無 console error
+- ✅ 對抗式回歸審查（2 reviewers + synth）：**0 真實回歸、判定可上線**；唯一附帶發現＝登出未清搜尋字串（既有瑕疵、非本次造成、不阻擋）
+- ⏳ 可選後續：登出時一併清空 rosterSearch/wishesSearch/篩選（既有小 quirk）
+
 ## 2026-06-22 電子喜帖測試公版（?g=測試人員）
 - 需求：給測試人員的電子喜帖公版——有顯示名稱則為「測試人員」、要有兌換券、兌換碼全填 9
 - 做法：把 `?g=測試人員` 設為**測試公版專用短路**，自我完備，不動 `guests.json`、不建 Firestore 券、不污染真實資料：
