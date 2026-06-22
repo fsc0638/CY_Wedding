@@ -226,6 +226,24 @@
   .ocr-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: 0.04em; }
   .ocr-sub { font-size: 0.85rem; color: var(--soft); margin-top: 0.45rem; line-height: 1.5; min-height: 1.3em; }
 
+  /* 後台共用：確認 / 提示對話框（取代瀏覽器 confirm / alert） */
+  .ui-overlay {
+    position: fixed; inset: 0; z-index: 2200;
+    background: rgba(45, 43, 37, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .ui-box {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 18px 44px rgba(45, 43, 37, 0.22);
+    padding: 1.6rem 1.5rem; width: min(88vw, 360px);
+  }
+  .ui-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: 0.03em; margin-bottom: 0.5rem; }
+  .ui-msg { font-size: 0.9rem; color: var(--soft); line-height: 1.6; white-space: pre-wrap; }
+  .ui-actions { display: flex; gap: 0.6rem; margin-top: 1.4rem; }
+  .ui-actions button { flex: 1; }
+  .btn-danger  { background: var(--red); color: #fff; }
+  .btn-neutral { background: transparent; color: var(--soft); border: 1px solid var(--line); }
+
   /* 掃描下一位 */
   .btn-scan {
     width: 100%; margin: 1.5rem 0; font-weight: 600;
@@ -400,6 +418,26 @@
   </div>
 </div>
 
+<!-- 後台共用：等待中小視窗（沿用 OCR 小視窗樣式）-->
+<div class="ocr-overlay" id="uiBusy" hidden>
+  <div class="ocr-box">
+    <div class="ocr-spinner" aria-hidden="true"></div>
+    <div class="ocr-title" id="uiBusyText">處理中⋯</div>
+  </div>
+</div>
+
+<!-- 後台共用：確認 / 提示對話框（取代瀏覽器 confirm / alert）-->
+<div class="ui-overlay" id="uiModal" hidden>
+  <div class="ui-box">
+    <div class="ui-title" id="uiTitle"></div>
+    <div class="ui-msg" id="uiMsg"></div>
+    <div class="ui-actions">
+      <button class="btn-neutral ui-cancel" id="uiCancel">取消</button>
+      <button class="btn-primary ui-ok" id="uiOk">確認</button>
+    </div>
+  </div>
+</div>
+
 <!-- QR 解碼（相機掃描下一位用）-->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script type="module">
@@ -417,6 +455,40 @@
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
   const rosterCard = $("rosterCard"), wishesCard = $("wishesCard"), scanBtn = $("scanBtn");
   const overview = $("overview"), giftsCard = $("giftsCard");
+
+  // ===== 後台共用 UI：確認/提示對話框 + 等待中（全部後台風格，取代瀏覽器 confirm/alert）=====
+  const uiModalEl = $("uiModal"), uiBusyEl = $("uiBusy");
+  let _uiResolve = null;
+  function uiConfirm(opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      $("uiTitle").textContent = opts.title || "請確認";
+      $("uiMsg").textContent = opts.message || "";
+      const ok = $("uiOk"), cancel = $("uiCancel");
+      ok.textContent = opts.okText || "確認";
+      ok.className = "ui-ok " + (opts.danger ? "btn-danger" : "btn-primary");
+      if (opts.cancelText === null) { cancel.hidden = true; }
+      else { cancel.hidden = false; cancel.textContent = opts.cancelText || "取消"; }
+      _uiResolve = resolve;
+      uiModalEl.hidden = false;
+      setTimeout(() => { try { ok.focus(); } catch (e) {} }, 30);
+    });
+  }
+  function uiAlert(message, title) {
+    return uiConfirm({ title: title || "提示", message: message, okText: "知道了", cancelText: null });
+  }
+  function uiCloseModal(val) {
+    if (uiModalEl.hidden) return;
+    uiModalEl.hidden = true;
+    const r = _uiResolve; _uiResolve = null;
+    if (r) r(val);
+  }
+  $("uiOk").addEventListener("click", () => uiCloseModal(true));
+  $("uiCancel").addEventListener("click", () => uiCloseModal(false));
+  uiModalEl.addEventListener("click", (e) => { if (e.target === uiModalEl) uiCloseModal(false); });  // 點背景=取消
+  document.addEventListener("keydown", (e) => { if (!uiModalEl.hidden && e.key === "Escape") uiCloseModal(false); });
+  function uiBusyShow(text) { $("uiBusyText").textContent = text || "處理中⋯"; uiBusyEl.hidden = false; }
+  function uiBusyHide() { uiBusyEl.hidden = true; }
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
@@ -696,18 +768,18 @@
     }
     list.appendChild(frag);
   }
-  $("wishesList").addEventListener("click", (e) => {
+  $("wishesList").addEventListener("click", async (e) => {
     const btn = e.target.closest(".w-del");
     if (!btn) return;
     const id = btn.dataset.id;
     if (!id) return;
-    if (!confirm("確定刪除這則留言？刪除後祝福牆將不再顯示。")) return;
+    const ok = await uiConfirm({ title: "刪除留言", message: "確定刪除這則留言？\n刪除後祝福牆將不再顯示。", okText: "刪除", danger: true });
+    if (!ok) return;
     btn.disabled = true;
-    deleteDoc(doc(db, "wishes", id)).catch((err) => {
-      btn.disabled = false;
-      alert("刪除失敗：" + (err && err.code || err));
-    });
-    // onSnapshot 會自動把該則從列表移除
+    uiBusyShow("刪除中⋯");
+    try { await deleteDoc(doc(db, "wishes", id)); }       // onSnapshot 會自動把該則從列表移除
+    catch (err) { btn.disabled = false; await uiAlert("刪除失敗：" + (err && err.code || err)); }
+    finally { uiBusyHide(); }
   });
   $("wishesSearch").addEventListener("input", renderWishes);
 
@@ -970,22 +1042,23 @@
   });
 
   // 刪除一筆禮金
-  $("giftList").addEventListener("click", (e) => {
+  $("giftList").addEventListener("click", async (e) => {
     const btn = e.target.closest(".g-del");
     if (!btn) return;
     const id = btn.dataset.gid;
     if (!id) return;
-    if (!confirm("確定刪除此筆禮金記錄？（若誤刪請重新輸入）")) return;
+    const ok = await uiConfirm({ title: "刪除禮金記錄", message: "確定刪除此筆禮金記錄？\n（若誤刪請重新輸入）", okText: "刪除", danger: true });
+    if (!ok) return;
     btn.disabled = true;
-    deleteDoc(doc(db, "gifts", id)).catch((err) => {
-      btn.disabled = false;
-      alert("刪除失敗：" + (err && err.code || err));
-    });
+    uiBusyShow("刪除中⋯");
+    try { await deleteDoc(doc(db, "gifts", id)); }
+    catch (err) { btn.disabled = false; await uiAlert("刪除失敗：" + (err && err.code || err)); }
+    finally { uiBusyHide(); }
   });
 
   // 匯出禮金 CSV
   $("giftExportBtn").addEventListener("click", () => {
-    if (!giftDocs.length) { alert("目前沒有禮金記錄可匯出。"); return; }
+    if (!giftDocs.length) { uiAlert("目前沒有禮金記錄可匯出。"); return; }
     const header = ["姓名", "金額 (NT$)", "備註", "入帳時間"];
     const lines  = [header.map(csvCell).join(",")];
     for (const g of [...giftDocs].reverse()) {      // 由舊到新排列
@@ -1013,7 +1086,7 @@
     return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   $("exportBtn").addEventListener("click", () => {
-    if (!rosterDocs.length) { alert("目前沒有可匯出的名單資料。"); return; }
+    if (!rosterDocs.length) { uiAlert("目前沒有可匯出的名單資料。"); return; }
     const header = ["姓名", "喜餅兌換碼", "喜餅樣式", "領取狀態", "核銷時間", "備註"];
     const lines = [header.map(csvCell).join(",")];
     // 依目前排序匯出（未領在前、已領在後）
@@ -1051,8 +1124,9 @@
 
   // ---- 核銷 / 取消 ----
   $("redeemBtn").addEventListener("click", () => setRedeemed(true));
-  $("cancelBtn").addEventListener("click", () => {
-    if (confirm("確定要『取消核銷』嗎？此券將回到尚未領取狀態。")) setRedeemed(false);
+  $("cancelBtn").addEventListener("click", async () => {
+    const ok = await uiConfirm({ title: "取消核銷", message: "確定要『取消核銷』嗎？\n此券將回到尚未領取狀態。", okText: "取消核銷", danger: true });
+    if (ok) setRedeemed(false);
   });
   function setRedeemed(on) {
     const msg = $("actionMsg");
@@ -1133,10 +1207,10 @@
 
   async function openScanner() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert("此瀏覽器不支援頁內相機掃描，請改用手機相機 App 掃描賓客的 QR。");
+      uiAlert("此瀏覽器不支援頁內相機掃描，請改用手機相機 App 掃描賓客的 QR。");
       return;
     }
-    if (!window.jsQR) { alert("掃描元件尚未載入，請檢查網路後再試一次。"); return; }
+    if (!window.jsQR) { uiAlert("掃描元件尚未載入，請檢查網路後再試一次。"); return; }
     scanOverlay.hidden = false;
     scanHint.textContent = "正在開啟相機⋯";
     try {
