@@ -881,7 +881,8 @@
   // ---- 拍照／選圖辨識（點擊時才動態載入 gift-ocr.js；隔離 v12 SDK，不影響現有功能）----
   let _ocrMod = null;
   async function ensureOcr() {
-    if (!_ocrMod) _ocrMod = await import("./gift-ocr.js");
+    // 版本參數：gift-ocr.js（含 OCR prompt）有更新時 bump，避免瀏覽器吃到舊的動態 import 快取
+    if (!_ocrMod) _ocrMod = await import("./gift-ocr.js?v=20260622b");
     return _ocrMod;
   }
   $("giftOcrBtn").addEventListener("click", () => $("giftFileInput").click());
