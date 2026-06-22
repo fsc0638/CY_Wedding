@@ -305,6 +305,15 @@
 2. 登入後台測試：新增幾筆手動金額 → KPI 更新 → 匯出 CSV 確認
 3. Phase 2（Gemini OCR）待禮金簿確認後開發；有禮金簿空白版面可拍一張給我調 prompt
 
+### 修正：剛入帳那筆要重整才看到（serverTimestamp + orderBy 即時排除）
+- 症狀：在「按下入帳的同一台裝置」上，剛入帳的那筆 KPI/明細沒即時更新，要重整頁面才出現
+- 根因：禮金監聽用 `query(orderBy("createdAt","desc"))`，而 `createdAt` 是 `serverTimestamp()`。
+  本地樂觀寫入時該欄仍是 pending（null），會被 `orderBy` 從查詢結果**暫時排除**，待伺服器回填才回到結果集
+  （留言牆無此症狀＝送出後有手動樂觀插入最前；名單看板無此症狀＝本就不 orderBy、改前端排序）
+- 修法：禮金監聽改成 `onSnapshot(collection(db,"gifts"))`（不查詢端 orderBy）+ `data({serverTimestamps:"estimate"})`
+  （pending 寫入先帶本地估計時間）+ 前端 `tsMillis()` 依時間 desc 排序 → 入帳即時反映、無須重整
+- ⚠️ 工作人員需重新整理 verify.html **一次**以載入修正後的程式，之後即時更新生效
+
 ---
 
 ## 2026-06-19 後台進化為「婚禮管理後台」+ 掃描鈕置中 + 管理連結移至頁尾左下
