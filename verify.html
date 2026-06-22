@@ -206,6 +206,26 @@
   .g-flag-dup { color: #b5710f; }
   .ocr-hint { font-size: 0.74rem; color: var(--soft); margin: 0 0 0.7rem; line-height: 1.5; }
 
+  /* OCR 辨識進度小視窗（後台風格） */
+  .ocr-overlay {
+    position: fixed; inset: 0; z-index: 2100;
+    background: rgba(45, 43, 37, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .ocr-box {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 18px 44px rgba(45, 43, 37, 0.22);
+    padding: 1.9rem 1.6rem; width: min(86vw, 320px); text-align: center;
+  }
+  .ocr-spinner {
+    width: 44px; height: 44px; margin: 0 auto 1.1rem;
+    border: 3px solid var(--line); border-top-color: var(--gold);
+    border-radius: 50%; animation: ocrspin 0.8s linear infinite;
+  }
+  @keyframes ocrspin { to { transform: rotate(360deg); } }
+  .ocr-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: 0.04em; }
+  .ocr-sub { font-size: 0.85rem; color: var(--soft); margin-top: 0.45rem; line-height: 1.5; min-height: 1.3em; }
+
   /* 掃描下一位 */
   .btn-scan {
     width: 100%; margin: 1.5rem 0; font-weight: 600;
@@ -370,6 +390,15 @@
   <button class="btn-ghost scan-close" id="scanClose">關閉</button>
 </div>
 <canvas id="scanCanvas" hidden></canvas>
+
+<!-- 禮金 OCR 辨識進度（後台風格小視窗）-->
+<div class="ocr-overlay" id="ocrOverlay" hidden>
+  <div class="ocr-box">
+    <div class="ocr-spinner" aria-hidden="true"></div>
+    <div class="ocr-title">禮金辨識中</div>
+    <div class="ocr-sub" id="ocrProgSub">正在準備⋯</div>
+  </div>
+</div>
 
 <!-- QR 解碼（相機掃描下一位用）-->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
@@ -886,6 +915,13 @@
     return _ocrMod;
   }
   $("giftOcrBtn").addEventListener("click", () => $("giftFileInput").click());
+
+  // 後台風格的辨識進度小視窗
+  const ocrOverlay = $("ocrOverlay"), ocrProgSub = $("ocrProgSub");
+  function ocrShow(sub) { ocrProgSub.textContent = sub || ""; ocrOverlay.hidden = false; }
+  function ocrSetSub(sub) { ocrProgSub.textContent = sub || ""; }
+  function ocrHide() { ocrOverlay.hidden = true; }
+
   $("giftFileInput").addEventListener("change", async (e) => {
     const files = Array.from(e.target.files || []);
     e.target.value = "";                          // 清空 → 同一張可再次選取
@@ -893,37 +929,42 @@
     const msg = $("giftMsg");
     $("giftOcrBtn").disabled = true;
     $("ocrHint").hidden = false;
-    msg.className = "msg"; msg.textContent = "載入辨識模組⋯";
+    msg.className = "msg"; msg.textContent = "";
+    ocrShow("載入辨識模組⋯");
 
     let ocr;
     try { ocr = await ensureOcr(); }
     catch (err) {
+      ocrHide();
       msg.className = "msg err";
       msg.textContent = "辨識模組載入失敗：" + (err && err.message || err);
       $("giftOcrBtn").disabled = false;
       return;
     }
 
-    let added = 0, failed = 0;
+    let added = 0, failed = 0, lastErr = "";
     for (let i = 0; i < files.length; i++) {
-      msg.className = "msg";
-      msg.textContent = "辨識中⋯ (" + (i + 1) + "/" + files.length + ")";
+      ocrSetSub(files.length > 1
+        ? ("正在辨識第 " + (i + 1) + " 張，共 " + files.length + " 張⋯")
+        : "正在辨識，請稍候⋯");
       try {
         const rows = await ocr.ocrImage(files[i]);
-        if (!rows.length) { failed++; continue; }
+        if (!rows.length) { failed++; lastErr = "第 " + (i + 1) + " 張未辨識出資料"; continue; }
         rows.forEach((r) => { addGiftRow(Object.assign({}, r, { source: "ocr" })); added++; });
       } catch (err) {
-        failed++;
-        msg.className = "msg err";
-        msg.textContent = "第 " + (i + 1) + " 張辨識失敗：" + (err && err.message || err);
+        failed++; lastErr = "第 " + (i + 1) + " 張：" + (err && err.message || err);
       }
     }
     refreshAllDup();
-    if (!msg.classList.contains("err")) {
+    ocrHide();
+    if (added) {
       msg.className = "msg ok";
-      msg.textContent = added
-        ? ("✓ 已辨識出 " + added + " 筆，請核對紅框／橘標後按入帳。")
-        : "未從影像辨識出任何禮金資料，請重拍清楚一點或手動新增。";
+      msg.textContent = "✓ 已辨識出 " + added + " 筆" +
+        (failed ? ("（" + failed + " 張未成功）") : "") + "，請核對紅框／橘標後按入帳。";
+    } else {
+      msg.className = "msg err";
+      msg.textContent = failed ? ("辨識未成功：" + lastErr)
+                               : "未辨識出任何禮金資料，請重拍清楚一點或手動新增。";
     }
     $("giftOcrBtn").disabled = false;
   });
