@@ -29,9 +29,17 @@ import {
   catch (e) { raw = null; }
   var norm = normName(raw);
   if (!norm) return;
-  if (!(window.crypto && window.crypto.subtle)) return;
 
   var qrUrl = null;
+
+  // 測試公版：?g=測試人員 → 兌換碼全填 9、畫示意 QR，不連 Firestore（無真實券）
+  if (norm === normName("測試人員")) {
+    if (noEl) noEl.textContent = "99999999";
+    renderQr(new URL("verify.html", window.location.href).href + "?h=" + "9".repeat(64));
+    return;
+  }
+
+  if (!(window.crypto && window.crypto.subtle)) return;
 
   function drawQr(box, url, size) {
     box.innerHTML = "";

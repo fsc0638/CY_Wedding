@@ -346,6 +346,17 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-06-22 電子喜帖測試公版（?g=測試人員）
+- 需求：給測試人員的電子喜帖公版——有顯示名稱則為「測試人員」、要有兌換券、兌換碼全填 9
+- 做法：把 `?g=測試人員` 設為**測試公版專用短路**，自我完備，不動 `guests.json`、不建 Firestore 券、不污染真實資料：
+  - `script.js`：`norm === normName("測試人員")` → 直接 `reveal()`（免進女方名單），名稱顯示「測試人員」
+  - `voucher-live.js`：同條件 → `#voucherNo = "99999999"`、畫示意 QR（verify.html?h=64個9）、`return` 不連 Firestore
+  - 測試連結＝ **`...?g=測試人員`**，格式與真實個人化連結一致；撕券/復原(0638) 等前端流程照常可測
+- index.html 資產 bump：`script.js?v=20260622`、`voucher-live.js?v=20260622`
+- ✅ 本機驗證：①`?g=測試人員` → 券區/nav 顯示、名稱「測試人員」、碼 99999999、QR 已產生（canvas）；
+  ②非測試名稱（如「隨機路人甲」）→ 仍維持隱藏（真實閘門未受影響）；③無 console error
+- 線上測試連結：`https://fsc0638.github.io/CY_Wedding/?g=測試人員`
+
 ## 2026-06-22 後台共用 UI：消除所有瀏覽器預設 confirm/alert
 - 需求：管理後台中凡「等待狀態」或「二次確認」的操作，一律後台風格、不要瀏覽器預設彈窗
 - verify.html 新增共用 UI kit（後台白卡風格，與 OCR 小視窗一致）：
