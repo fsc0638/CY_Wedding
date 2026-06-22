@@ -150,6 +150,34 @@
   .w-text { font-size: 0.92rem; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
   .w-at { color: var(--soft); font-size: 0.74rem; display: block; margin-top: 0.25rem; }
   .w-del { flex: 0 0 auto; color: var(--red); border-color: var(--red); }
+
+  /* 掃描下一位 */
+  .btn-scan {
+    width: 100%; margin: 0 0 1.2rem; font-weight: 600;
+    background: var(--gold); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .scan-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(20, 22, 18, 0.96);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.1rem; padding: 1.2rem;
+  }
+  .scan-stage {
+    position: relative; width: min(82vw, 360px); aspect-ratio: 1 / 1;
+    border-radius: 18px; overflow: hidden; background: #000;
+  }
+  #scanVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .scan-reticle {
+    position: absolute; inset: 12%;
+    border: 2px solid rgba(255, 255, 255, 0.92); border-radius: 14px;
+    pointer-events: none;
+  }
+  .scan-hint { color: #fff; font-size: 0.95rem; text-align: center; margin: 0; max-width: 22rem; }
+  .scan-close {
+    background: rgba(255, 255, 255, 0.12); color: #fff; border-color: rgba(255, 255, 255, 0.4);
+    min-width: 8rem;
+  }
 </style>
 </head>
 <body>
@@ -192,6 +220,16 @@
     <p class="msg err" id="panelErr" hidden></p>
   </section>
 
+  <!-- 掃描下一位（頁面內開相機）-->
+  <button class="btn-scan" id="scanBtn" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path>
+      <rect x="8.5" y="9" width="7" height="6" rx="1.2"></rect>
+    </svg>
+    掃描下一位
+  </button>
+
   <!-- 3) 女方親友名單即時看板 -->
   <section class="card roster" id="rosterCard" hidden>
     <div class="roster-head">
@@ -225,6 +263,19 @@
   <p class="foot">CY Wedding · 內部核銷用</p>
 </div>
 
+<!-- 相機掃描下一位 overlay -->
+<div class="scan-overlay" id="scanOverlay" hidden>
+  <div class="scan-stage">
+    <video id="scanVideo" playsinline muted></video>
+    <div class="scan-reticle"></div>
+  </div>
+  <p class="scan-hint" id="scanHint">將賓客的 QR 對準框內</p>
+  <button class="btn-ghost scan-close" id="scanClose">關閉</button>
+</div>
+<canvas id="scanCanvas" hidden></canvas>
+
+<!-- QR 解碼（相機掃描下一位用）-->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script type="module">
   import { db, auth } from "./firebase.js";
   import {
@@ -238,13 +289,13 @@
   const $ = (id) => document.getElementById(id);
   const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
-  const rosterCard = $("rosterCard"), wishesCard = $("wishesCard");
+  const rosterCard = $("rosterCard"), wishesCard = $("wishesCard"), scanBtn = $("scanBtn");
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
   try { hash = new URLSearchParams(location.search).get("h"); } catch (e) {}
   if (hash) hash = hash.trim().toLowerCase();
-  const validHash = !!hash && /^[0-9a-f]{64}$/.test(hash);
+  let validHash = !!hash && /^[0-9a-f]{64}$/.test(hash);
 
   // ---- 登入 ----
   $("loginBtn").addEventListener("click", doLogin);
@@ -275,6 +326,7 @@
       panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
       rosterCard.hidden = false;
       wishesCard.hidden = false;
+      scanBtn.hidden = false;
       startWatch();
       startRosterWatch();
       startWishesWatch();
@@ -282,9 +334,11 @@
       if (unsub) { unsub(); unsub = null; }
       if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
       if (wishesUnsub) { wishesUnsub(); wishesUnsub = null; }
+      closeScanner();
       panel.hidden = true;
       rosterCard.hidden = true;
       wishesCard.hidden = true;
+      scanBtn.hidden = true;
       logoutBtn.hidden = true;
       loginCard.hidden = false;
       $("password").value = "";
@@ -584,6 +638,93 @@
       $("redeemBtn").disabled = $("cancelBtn").disabled = false;
     });
   }
+
+  // ---- 載入指定券（掃描下一位用，不重新整理整頁）----
+  function loadVoucher(h) {
+    h = (h || "").trim().toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(h)) return false;
+    hash = h;
+    validHash = true;
+    history.replaceState(null, "", "verify.html?h=" + h);
+    panel.hidden = false;
+    panelLoading.hidden = false;
+    voucherInfo.hidden = true;
+    panelErr.hidden = true;
+    if (unsub) { unsub(); unsub = null; }
+    startWatch();
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
+  }
+
+  // ---- 相機掃描下一位（getUserMedia + jsQR；iOS Safari 亦可用）----
+  const scanOverlay = $("scanOverlay"), scanVideo = $("scanVideo"),
+        scanCanvas = $("scanCanvas"), scanHint = $("scanHint");
+  let scanStream = null, scanRAF = null, scanning = false;
+
+  function extractHash(text) {
+    try {
+      const u = new URL(String(text), location.href);
+      const h = (u.searchParams.get("h") || "").trim().toLowerCase();
+      if (/^[0-9a-f]{64}$/.test(h)) return h;
+    } catch (e) {}
+    const m = String(text).match(/[0-9a-f]{64}/i);   // 退路：直接抓 64 碼雜湊
+    return m ? m[0].toLowerCase() : null;
+  }
+
+  function closeScanner() {
+    scanning = false;
+    if (scanRAF) { cancelAnimationFrame(scanRAF); scanRAF = null; }
+    if (scanStream) { scanStream.getTracks().forEach((t) => t.stop()); scanStream = null; }
+    if (scanVideo) scanVideo.srcObject = null;
+    if (scanOverlay) scanOverlay.hidden = true;
+  }
+
+  function scanTick() {
+    if (!scanning) return;
+    if (scanVideo.readyState >= 2 && window.jsQR) {
+      const w = scanVideo.videoWidth, h = scanVideo.videoHeight;
+      if (w && h) {
+        scanCanvas.width = w; scanCanvas.height = h;
+        const ctx = scanCanvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(scanVideo, 0, 0, w, h);
+        const img = ctx.getImageData(0, 0, w, h);
+        const code = window.jsQR(img.data, w, h, { inversionAttempts: "dontInvert" });
+        if (code && code.data) {
+          const hh = extractHash(code.data);
+          if (hh) { closeScanner(); loadVoucher(hh); return; }
+          scanHint.textContent = "這不是有效的兌換券 QR，請對準正確的 QR";
+        }
+      }
+    }
+    scanRAF = requestAnimationFrame(scanTick);
+  }
+
+  async function openScanner() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("此瀏覽器不支援頁內相機掃描，請改用手機相機 App 掃描賓客的 QR。");
+      return;
+    }
+    if (!window.jsQR) { alert("掃描元件尚未載入，請檢查網路後再試一次。"); return; }
+    scanOverlay.hidden = false;
+    scanHint.textContent = "正在開啟相機⋯";
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } }, audio: false
+      });
+      scanVideo.srcObject = scanStream;
+      scanVideo.setAttribute("playsinline", "");
+      await scanVideo.play();
+      scanHint.textContent = "將賓客的 QR 對準框內";
+      scanning = true;
+      scanTick();
+    } catch (err) {
+      scanHint.textContent = "無法開啟相機（" + (err && err.name || err) +
+        "）。請允許相機權限，或改用手機相機 App 掃描。";
+    }
+  }
+
+  scanBtn.addEventListener("click", openScanner);
+  $("scanClose").addEventListener("click", closeScanner);
 </script>
 </body>
 </html>

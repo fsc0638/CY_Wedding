@@ -269,3 +269,13 @@
   本機實測頁面載入正常、區塊存在、無 console error；**登入後的刪除需以工作人員帳號實測**
 - ⚠️ 待清理：Firestore `wishes` 目前有 2 筆測試留言（`"123"`、`"祝你們永遠幸福快樂"`）→ 上線前/後用
   verify.html 後台刪除（順便驗證 Phase 2），或於 Firestore 主控台手動刪
+
+## 2026-06-19 verify.html「掃描下一位」頁內相機掃碼
+- 痛點：核銷一位後要離開頁面、回手機相機 App 掃下一個 QR
+- 在核銷卡與名單卡中間加「掃描下一位」鈕 → 頁內 `getUserMedia`（後鏡頭, playsinline）+ `jsQR` 解碼
+  （jsdelivr CDN）；iOS Safari 無原生網頁掃碼 API 故用此法
+- 解到 QR → `extractHash()` 取 `?h=` 的 64-hex → `loadVoucher(h)`：不重整頁、unsub 舊的 onSnapshot、
+  `history.replaceState` 更新網址、重新監聽該券；掃完可連續再掃（相機權限只問一次）
+- 降級：getUserMedia 不支援/被拒 → 提示改用手機相機 App，原核銷流程不受影響
+- ⚠️ 需 HTTPS（線上可用）；相機實測需於真機 iPhone Safari
+- 本機驗證：jsQR 載入、掃描器元件齊全、無 console error（相機/掃描本身無法在預覽測）
