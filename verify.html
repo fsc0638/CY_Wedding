@@ -657,21 +657,31 @@
   // ---- 禮金統計（手動輸入 + Firestore 即時同步）----
   let giftDocs = [];
 
+  // Firestore Timestamp（含 serverTimestamp 估計值）→ 毫秒，供前端排序
+  function tsMillis(ts) {
+    try {
+      if (!ts) return 0;
+      if (ts.toMillis) return ts.toMillis();
+      if (ts.toDate) return ts.toDate().getTime();
+      const n = new Date(ts).getTime();
+      return isNaN(n) ? 0 : n;
+    } catch (e) { return 0; }
+  }
+
   function startGiftsWatch() {
     if (giftsUnsub) return;
-    giftsUnsub = onSnapshot(
-      query(collection(db, "gifts"), orderBy("createdAt", "desc"), limit(500)),
-      (snap) => {
-        giftDocs = [];
-        snap.forEach((d) => {
-          const g = d.data() || {};
-          giftDocs.push({ id: d.id, name: g.name || "", amount: g.amount || 0,
-                          note: (g.note || "").trim(), createdAt: g.createdAt || null });
-        });
-        renderGifts();
-      },
-      (err) => { console.error("gifts watch error", err && err.code || err); }
-    );
+    // 不在查詢端 orderBy(serverTimestamp)：剛入帳那筆的 createdAt 仍是 pending（null），
+    // 會被 orderBy 暫時排除 → 要重整才看到。改成整包讀進來、前端自己排序（同名單看板作法）。
+    giftsUnsub = onSnapshot(collection(db, "gifts"), (snap) => {
+      giftDocs = [];
+      snap.forEach((d) => {
+        const g = d.data({ serverTimestamps: "estimate" }) || {};  // pending 寫入先給本地估計時間 → 立即顯示
+        giftDocs.push({ id: d.id, name: g.name || "", amount: g.amount || 0,
+                        note: (g.note || "").trim(), createdAt: g.createdAt || null });
+      });
+      giftDocs.sort((a, b) => tsMillis(b.createdAt) - tsMillis(a.createdAt));  // 最新在前
+      renderGifts();
+    }, (err) => { console.error("gifts watch error", err && err.code || err); });
   }
 
   function renderGifts() {
