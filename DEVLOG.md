@@ -305,6 +305,47 @@
 2. 登入後台測試：新增幾筆手動金額 → KPI 更新 → 匯出 CSV 確認
 3. Phase 2（Gemini OCR）待禮金簿確認後開發；有禮金簿空白版面可拍一張給我調 prompt
 
+## 2026-06-22 禮金統計 — Phase 2（Gemini OCR 拍照辨識 + 校對表）
+
+### 採用 Firebase AI Logic（前端安全呼叫 Gemini，免費 Spark 方案）
+- 經研究代理併行查證官方文件確認：AI Logic Web SDK 在 **firebase 12.15.0** 才有（`firebase-ai.js`）；
+  後端用 `GoogleAIBackend()`＝Gemini Developer API＝**免費額度、不需 Blaze**；模型 `gemini-2.5-flash`
+- 強制結構化輸出：`Schema.array(Schema.object({name,amount,raw,confidenceName,confidenceAmount}))` + `responseMimeType:"application/json"`
+
+### ★隔離載入策略（守住「現有功能不能壞」）
+- 研究建議全站 10→12 升級，但那會動到運作中的核銷/即時蓋章/留言。為零風險：
+  - 新檔 **`gift-ocr.js`** 自建一個**具名** v12 app（`"cy-ai"`），**只**用於 Gemini；
+    站上其他功能仍走 `firebase.js` 的 v10 預設 app，**一行未改**
+  - verify.html **只有點「拍照／選圖辨識」鈕時才『動態 import』** gift-ocr.js → 頁面載入與既有功能 0 影響
+  - ✅ 本機實測：同頁同時載入 v10 + v12 兩版 Firebase，**零警告、零衝突**
+
+### verify.html「禮金統計」卡新增
+- `[📷 拍照／選圖辨識]`（`<input type="file" accept="image/*" multiple>`，可一次多張、批次辨識）
+- 辨識結果進「校對表」（沿用手動入帳同一條 addDoc 路徑）：
+  - **策略 C**：姓名低信心 → 留空必填（placeholder 顯示「疑似：◯◯」）；金額低信心 → 帶猜測值但**紅框**
+  - **同名偵測**：與已入帳或本批其他列同名 → **橘框** + 「疑似重複」提示
+  - 每列顯示 `原文：…`（Gemini 逐字照抄）供核對
+  - [確認入帳 N 筆]：只寫入有效列、**只移除已入帳列**（低信心未填完者保留繼續編輯）
+- Firestore `gifts` 欄位沿用 Phase 1：OCR 入帳 `source:"ocr"`、`confidence` 記原始金額把握度（稽核用）
+- 影像處理：手機照片先 canvas 縮到長邊 1600px / JPEG 0.85（省流量、避開 20MB 上限、加速）
+
+### gift-ocr.js prompt（無禮金簿樣張版）
+- 格式無關通用：表格/條列/任意手寫皆逐筆抓；金額大寫(壹仟陸佰)/國字(一千六百)/阿拉伯(1,600) → 整數
+- 無外幣/支票；塗改列仍抓並標 low；不抓表頭/總計列；只回 JSON 陣列
+- ⚠️ 首次辨識準確度會比有樣張校調過的低，但有「校對表人工核對」當安全網；拿到禮金簿拍一張版面即可微調 prompt 提升準確度（免改架構）
+
+### ⏳ 尚待使用者（主控台一次性設定，否則辨識會報「尚未啟用 AI Logic」）
+1. Firebase 主控台 → Build → **AI Logic** → Get started → 選 **Gemini Developer API**（不要選 Vertex）→ 啟用（免費、不需開 Blaze）
+2. 確認專案維持 **Spark（免費）方案**，勿升 Blaze
+3. （建議）Build → **App Check** → 註冊本網站、reCAPTCHA v3、取得「網站金鑰」→ 取消 `gift-ocr.js` 內 App Check 三段註解並填金鑰（防他人盜用 config 濫打配額；本機測試需加 debug token）。私密 noindex 後台，先不啟用亦可運作
+4. 拿一張真實/示意禮金簿照片做 **smoke-test**（首用務必）：點辨識 → 校對 → 入帳
+
+### 風險備註（研究交叉驗證後保留）
+- **模型字串**：用 `gemini-2.5-flash`（確認可用）。研究發現 live docs 另出現 `gemini-3.5-flash`（超出訓練截止、未能 100% 確認真偽）→ 若主控台 Models 確有此免費視覺模型，可改 `gift-ocr.js` 的 model 字串提升準確度
+- `gemini-2.0-flash` 系列已於 2026-06-01 停用，勿用
+- `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
+- ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
+
 ### 修正：剛入帳那筆要重整才看到（serverTimestamp + orderBy 即時排除）
 - 症狀：在「按下入帳的同一台裝置」上，剛入帳的那筆 KPI/明細沒即時更新，要重整頁面才出現
 - 根因：禮金監聽用 `query(orderBy("createdAt","desc"))`，而 `createdAt` 是 `serverTimestamp()`。
