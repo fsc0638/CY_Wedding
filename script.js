@@ -898,6 +898,10 @@
     catch (e) { raw = null; }
     var norm = normName(raw);
     if (!norm) return;                                  // 沒帶姓名 → 維持隱藏
+
+    // 測試公版：?g=測試人員 → 直接解鎖（免進女方名單），名稱即顯示「測試人員」
+    if (norm === normName("測試人員")) { reveal(); return; }
+
     if (!(window.crypto && window.crypto.subtle)) return; // 不支援雜湊 → 安全起見維持隱藏
 
     function reveal() {
