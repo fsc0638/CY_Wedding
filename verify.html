@@ -204,6 +204,7 @@
   .g-flag { font-size: 0.72rem; font-weight: 600; }
   .g-flag-low { color: var(--red); }
   .g-flag-dup { color: #b5710f; }
+  .g-flag-amt { color: #b5710f; }
   .ocr-hint { font-size: 0.74rem; color: var(--soft); margin: 0 0 0.7rem; line-height: 1.5; }
 
   /* OCR 辨識進度小視窗（後台風格） */
@@ -890,9 +891,10 @@
 
     entry.querySelector(".g-del-row").addEventListener("click", () => { entry.remove(); syncCommitBtn(); });
     nameInp.addEventListener("input", () => { checkDup(entry); refreshAllDup(); syncCommitBtn(); });
-    amtInp.addEventListener("input", syncCommitBtn);
+    amtInp.addEventListener("input", () => { updateAmtFlag(entry); syncCommitBtn(); });
     area.appendChild(entry);
     checkDup(entry);
+    updateAmtFlag(entry);
     if (!ocr) nameInp.focus();
     syncCommitBtn();
     return entry;
@@ -923,6 +925,29 @@
   }
   function refreshAllDup() {
     Array.from(document.querySelectorAll("#giftEntryArea .gift-entry")).forEach(checkDup);
+  }
+
+  // 異常金額警示（與 Gemini 信心無關的第二道防線；台灣禮金多為整百、≥600）
+  function amountWarn(amt) {
+    if (!(amt > 0)) return "";
+    if (amt % 100 !== 0) return "非整百金額，請確認是否辨識/輸入有誤";
+    if (amt < 600)      return "金額偏低（少見），請確認";
+    if (amt > 60000)    return "金額偏高（少見），請確認";
+    return "";
+  }
+  function updateAmtFlag(entry) {
+    const amt = parseInt(entry.querySelector(".g-inp-amt").value, 10);
+    const warn = amountWarn(amt);
+    const meta = entry.querySelector(".g-meta");
+    let flag = entry.querySelector(".g-flag-amt");
+    if (warn) {
+      if (!flag) { flag = document.createElement("span"); flag.className = "g-flag g-flag-amt"; meta.appendChild(flag); }
+      flag.textContent = "⚠ " + warn;
+      meta.hidden = false;
+    } else if (flag) {
+      flag.remove();
+      if (!meta.children.length) meta.hidden = true;
+    }
   }
 
   function syncCommitBtn() {
