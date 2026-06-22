@@ -346,6 +346,20 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-06-22 後台共用 UI：消除所有瀏覽器預設 confirm/alert
+- 需求：管理後台中凡「等待狀態」或「二次確認」的操作，一律後台風格、不要瀏覽器預設彈窗
+- verify.html 新增共用 UI kit（後台白卡風格，與 OCR 小視窗一致）：
+  - `uiConfirm({title,message,okText,cancelText,danger})` → Promise<bool>；danger=true 用紅色 `.btn-danger`；
+    點背景或 Esc = 取消；訊息 `white-space:pre-wrap` 支援換行
+  - `uiAlert(message,title)` → 單鈕提示（取代 alert）
+  - `uiBusyShow(text)/uiBusyHide()` → 等待中小視窗（沿用 `.ocr-overlay` 旋轉樣式）
+- 取代全部 9 處原生彈窗（grep 確認 0 殘留）：
+  - 二次確認：匿名留言刪除、禮金刪除、取消核銷 → `uiConfirm`（刪除類 danger 紅鈕）
+  - 提示：留言/禮金刪除失敗、兩處匯出無資料、兩處相機掃描提示 → `uiAlert`
+  - 等待狀態：刪除進行中顯示 `uiBusyShow("刪除中⋯")`（原本只 disable 鈕、無明確等待回饋）
+- ✅ 本機驗證：確認框結構/樣式/z-index(2200)/danger 紅鈕/取消·背景·確認皆關閉；
+  經真實刪除 handler 端到端驗證 closure uiConfirm promise 正常 resolve；無 console error
+
 ### Phase 2 調校 #1：信心校準 + 反編造（依首次 smoke-test 回饋）
 - 使用者用網路示意禮金簿實測，發現 4 個問題，本質是**模型過度自信 + 憑空編造**：
   - 姓名沒寫完卻自行補成完整姓名，且謊報 high（無紅框）
