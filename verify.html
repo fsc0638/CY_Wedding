@@ -604,6 +604,14 @@
       logoutBtn.hidden = true;
       loginCard.hidden = false;
       $("password").value = "";
+      // 登出時清空後台搜尋/篩選/分頁狀態，避免殘留到下次登入
+      const _rs = $("rosterSearch"), _ws = $("wishesSearch");
+      if (_rs) _rs.value = "";
+      if (_ws) _ws.value = "";
+      rosterFilter = "all";
+      document.querySelectorAll("#rosterFilters .rf").forEach((b) =>
+        b.classList.toggle("active", b.dataset.f === "all"));
+      activeTab = "redeem";
     }
   });
 
