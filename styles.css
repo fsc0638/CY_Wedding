@@ -692,31 +692,21 @@ section { position: relative; }
   color: var(--light-soft);
   margin-top: 1.4rem;
 }
-/* 管理後台入口（頁尾·細線框等寬字，低調但融入整體風格）*/
+/* 管理後台入口（頁尾左下角·避開「回到最上面」浮動鈕）*/
 .seeyou-admin {
-  display: inline-flex; align-items: center; gap: 0.9em;
-  margin-top: clamp(2.6rem, 7vw, 3.8rem);
+  position: absolute;
+  left: clamp(4.4rem, 16vw, 5.8rem);   /* 讓開左下角的回頂端鈕 */
+  bottom: clamp(1.5rem, 3vw, 1.9rem);
+  z-index: 3;
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.3em;
-  text-indent: 0.3em;
-  color: rgba(246, 245, 236, 0.5);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: rgba(246, 245, 236, 0.42);
   text-decoration: none;
-  transition: color 0.4s ease;
-}
-.seeyou-admin::before,
-.seeyou-admin::after {
-  content: ""; flex: 0 0 auto;
-  width: clamp(1.4rem, 6vw, 2.6rem); height: 1px;
-  background: rgba(246, 245, 236, 0.32);
-  transition: background 0.4s ease;
+  transition: color 0.35s ease;
 }
 .seeyou-admin:hover,
-.seeyou-admin:focus-visible { color: rgba(246, 245, 236, 0.95); }
-.seeyou-admin:hover::before,
-.seeyou-admin:hover::after,
-.seeyou-admin:focus-visible::before,
-.seeyou-admin:focus-visible::after { background: rgba(246, 245, 236, 0.6); }
+.seeyou-admin:focus-visible { color: rgba(246, 245, 236, 0.9); }
 
 /* ===================================================================
    RWD

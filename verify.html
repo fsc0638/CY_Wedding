@@ -77,6 +77,14 @@
   .foot { text-align: center; color: var(--soft); font-size: 0.72rem; margin-top: 1.6rem; }
   .loading { text-align: center; color: var(--soft); padding: 2rem 0; }
 
+  /* 總覽 KPI */
+  .overview { padding: 1.1rem 1rem; }
+  .ov-grid { display: flex; gap: 0.5rem; }
+  .ov { flex: 1; text-align: center; }
+  .ov + .ov { border-left: 1px solid var(--line); }
+  .ov b { display: block; font-size: 1.18rem; color: var(--green); font-weight: 700; letter-spacing: 0.01em; }
+  .ov span { font-size: 0.72rem; color: var(--soft); }
+
   /* 女方親友名單看板 */
   .roster { margin-top: 1.1rem; }
   .roster-head {
@@ -153,10 +161,11 @@
 
   /* 掃描下一位 */
   .btn-scan {
-    width: 100%; margin: 0 0 1.2rem; font-weight: 600;
+    width: 100%; margin: 1.5rem 0; font-weight: 600;
     background: var(--gold); color: #fff;
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
+  .btn-scan + .card { margin-top: 0; }   /* 讓「掃描下一位」與上下卡片間距相等 */
   .scan-overlay {
     position: fixed; inset: 0; z-index: 2000;
     background: rgba(20, 22, 18, 0.96);
@@ -183,9 +192,18 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>喜餅兌換券 · 核銷</h1>
+    <h1>婚禮管理後台</h1>
     <button class="btn-ghost" id="logoutBtn" hidden>登出</button>
   </header>
+
+  <!-- 總覽（登入後顯示）-->
+  <section class="card overview" id="overview" hidden>
+    <div class="ov-grid">
+      <div class="ov"><b id="ovRedeemed">0 / 10</b><span>喜餅已領取</span></div>
+      <div class="ov"><b id="ovGift">中 — · 西 —</b><span>喜餅樣式</span></div>
+      <div class="ov"><b id="ovWishes">0</b><span>匿名留言</span></div>
+    </div>
+  </section>
 
   <!-- 1) 登入（工作人員一次登入即記住）-->
   <section class="card" id="loginCard" hidden>
@@ -290,6 +308,7 @@
   const loginCard = $("loginCard"), panel = $("panel"), logoutBtn = $("logoutBtn");
   const panelLoading = $("panelLoading"), voucherInfo = $("voucherInfo"), panelErr = $("panelErr");
   const rosterCard = $("rosterCard"), wishesCard = $("wishesCard"), scanBtn = $("scanBtn");
+  const overview = $("overview");
 
   // 取 ?h=<姓名雜湊>
   let hash = null;
@@ -323,6 +342,7 @@
     if (user) {
       loginCard.hidden = true;
       logoutBtn.hidden = false;
+      overview.hidden = false;
       panel.hidden = !validHash;     // 沒帶券代碼時只顯示名單看板
       rosterCard.hidden = false;
       wishesCard.hidden = false;
@@ -335,6 +355,7 @@
       if (rosterUnsub) { rosterUnsub(); rosterUnsub = null; }
       if (wishesUnsub) { wishesUnsub(); wishesUnsub = null; }
       closeScanner();
+      overview.hidden = true;
       panel.hidden = true;
       rosterCard.hidden = true;
       wishesCard.hidden = true;
@@ -458,6 +479,8 @@
     const done = rosterDocs.filter((r) => r.redeemed).length;
     const west = rosterDocs.filter((r) => r.western).length;
     const cn = total - west;
+    $("ovRedeemed").textContent = done + " / " + total;
+    $("ovGift").textContent = "中 " + cn + " · 西 " + west;
     rosterStats.innerHTML =
       "已領取 <b>" + done + "</b> / " + total +
       '<span class="sep">|</span>中式 ' + cn + " · 西式 " + west;
@@ -537,6 +560,7 @@
     const kw = ($("wishesSearch").value || "").trim().toLowerCase();
     const shown = wishDocs.filter((w) => !kw || w.text.toLowerCase().includes(kw));
     $("wishesCount").textContent = "共 " + wishDocs.length + " 則";
+    $("ovWishes").textContent = String(wishDocs.length);
     const list = $("wishesList");
     list.innerHTML = "";
     if (!shown.length) {

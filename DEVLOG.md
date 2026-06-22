@@ -279,3 +279,12 @@
 - 降級：getUserMedia 不支援/被拒 → 提示改用手機相機 App，原核銷流程不受影響
 - ⚠️ 需 HTTPS（線上可用）；相機實測需於真機 iPhone Safari
 - 本機驗證：jsQR 載入、掃描器元件齊全、無 console error（相機/掃描本身無法在預覽測）
+
+## 2026-06-19 後台進化為「婚禮管理後台」+ 掃描鈕置中 + 管理連結移至頁尾左下
+- ①「掃描下一位」鈕上下間距相等：改 `margin:1.5rem 0` + `.btn-scan + .card{margin-top:0}`（中和 .roster 的 1.1rem）→ 實測上下各 24px
+- ②verify.html 進化：標題改「婚禮管理後台」；登入後加「總覽」KPI 卡（喜餅已領 X/10、中式·西式、匿名留言數），
+  由現有 renderRoster/renderWishes 即時更新；維持單頁捲動，核銷/名單/留言/掃描邏輯不動（僅加顯示與 KPI）
+- ③頁尾「婚禮管理後台」連結移出 seeyou-inner、改 `position:absolute` 置於頁尾**左下角**（left 93px、bottom 30px），
+  避開左下角「回到最上面」浮動鈕（其右緣 68px，不重疊）；等寬字、低調
+- index.html 資產版本 bump 至 `?v=20260620`（styles.css 有變）
+- 本機驗證：標題/總覽/KPI 元素、掃描鈕等距、頁尾連結位置與不重疊、無 console error（皆以量測確認；截圖工具卡住未取圖）
