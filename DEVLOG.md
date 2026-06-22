@@ -245,3 +245,27 @@
 - ⏳〔收尾〕跑通後 commit → 合併 master → push
 - ⚠️ 跨機器：原始 Excel、`serviceAccountKey.json` 等個資/機密**不在 git**，換機器要另外帶；`guests.json` 在 git。
 - ⚠️ QR 走外部 CDN（qrcodejs）：現場若無網路，QR 與 Firebase 皆不可用 → 仍以「兌換碼 + 名單劃記」為後備。
+
+## 2026-06-19 匿名留言（祝福牆免表單留言）+「重新整理」改「重新抽取」
+- 功能2：祝福牆「重新整理」鈕 → 改名 **「重新抽取」**（4 語 i18n；語意貼合每次隨機抽 10–15）
+- 功能1：祝福牆新增 **「匿名留言」** 鈕（無 emoji）→ 自訂 `<dialog>` 彈窗（textarea 150 字上限 + 即時字數）
+  → 送出寫入 Firestore **`wishes`** 集合
+  - 審核機制（與使用者確認）：**即時上牆 + 後台刪除**；送出後立即把自己那則排到最前面（保證看到）
+  - 泡泡池 = `wishes.json`（表單匯入）+ Firestore `wishes`（取最新 200）合併 → 隨機抽 10–15；重新抽取重抓
+  - 防護：150 字上限、空白擋、10 秒冷卻（localStorage `cy.wish.last`）、送出時禁用鈕；任一資料來源失敗不影響另一個
+- 新檔 **`wishes-live.js`**（module，匯出 `window.__cyWishesLive`: `fetchWishes()` / `post(text)`）；index 以
+  `<script type="module">` 載入；非模組的 `script.js` 透過該全域與之協作（renderBubbles 抽出 `makeBubble` 共用）
+- **`firestore.rules` 新增 `wishes`**：公開讀、`create` 限欄位(text/createdAt)+長度(1–150)+`createdAt==request.time`、
+  不可改、登入工作人員可刪
+- ✅ 本機驗證：鈕/彈窗/字數/驗證/優雅降級皆正常；規則未發布時 `fetchWishes` 回 `[]`、泡泡牆照常顯示 json；
+  送出在規則未發布時優雅失敗（toast「送出失敗」）；無 console error
+- ✅ 規則已發布：使用者已在主控台發布含 `wishes` 區塊的規則 → 匿名留言**端到端可用**（本機實測：
+  乾淨留言成功寫入、`fetchWishes` 讀回；同時兌換券核銷的 client 端也因此解鎖）
+- ✅ **Phase 3 敏感字詞過濾（前端）**：`script.js` 內 BANNED 黑名單（中英髒話，NFKC+去空白+小寫比對），
+  送出含不當字詞 → toast「留言含不當字詞」擋下（本機實測「王八蛋」被擋、乾淨留言通過）。
+  限制：純前端可繞過、抓不到誹謗/謾罵 → 最終把關靠下方後台刪除
+- ✅ **Phase 2 後台留言管理**：`verify.html` 新增「匿名留言管理」卡（工作人員登入後）：
+  `onSnapshot` 即時列出所有 `wishes`（時間序、可搜尋、計數）+ 每則「刪除」鈕（`deleteDoc`，規則限登入者）。
+  本機實測頁面載入正常、區塊存在、無 console error；**登入後的刪除需以工作人員帳號實測**
+- ⚠️ 待清理：Firestore `wishes` 目前有 2 筆測試留言（`"123"`、`"祝你們永遠幸福快樂"`）→ 上線前/後用
+  verify.html 後台刪除（順便驗證 Phase 2），或於 Firestore 主控台手動刪
