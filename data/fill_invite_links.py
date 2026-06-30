@@ -3,10 +3,12 @@
 fill_invite_links.py — 依「是否需要寄送喜帖」產生「電子喜帖連結」欄要填入的值
 
 規則：
-    當「是否需要寄送喜帖」為下列其一時，該位賓客需要電子喜帖，填入個人化連結
-    （與網站 ?g=<姓名> 解鎖機制、voucher_links.txt 同格式）：
+    當「是否需要寄送喜帖」為下列其一時，該位賓客需要電子喜帖，填入連結：
         - 響應環保，電子喜帖即可
         - 2個都要🕶
+    連結依男女方分流：
+        - 女方（雁婷朋友）：個人化連結 BASE_URL?g=<姓名>（供 ?g= 解鎖兌換券）
+        - 男方／其他：通用連結 BASE_URL（不兌換喜餅，無需具名）
     其餘（想收藏紙本喜帖／空白）留白。
 
 輸出（皆含明文姓名，已 gitignore，不進公開 repo）：
@@ -67,7 +69,10 @@ def main():
         side = SIDE_LABEL.get(str(r[si]).strip() if (si is not None and r[si] is not None) else "", "")
         mail = str(r[mi]).strip() if (mi < len(r) and r[mi] is not None) else ""
         if mail in NEED_EINVITE:
-            link = BASE_URL + "?g=" + quote(name)
+            if side == "女方":
+                link = BASE_URL + "?g=" + quote(name)   # 女方：個人化連結（?g=姓名 供解鎖兌換券）
+            else:
+                link = BASE_URL                          # 男方/其他：通用連結（不需兌換喜餅）
             filled += 1
         else:
             link = ""
