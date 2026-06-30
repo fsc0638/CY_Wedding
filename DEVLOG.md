@@ -368,6 +368,12 @@
 - `vouchers/`：**23** 張券圖（編號 26091211–26091234，gitignored，私下發送）；已清掉舊 10 張測試券
 - ⚠️ 個資保護：xlsx / vouchers/ / voucher_links.txt 皆 gitignore，未進 repo（已 git check-ignore 確認）
 
+### 追加（同日）：通用連結 + salt 沿用 + 英文名驗證
+- 需求1：男方無兌換券機制 → `?g=` 對男方/女方未發券者無作用 → `build_guests.py` 的 `voucher_links.txt` 改為：
+  頂部 1 條**通用電子喜帖連結**（男方 28 + 女方未發券 2 = 30 位共用、不分人）+ **23 條女方專屬連結**（個別發送）
+- robust：`build_guests.py` 改為**沿用既有 guests.json 的 salt**（重跑不再亂換 salt 害已匯入的 Firestore 對不上）→ 本次重跑 guests.json 未變動
+- 需求2（英文名「被雜湊避開」）：**查無此問題**。Kevin/Renee 經正規化(NFKC+去空白+小寫)後雜湊**確實在 brideHashes**、Python 與前端 JS 正規化一致、大小寫皆通；瀏覽器實測 `?g=Kevin` 兌換券正常解鎖、名稱顯示「Kevin」。英文 `?g=Kevin` 看似未編碼只因 ASCII 不需 percent-encoding（中文 `%E9…` 也只是傳輸編碼）。若線上測不行＝最終資料尚未上線（master 仍舊版）
+
 ### ⚠️ 上線前必做（安全順序，勿先合 master）
 salt 重新產生 → 所有雜湊改變 → 現有 Firestore 舊測試券會對不上。本機**無 serviceAccountKey.json**，無法匯入。
 1. **Mac**：`git pull`（fsc）→ `python data/import_firestore.py --prune`（用新 guests.json 的 salt 重建 23 筆、清掉舊測試殘留）
