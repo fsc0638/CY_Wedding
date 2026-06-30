@@ -706,9 +706,12 @@
           redeemed: !!v.redeemed, redeemedAt: v.redeemedAt || null
         });
       });
-      // 未領取在前、已領取在後；同組依姓名排序
-      rosterDocs.sort((a, b) =>
-        (a.redeemed - b.redeemed) || a.name.localeCompare(b.name, "zh-Hant"));
+      // 依兌換編號升冪排序（數值比較；無編號者排最後）
+      rosterDocs.sort((a, b) => {
+        const na = parseInt(a.code, 10), nb = parseInt(b.code, 10);
+        const va = isNaN(na) ? Infinity : na, vb = isNaN(nb) ? Infinity : nb;
+        return va - vb || a.name.localeCompare(b.name, "zh-Hant");
+      });
       renderRoster();
     }, (err) => {
       rosterList.innerHTML = "";
