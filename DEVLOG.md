@@ -346,6 +346,41 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-06-30 最終名單定案 — 重建資料（女方 23、新增「中式+西式」）⚠️ 待 Mac 重匯 Firestore
+最終出席調查 xlsx（0630，53 筆回覆）匯入，取代測試資料。**此 commit 只進 fsc，尚未合 master**。
+
+### 新檔重點
+- 53 筆：男方 28、女方 25；留言 47 則
+- **欄位改名**（新檔 vs 舊腳本）：「喜餅兌換碼」→「喜餅兌換券編號」(col 11)、「喜餅樣式」→「喜餅類型」(col 12) → 已更新所有 find_col 關鍵字
+- 女方 25 位中 **2 位未填兌換券編號** → 決定「不發券」：`build_guests.py` 改為「女方＋有編號」才進 brideHashes（那 2 位券頁不顯示，避免半殘券面）
+- **新喜餅類型「中式+西式」(2 位)** → 決定「兩盒都領」：`import_firestore.py` 新增 `map_gift()`（含中又含西→`both`）；`verify.html` 新增 both 呈現
+
+### 改動
+- `data/build_guests.py`：加 code 欄查找；brideHashes 限「女方+有碼」；links 標「女方(有券)/女方(未發券)」
+- `data/make_vouchers.py`、`data/import_firestore.py`：find_col 改抓「喜餅兌換券編號/喜餅類型」
+- `data/import_firestore.py`：`map_gift()` → chinese/western/**both**（giftType 存 both）
+- `verify.html`：GIFT_LABEL/GIFT_BADGE/giftTypeOf；名單欄位用 `gift`（chinese/western/both）；核銷面板大徽章、名單徽章、CSV、統計、總覽 KPI、新增「中+西」篩選鈕＋ `.badge-both`（紫）
+  - guest 端（index/script/voucher-live）**不需改**：喜餅類型只給工作人員看（避免發錯盒），賓客券面不顯示類型
+
+### 產出（本機已跑）
+- `data/guests.json`：新 salt `b4ef1bf8616d930e`、**23** 女方雜湊（公開、進 repo）
+- `data/wishes.json`：**47** 則（公開、進 repo）
+- `vouchers/`：**23** 張券圖（編號 26091211–26091234，gitignored，私下發送）；已清掉舊 10 張測試券
+- ⚠️ 個資保護：xlsx / vouchers/ / voucher_links.txt 皆 gitignore，未進 repo（已 git check-ignore 確認）
+
+### 追加（同日）：通用連結 + salt 沿用 + 英文名驗證
+- 需求1：男方無兌換券機制 → `?g=` 對男方/女方未發券者無作用 → `build_guests.py` 的 `voucher_links.txt` 改為：
+  頂部 1 條**通用電子喜帖連結**（男方 28 + 女方未發券 2 = 30 位共用、不分人）+ **23 條女方專屬連結**（個別發送）
+- robust：`build_guests.py` 改為**沿用既有 guests.json 的 salt**（重跑不再亂換 salt 害已匯入的 Firestore 對不上）→ 本次重跑 guests.json 未變動
+- 需求2（英文名「被雜湊避開」）：**查無此問題**。Kevin/Renee 經正規化(NFKC+去空白+小寫)後雜湊**確實在 brideHashes**、Python 與前端 JS 正規化一致、大小寫皆通；瀏覽器實測 `?g=Kevin` 兌換券正常解鎖、名稱顯示「Kevin」。英文 `?g=Kevin` 看似未編碼只因 ASCII 不需 percent-encoding（中文 `%E9…` 也只是傳輸編碼）。若線上測不行＝最終資料尚未上線（master 仍舊版）
+
+### ⚠️ 上線前必做（安全順序，勿先合 master）
+salt 重新產生 → 所有雜湊改變 → 現有 Firestore 舊測試券會對不上。本機**無 serviceAccountKey.json**，無法匯入。
+1. **Mac**：`git pull`（fsc）→ `python data/import_firestore.py --prune`（用新 guests.json 的 salt 重建 23 筆、清掉舊測試殘留）
+2. **端到端驗證**：取一位女方賓客 `?g=<姓名>` → 撕券 → 出現碼/QR → 另機掃 → verify 登入核銷 → 賓客券浮現「已領取」；測一位「中式+西式」者後台應顯示紫色「中式+西式」徽章
+3. 通過後再 **合併 fsc → master 上線**
+- ✅ 本機驗證：build 腳本輸出正確（23/47/23）、verify.html「中+西」鈕＋徽章＋無 console error；真實「both」名單渲染待 Mac 端 Firestore 有資料後確認
+
 ## 2026-06-22 婚禮管理後台幕前功能分頁化（Tabs）
 - 動機：資料量長到 1–200 筆時單頁會拉很長；改成分頁讓每頁短、好操作
 - verify.html 登入後改為：總覽 KPI 常駐 + **sticky 分頁列**（核銷／名單／留言／禮金）

@@ -75,9 +75,9 @@ def load_guests():
     cleanup_tmp(tmp)
     header = rows[0]
     ni = find_col(header, "賓客姓名", "姓名")
-    ci = find_col(header, "喜餅兌換碼", "兌換碼")
+    ci = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     if ni is None or ci is None:
-        sys.exit("找不到「賓客姓名」或「喜餅兌換碼」欄位，請確認表頭。")
+        sys.exit("找不到「賓客姓名」或「喜餅兌換券編號」欄位，請確認表頭。")
     out = []
     for r in rows[1:]:
         name = r[ni] if ni < len(r) else None

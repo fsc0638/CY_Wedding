@@ -69,13 +69,25 @@ def main():
     header = rows[0]
     name_idx = find_col(header, "賓客姓名", "姓名")
     rel_idx = find_col(header, "關係")
+    code_idx = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     if name_idx is None or rel_idx is None:
         sys.exit("找不到「賓客姓名」或「與我們的關係」欄位，請確認表頭。")
 
-    salt = secrets.token_hex(8)
+    # salt：沿用既有 guests.json 的 salt，避免重跑讓所有姓名雜湊改變（與已匯入 Firestore 對不上）
+    salt = None
+    if os.path.exists(OUT):
+        try:
+            with open(OUT, encoding="utf-8") as f:
+                salt = (json.load(f) or {}).get("salt") or None
+        except Exception:
+            salt = None
+    salt_note = "沿用既有 salt" if salt else "產生新 salt"
+    if not salt:
+        salt = secrets.token_hex(8)
+
     bride_hashes = set()
     seen = set()           # 以正規化姓名去重
-    links = []             # (顯示姓名, side, url)
+    links = []             # (顯示姓名, side, url, has_code)
 
     for r in rows[1:]:
         if name_idx >= len(r) or rel_idx >= len(r):
@@ -90,10 +102,15 @@ def main():
         seen.add(norm)
 
         side = SIDE_MAP.get(str(r[rel_idx]).strip() if r[rel_idx] is not None else "", "groom")
+        code = ""
+        if code_idx is not None and code_idx < len(r) and r[code_idx] is not None:
+            code = str(r[code_idx]).strip()
+        has_code = bool(code)
         url = BASE_URL + "?g=" + quote(display_name)
-        links.append((display_name, side, url))
+        links.append((display_name, side, url, has_code))
 
-        if side == "bride":
+        # 只有「女方 + 有兌換券編號」才解鎖兌換券；女方未填編號者視為不發券（券頁不顯示）
+        if side == "bride" and has_code:
             h = hashlib.sha256((salt + norm).encode("utf-8")).hexdigest()
             bride_hashes.add(h)
 
@@ -109,19 +126,32 @@ def main():
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     # 發送用清單（含明文姓名，不進 repo）
+    # 只有「女方+有兌換券編號」需要專屬 ?g= 連結（解鎖兌換券）；
+    # 男方與女方未發券者沒有兌換券機制，?g= 對他們無作用 → 一律用「通用連結」即可，不需分人傳送。
+    voucher_links = [(name, url) for name, side, url, has_code in links if side == "bride" and has_code]
+    generic_guests = [(name, side) for name, side, url, has_code in links if not (side == "bride" and has_code)]
     with open(LINKS, "w", encoding="utf-8") as f:
-        f.write("# 喜餅兌換券專屬連結（此檔含個資，請勿提交到公開 repo）\n")
-        f.write("# 姓名\t男女方\t專屬連結\n")
-        for name, side, url in links:
-            label = "女方" if side == "bride" else "男方"
-            f.write("%s\t%s\t%s\n" % (name, label, url))
+        f.write("# 喜餅兌換券／電子喜帖連結（此檔含個資，請勿提交到公開 repo）\n\n")
+        f.write("【通用電子喜帖連結】男方、及女方未發券者，全部用這一條即可，不需分人：\n")
+        f.write("%s\n\n" % BASE_URL)
+        f.write("【女方專屬兌換券連結】共 %d 位，請個別發送（內含喜餅兌換券）：\n" % len(voucher_links))
+        f.write("# 姓名\t專屬連結\n")
+        for name, url in voucher_links:
+            f.write("%s\t%s\n" % (name, url))
+        f.write("\n# 使用通用連結者（%d 位，僅供核對，不需逐一傳專屬連結）：\n" % len(generic_guests))
+        for name, side in generic_guests:
+            f.write("#   %s（%s）\n" % (name, "男方" if side == "groom" else "女方·未發券"))
 
-    bride = sum(1 for _, s, _ in links if s == "bride")
+    bride = sum(1 for _, s, _, _ in links if s == "bride")
+    bride_voucher = len(voucher_links)
     groom = len(links) - bride
-    print("來源：%s" % os.path.basename(src))
+    print("來源：%s（salt：%s）" % (os.path.basename(src), salt_note))
     print("共 %d 位賓客（女方 %d、男方 %d）" % (len(links), bride, groom))
+    print("女方專屬兌換券連結：%d 條（個別發送）" % bride_voucher)
+    print("通用連結：1 條（男方 %d + 女方未發券 %d = %d 位共用，不需分人傳）"
+          % (groom, bride - bride_voucher, len(generic_guests)))
     print("已輸出 %d 個女方姓名雜湊 → %s" % (len(bride_hashes), os.path.basename(OUT)))
-    print("專屬連結清單（含明文姓名，未進 repo）→ %s" % os.path.basename(LINKS))
+    print("連結清單（含明文姓名，未進 repo）→ %s" % os.path.basename(LINKS))
 
 
 if __name__ == "__main__":
