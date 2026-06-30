@@ -473,13 +473,23 @@
     var btn   = document.getElementById("bgm-toggle");
     if (!audio || !btn) return;
 
-    // 目錄中的歌單（順序不重要，會隨機挑）
-    var TRACKS = [
+    // 後備歌單：當 Music/tracks.json 讀取失敗時使用
+    var FALLBACK = [
       "Music/Troye Sivan - Angel Baby (SPOTISAVER).mp3",
       "Music/Taylor Swift - Enchanted (SPOTISAVER).mp3",
       "Music/Lauv - Love U Like That (SPOTISAVER).mp3"
     ];
-    audio.src = TRACKS[Math.floor(Math.random() * TRACKS.length)];
+
+    function pickFrom(list) {
+      if (list && list.length) audio.src = list[Math.floor(Math.random() * list.length)];
+    }
+
+    // 讀取由 data/build_music.py 掃描 Music/ 產生的歌單清單，隨機挑一首
+    fetch("Music/tracks.json?v=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (list) { pickFrom(Array.isArray(list) && list.length ? list : FALLBACK); })
+      .catch(function () { pickFrom(FALLBACK); });
+
     audio.volume = 0.35;
 
     var userPaused = false;
@@ -503,6 +513,7 @@
 
     // 首次互動觸發（滾動 / 觸控 / 點擊任意位置）
     function onFirstInteract() {
+      if (!audio.src) return;  // 歌單尚未載入，保留監聽待下次互動
       if (!userPaused && audio.paused) tryPlay();
       window.removeEventListener("scroll", onFirstInteract);
       window.removeEventListener("touchstart", onFirstInteract);
