@@ -467,7 +467,7 @@
     });
   });
 
-  /* ---------- 背景音樂：每次開啟隨機選一首，首次互動自動播放 ---------- */
+  /* ---------- 背景音樂：洗牌全部歌曲成佇列，一首播完自動換下一首 ---------- */
   (function () {
     var audio = document.getElementById("bgm");
     var btn   = document.getElementById("bgm-toggle");
@@ -480,19 +480,18 @@
       "Music/Lauv - Love U Like That (SPOTISAVER).mp3"
     ];
 
-    function pickFrom(list) {
-      if (list && list.length) audio.src = list[Math.floor(Math.random() * list.length)];
-    }
-
-    // 讀取由 data/build_music.py 掃描 Music/ 產生的歌單清單，隨機挑一首
-    fetch("Music/tracks.json?v=" + Date.now(), { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (list) { pickFrom(Array.isArray(list) && list.length ? list : FALLBACK); })
-      .catch(function () { pickFrom(FALLBACK); });
-
-    audio.volume = 0.35;
-
+    var queue = [];          // 洗牌後的播放順序
+    var qi = 0;              // 目前播到第幾首
     var userPaused = false;
+
+    function shuffle(a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
 
     function setPlayingUI(on) {
       btn.classList.toggle("playing", on);
@@ -500,8 +499,43 @@
       btn.setAttribute("aria-label", on ? t("bgm.pause") : t("bgm.play"));
     }
 
+    function buildQueue(list) {
+      queue = shuffle((Array.isArray(list) && list.length) ? list : FALLBACK);
+      qi = 0;
+      if (queue.length) audio.src = queue[0];
+    }
+
+    function advance() {
+      if (!queue.length) return;
+      qi++;
+      if (qi >= queue.length) {           // 一輪播完 → 重新洗牌（避免與上一首立刻重複）
+        var last = queue[queue.length - 1];
+        queue = shuffle(queue);
+        if (queue.length > 1 && queue[0] === last) queue.push(queue.shift());
+        qi = 0;
+      }
+      audio.src = queue[qi];
+    }
+
+    // 一首播完自動接下一首（使用者沒手動暫停時）
+    audio.addEventListener("ended", function () {
+      advance();
+      if (!userPaused) {
+        var p = audio.play();
+        if (p && p.catch) p.catch(function () {});
+        setPlayingUI(true);
+      }
+    });
+
+    // 讀取由 data/build_music.py 掃描 Music/ 產生的歌單清單
+    fetch("Music/tracks.json?v=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (list) { buildQueue(list); })
+      .catch(function () { buildQueue(FALLBACK); });
+
+    audio.volume = 0.35;
+
     function tryPlay() {
-      try { audio.currentTime = 0; } catch (e) {} // 永遠從頭播放
       var p = audio.play();
       if (p && typeof p.then === "function") {
         p.then(function () { setPlayingUI(true); })
