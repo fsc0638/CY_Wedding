@@ -69,13 +69,14 @@ def main():
     header = rows[0]
     name_idx = find_col(header, "賓客姓名", "姓名")
     rel_idx = find_col(header, "關係")
+    code_idx = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     if name_idx is None or rel_idx is None:
         sys.exit("找不到「賓客姓名」或「與我們的關係」欄位，請確認表頭。")
 
     salt = secrets.token_hex(8)
     bride_hashes = set()
     seen = set()           # 以正規化姓名去重
-    links = []             # (顯示姓名, side, url)
+    links = []             # (顯示姓名, side, url, has_code)
 
     for r in rows[1:]:
         if name_idx >= len(r) or rel_idx >= len(r):
@@ -90,10 +91,15 @@ def main():
         seen.add(norm)
 
         side = SIDE_MAP.get(str(r[rel_idx]).strip() if r[rel_idx] is not None else "", "groom")
+        code = ""
+        if code_idx is not None and code_idx < len(r) and r[code_idx] is not None:
+            code = str(r[code_idx]).strip()
+        has_code = bool(code)
         url = BASE_URL + "?g=" + quote(display_name)
-        links.append((display_name, side, url))
+        links.append((display_name, side, url, has_code))
 
-        if side == "bride":
+        # 只有「女方 + 有兌換券編號」才解鎖兌換券；女方未填編號者視為不發券（券頁不顯示）
+        if side == "bride" and has_code:
             h = hashlib.sha256((salt + norm).encode("utf-8")).hexdigest()
             bride_hashes.add(h)
 
@@ -111,15 +117,21 @@ def main():
     # 發送用清單（含明文姓名，不進 repo）
     with open(LINKS, "w", encoding="utf-8") as f:
         f.write("# 喜餅兌換券專屬連結（此檔含個資，請勿提交到公開 repo）\n")
-        f.write("# 姓名\t男女方\t專屬連結\n")
-        for name, side, url in links:
-            label = "女方" if side == "bride" else "男方"
+        f.write("# 姓名\t分類\t專屬連結\n")
+        for name, side, url, has_code in links:
+            if side == "bride":
+                label = "女方(有券)" if has_code else "女方(未發券)"
+            else:
+                label = "男方"
             f.write("%s\t%s\t%s\n" % (name, label, url))
 
-    bride = sum(1 for _, s, _ in links if s == "bride")
+    bride = sum(1 for _, s, _, _ in links if s == "bride")
+    bride_voucher = len(bride_hashes)
     groom = len(links) - bride
     print("來源：%s" % os.path.basename(src))
     print("共 %d 位賓客（女方 %d、男方 %d）" % (len(links), bride, groom))
+    print("女方有兌換券編號（解鎖兌換券）：%d 位；女方未填編號（不發券）：%d 位"
+          % (bride_voucher, bride - bride_voucher))
     print("已輸出 %d 個女方姓名雜湊 → %s" % (len(bride_hashes), os.path.basename(OUT)))
     print("專屬連結清單（含明文姓名，未進 repo）→ %s" % os.path.basename(LINKS))
 

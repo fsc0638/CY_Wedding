@@ -34,7 +34,19 @@ KEY = os.path.join(HERE, "serviceAccountKey.json")
 GUESTS = os.path.join(HERE, "guests.json")
 
 SIDE_MAP = {"俊郁朋友": "groom", "雁婷朋友": "bride"}
-GIFT_MAP = {"西式": "western", "中式": "chinese"}   # 未填 → 預設中式
+
+
+def map_gift(raw):
+    """喜餅類型 → chinese / western / both（『中式＋西式』＝兩盒都領）；未填 → 預設中式。"""
+    raw = (raw or "").strip()
+    if not raw:
+        return "chinese"
+    has_cn, has_west = ("中" in raw), ("西" in raw)
+    if has_cn and has_west:
+        return "both"
+    if has_west:
+        return "western"
+    return "chinese"
 
 
 def clean_name(s):
@@ -63,12 +75,12 @@ def main():
     cleanup_tmp(tmp)
     header = rows[0]
     ni = find_col(header, "賓客姓名", "姓名")
-    ci = find_col(header, "喜餅兌換碼", "兌換碼")
+    ci = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     ri = find_col(header, "關係")
-    gi = find_col(header, "喜餅樣式", "樣式")     # 可無 → 全部視為中式
+    gi = find_col(header, "喜餅類型", "喜餅樣式", "類型", "樣式")  # 可無 → 全部視為中式
     bi = find_col(header, "備註")                 # 可無
     if ni is None or ci is None or ri is None:
-        sys.exit("Excel 缺少 姓名 / 喜餅兌換碼 / 關係 欄位。")
+        sys.exit("Excel 缺少 姓名 / 喜餅兌換券編號 / 關係 欄位。")
 
     n = 0
     current_hashes = set()        # 本次 Excel 內所有女方賓客的雜湊（供 --prune 判斷殘留）
@@ -83,7 +95,7 @@ def main():
         if not name or not code:
             continue
         gift_raw = str(r[gi]).strip() if gi is not None and gi < len(r) and r[gi] is not None else ""
-        gift = GIFT_MAP.get(gift_raw, "chinese")  # 未填 / 無此欄 → 預設中式
+        gift = map_gift(gift_raw)                  # chinese / western / both（未填→中式）
         note = str(r[bi]).strip() if bi is not None and bi < len(r) and r[bi] is not None else ""
         h = hashlib.sha256((salt + normalize_name(name)).encode("utf-8")).hexdigest()
         current_hashes.add(h)
