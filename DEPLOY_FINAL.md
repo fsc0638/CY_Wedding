@@ -1,5 +1,28 @@
 # 最終名單上線步驟（Mac 端執行）
 
+---
+
+## ⭐ 日後新增/修改名單：一鍵工具 `deploy_roster.py`（建議用這個）
+
+名單已上線後，之後零星加人 → **只要維持 xlsx 檔名不變、直接編輯加列（含兌換券編號）**，然後跑：
+
+```bash
+# Mac：
+python3 data/deploy_roster.py --dry-run   # 先預覽：新增/移除/變動 + 警示（不寫檔）
+python3 data/deploy_roster.py             # 確認後一鍵：重建→Firestore→合master→push→驗證
+#（Windows 預覽用 py：  py data/deploy_roster.py --dry-run ）
+```
+
+它會自動：`build_guests → build_wishes → make_vouchers → fill_invite_links → import_firestore --prune → git commit/合 master/push → 抓 live 驗證`，並且：
+- **冪等**：沒改就重跑 → 「無需上線」。**碼穩定**（salt 沿用、既有雜湊不變）。**保留已核銷**。
+- **半套防呆**：完整上線（含 Firestore）**只能在有金鑰的 Mac 跑**；無金鑰只會預覽、不寫任何檔。
+- 會印差異報告＋警示（新賓客沒填編號、既有編號被改、同名、重複碼…）給你確認。
+- ⚠️ 仍需人工：把**新產生的券圖**（`vouchers/`）寄給新賓客。
+
+> 下面是「第一次最終上線」的手動逐步版（也是 deploy_roster 底層在做的事），供理解或手動操作時參考。
+
+---
+
 > 目的：把「最終出席名單（0630）」正式上線。
 > 現況：所有程式與資料已在 **fsc** 分支；**master 仍是舊測試版（線上運作中）**。
 > 原則：salt 換了 → 必須先在 Mac 重匯 Firestore、驗證通過，**才合併 master 上線**。
