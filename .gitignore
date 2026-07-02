@@ -15,6 +15,9 @@ data/voucher_links.txt
 data/einvite_links_column.txt
 data/einvite_links_reference.csv
 
+# deploy_roster.py 的差異基準快照（含明文賓客姓名），不可進公開 repo
+data/.roster_snapshot.json
+
 # Python 轉檔腳本的位元組快取
 __pycache__/
 *.pyc

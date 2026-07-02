@@ -346,6 +346,20 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-07-02 一鍵名單重整上線工具 `data/deploy_roster.py`
+- 需求：名單已上線後仍會零星手動加人；維持 xlsx 檔名不變，一個指令重整整份並正確上線。
+- 新檔 `data/deploy_roster.py`（orchestrator，subprocess 呼叫現有 5 支腳本，一行不改它們）：
+  流程 build_guests → build_wishes → make_vouchers（字體依平台自動選）→ fill_invite_links → import_firestore --prune → git commit/合 master/push → 抓 live guests.json 驗證。
+- 設計（手動填碼 + 一鍵到底，經使用者確認）：
+  - **冪等**：沒改就重跑→無異動收工；**碼穩定**（build_guests 沿用 salt）；**保留已核銷**（import merge + --prune 只刪未核銷殘留）。
+  - **差異基準** `.roster_snapshot.json`（gitignore、含姓名）：比對出 ➕新增/➖移除/✎編號類型變動，精準判斷 `firestore_needed`。
+  - **半套防呆**：有金鑰＝完整上線機；**無金鑰＝只預覽、零寫入**（避免前端有新雜湊、Firestore 沒券）。
+  - 驗證/警示：女方沒填編號、既有編號被改（會讓已寄券失效）、同名、重複碼、格式異常。
+  - git 只 stage guests.json/wishes.json；`--dry-run`/`--yes`/`--no-deploy` 旗標。
+- `.gitignore` 加入 `data/.roster_snapshot.json`。
+- ✅ 本機驗證（Windows，用 `py`；`python`/`python3` 為 Store 別名 stub 會壞）：dry-run 報告正確（53人・女方券23=中21+中西2・未發券2/警示王聖鈞·石哲華）、首次基準、**無金鑰防呆拒絕且零寫入**、種入相同快照→firestore_needed=否→4 支 build 子程序皆跑→冪等無異動不 push。Firestore 匯入/git push/線上驗證需金鑰在 Mac 跑（元件皆既有已驗證）。
+- 用法寫進 `DEPLOY_FINAL.md` 最上方；Windows 用 `py`、Mac 用 `python3`（腳本內部走 sys.executable，子程序可攜）。
+
 ## 2026-06-30 最終名單定案 — 重建資料（女方 23、新增「中式+西式」）⚠️ 待 Mac 重匯 Firestore
 最終出席調查 xlsx（0630，53 筆回覆）匯入，取代測試資料。**此 commit 只進 fsc，尚未合 master**。
 
