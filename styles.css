@@ -570,6 +570,80 @@ section { position: relative; }
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--ink);
 }
+/* 停車區塊：跨出兩欄格線、獨立整段寬版，讓路網圖有足夠寬度可讀 */
+.park-block {
+  max-width: 1080px;
+  margin: clamp(2.2rem, 5vw, 3.2rem) auto 0;
+  text-align: left;
+}
+/* 卡片在寬版下可並排 */
+.park-block .park-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* 停車提醒 */
+.pnote {
+  border: 1px solid rgba(45, 43, 37, 0.32);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.34);
+  padding: 0.85rem 1rem;
+  margin: 0 0 1.1rem;
+}
+.pnote-tag {
+  display: inline-block;
+  font-family: var(--serif-tc);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  border-bottom: 1px solid rgba(45, 43, 37, 0.25);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.pnote p { margin: 0; font-size: 0.82rem; line-height: 1.85; }
+.pnote b { font-weight: 600; }
+
+/* 手繪風路網圖（道路取自 OpenStreetMap，步行路線取自 OSRM）*/
+.pmap {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(45, 43, 37, 0.18);
+  border-radius: 4px;
+}
+.pmap text { font-family: var(--serif-tc); }
+.pm-road  { fill: rgba(45, 43, 37, 0.78); }
+.pm-water { font-size: 11px; fill: rgba(70, 95, 105, 0.62); letter-spacing: 0.1em; }
+.pm-lbl   { font-size: 12.5px; font-weight: 600; fill: #2d2b25; }
+.pm-pt    { cursor: pointer; }
+.pm-hit   { fill: transparent; }
+.pm-pin   { transition: transform .22s ease; }
+.pm-pt:hover .pm-pin,
+.pm-pt:focus-visible .pm-pin { transform: translateY(-3px); }
+.pm-hint {
+  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+  font-size: 0.72rem; color: var(--ink-soft); margin: 0.75rem 0 0;
+}
+.pm-hint i { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* 窄螢幕：SVG 等比縮小會讓路名細到看不清，故放大字級（單位隨 viewBox 一起縮放）*/
+@media (max-width: 680px) {
+  .pm-road  { font-size: 15px !important; }
+  .pm-water { font-size: 16px; }
+  .pm-lbl   { font-size: 18px; }
+}
+
+/* 轉彎指示 */
+.pm-steps { margin: 0.9rem 0 1.1rem; font-size: 0.76rem; line-height: 1.95; }
+.pm-steps p { margin: 0.1rem 0; }
+.pm-steps-t { font-weight: 600; margin-top: 0.55rem !important; }
+.pm-steps b { font-weight: 600; }
+.pm-n {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: #a8813c; color: #fff;
+  font-size: 9.5px; font-family: var(--serif-tc);
+  margin-right: 0.3rem; vertical-align: 1px;
+}
+
 /* 周邊停車場：卡片組（整張可點 → 開啟該停車場導航）*/
 .park-grid {
   display: grid;
@@ -613,16 +687,26 @@ section { position: relative; }
   line-height: 1.7;
   color: var(--ink-soft);
 }
+/* 會館停車場：首選，視覺上比備案更實 */
+.park-card.venue {
+  border-color: rgba(45, 43, 37, 0.42);
+  background: rgba(255, 255, 255, 0.60);
+}
+.park-card.venue .park-rank { color: var(--ink); font-weight: 600; }
+
+/* 導航按鈕：做成膠囊狀，讓「可點」一目了然 */
 .park-go {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.7rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid rgba(45, 43, 37, 0.14);
-  font-size: 0.74rem;
-  letter-spacing: 0.1em;
+  margin-top: 0.75rem;
+  padding: 0.3rem 0.78rem;
+  border: 1px solid rgba(45, 43, 37, 0.34);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
 }
+.park-go i { width: 12px; height: 12px; flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) {
   .park-card { transition: none; }
   .park-card:hover, .park-card:focus-visible { transform: none; }
