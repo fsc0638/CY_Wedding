@@ -618,8 +618,39 @@ section { position: relative; }
 .pm-pin   { transition: transform .22s ease; }
 .pm-pt:hover .pm-pin,
 .pm-pt:focus-visible .pm-pin { transform: translateY(-3px); }
-/* 地圖上的費率／步行時間小標 */
-.pm-meta { font-size: 9.6px; fill: rgba(45, 43, 37, 0.66); }
+/* 停車費率一覽（列在提示條下方，地圖只保留名稱較清爽）*/
+.pfee {
+  max-width: 620px;
+  margin: 1.1rem auto 0;
+}
+.pfee-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 1rem;
+  padding: 0.62rem 0.1rem;
+  border-bottom: 1px solid rgba(45, 43, 37, 0.14);
+}
+.pfee-row:first-child { border-top: 1px solid rgba(45, 43, 37, 0.14); }
+.pfee dt {
+  font-family: var(--serif-tc);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  flex: 0 0 auto;
+  min-width: 8.6em;
+}
+.pfee dd {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  flex: 1 1 auto;
+}
+/* 窄螢幕：一律上下堆疊，避免長短不一造成部分列換行、對齊參差 */
+@media (max-width: 560px) {
+  .pfee-row { display: block; }
+  .pfee dt { min-width: 0; margin-bottom: 0.18rem; }
+}
 
 /* 「點擊標記可導航」提示：做成顯眼的膠囊條 */
 .pm-tap {
@@ -645,7 +676,6 @@ section { position: relative; }
   .pm-road  { font-size: 15px !important; }
   .pm-water { font-size: 16px; }
   .pm-lbl   { font-size: 18px; }
-  .pm-meta  { font-size: 14px; }
 }
 
 /* 轉彎指示 */
