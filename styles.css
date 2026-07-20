@@ -570,6 +570,64 @@ section { position: relative; }
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--ink);
 }
+/* 周邊停車場：卡片組（整張可點 → 開啟該停車場導航）*/
+.park-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.park-card {
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(45, 43, 37, 0.18);
+  border-radius: 3px;
+  padding: 1rem 1.05rem;
+  transition: background .25s ease, transform .25s ease, border-color .25s ease;
+}
+.park-card:hover,
+.park-card:focus-visible {
+  background: rgba(255, 255, 255, 0.72);
+  transform: translateY(-2px);
+  border-color: rgba(45, 43, 37, 0.34);
+}
+.park-rank {
+  display: block;
+  font-family: var(--serif-tc);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  margin-bottom: 0.45rem;
+}
+.park-name {
+  font-family: var(--serif-tc);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+}
+.park-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.park-go {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(45, 43, 37, 0.14);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .park-card { transition: none; }
+  .park-card:hover, .park-card:focus-visible { transform: none; }
+}
+
 .addr-zh { font-size: 0.98rem; }
 .addr-en {
   font-size: 0.74rem;
@@ -835,6 +893,7 @@ section { position: relative; }
 .i-heart     { -webkit-mask-image: url('Icons/heart.svg');     mask-image: url('Icons/heart.svg'); }
 .i-calendar  { -webkit-mask-image: url('Icons/calendar.svg');  mask-image: url('Icons/calendar.svg'); }
 .i-clipboard { -webkit-mask-image: url('Icons/clipboard.svg'); mask-image: url('Icons/clipboard.svg'); }
+.i-parking   { -webkit-mask-image: url('Icons/parking.svg');   mask-image: url('Icons/parking.svg'); }
 
 /* ===================================================================
    ADD-TO-CALENDAR BUTTONS
