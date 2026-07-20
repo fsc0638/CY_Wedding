@@ -42,6 +42,19 @@
       "travel.driving": "自行開車",
       "travel.driving.1": "國道一號：南崁交流道往桃園方向 → 靠右經國路 → 莊敬路二段右轉",
       "travel.driving.2": "國道二號：南桃園交流道往桃園方向 → 靠右大興西路三段 → 寶慶路左轉 → 莊敬路二段左轉",
+      "travel.parking": "周邊停車場",
+      "travel.parking.notice.tag": "停 車 小 提 醒",
+      "travel.parking.notice": "當日會館有多場喜宴同時舉行，停車位可能較為緊張。<br />若方便的話，<b>歡迎您提早一些抵達</b>，也能從容入席、不必為了找車位而匆忙。<br />搭乘遊覽車的貴賓，再麻煩於 <b>11:30 前</b> 到場，謝謝您的體諒。",
+      "travel.parking.tap": "點擊地圖上任一標記，即可開啟該地點導航",
+      "travel.parking.scale": "100 公尺",
+      "travel.parking.venue": "皇家薇庭停車場",
+      "travel.parking.venue.tag": "免費 · 車位有限",
+      "travel.parking.p1.tag": "步行 9 分 · 汽車 $60/時、機車 $30/次",
+      "travel.parking.p2.tag": "步行 10 分 · 汽車 $40/時",
+      "travel.parking.venue.short": "皇家薇庭",
+      "travel.parking.p1": "寶慶路停車場",
+      "travel.parking.p2": "沃瑪寶慶路停車場",
+      "travel.parking.p2.short": "沃瑪寶慶路",
       "travel.address": "地址",
       "travel.copy": "複製",
       "travel.copy.done": "已複製",
@@ -126,6 +139,19 @@
       "travel.driving": "By Car",
       "travel.driving.1": "Highway 1: Nankan IC toward Taoyuan → Jingguo Rd. → Right onto Zhuangjing Rd. Sec. 2.",
       "travel.driving.2": "Highway 2: South Taoyuan IC toward Taoyuan → Daxing W. Rd. Sec. 3 → Left on Baoqing Rd. → Left on Zhuangjing Rd. Sec. 2.",
+      "travel.parking": "Nearby Parking",
+      "travel.parking.notice.tag": "P A R K I N G   N O T E",
+      "travel.parking.notice": "Several weddings are held at the venue that day, so parking may be tight.<br />If it suits you, <b>we\u2019d love for you to arrive a little early</b> \u2014 no rushing to find a space.<br />Guests arriving by coach, please arrive <b>before 11:30</b>. Thank you for understanding.",
+      "travel.parking.tap": "Tap any marker on the map to open navigation",
+      "travel.parking.scale": "100 m",
+      "travel.parking.venue": "Venue Parking",
+      "travel.parking.venue.tag": "Free · Limited spaces",
+      "travel.parking.p1.tag": "9 min walk · Car NT$60/hr, Scooter NT$30",
+      "travel.parking.p2.tag": "10 min walk · Car NT$40/hr",
+      "travel.parking.venue.short": "Royal Wedding Hall",
+      "travel.parking.p1": "Baoqing Rd. Parking",
+      "travel.parking.p2": "Woma Baoqing Rd. Parking",
+      "travel.parking.p2.short": "Woma Baoqing",
       "travel.address": "Address",
       "travel.copy": "Copy",
       "travel.copy.done": "Copied",
@@ -210,6 +236,19 @@
       "travel.driving": "お車でお越しの方",
       "travel.driving.1": "国道1号：南崁ICで桃園方面 → 経国路 → 荘敬路二段を右折。",
       "travel.driving.2": "国道2号：南桃園ICで桃園方面 → 大興西路三段 → 寶慶路を左折 → 荘敬路二段を左折。",
+      "travel.parking": "周辺駐車場",
+      "travel.parking.notice.tag": "駐 車 場 の ご 案 内",
+      "travel.parking.notice": "当日は会館で複数の披露宴が重なるため、駐車場が混み合う可能性がございます。<br />ご都合がつくようでしたら、<b>少し早めにお越しいただけますと幸いです</b>。<br />観光バスでお越しの方は <b>11:30 まで</b> にご到着ください。ご協力ありがとうございます。",
+      "travel.parking.tap": "地図上のマーカーをタップすると経路が開きます",
+      "travel.parking.scale": "100 m",
+      "travel.parking.venue": "会館駐車場",
+      "travel.parking.venue.tag": "無料 · 台数に限りあり",
+      "travel.parking.p1.tag": "徒歩9分 · 普通車 NT$60/時、バイク NT$30",
+      "travel.parking.p2.tag": "徒歩10分 · 普通車 NT$40/時",
+      "travel.parking.venue.short": "ロイヤルウェディング",
+      "travel.parking.p1": "寶慶路駐車場",
+      "travel.parking.p2": "沃瑪寶慶路駐車場",
+      "travel.parking.p2.short": "沃瑪寶慶路",
       "travel.address": "住所",
       "travel.copy": "コピー",
       "travel.copy.done": "コピーしました",
@@ -294,6 +333,19 @@
       "travel.driving": "자가용",
       "travel.driving.1": "국도 1호: 난칸 IC에서 타오위안 방향 → 경국로 → 장징로 2단 우회전.",
       "travel.driving.2": "국도 2호: 남타오위안 IC에서 타오위안 방향 → 대흥서로 3단 → 보경로 좌회전 → 장징로 2단 좌회전.",
+      "travel.parking": "주변 주차장",
+      "travel.parking.notice.tag": "주 차 안 내",
+      "travel.parking.notice": "당일 예식장에서 여러 결혼식이 함께 열려 주차 공간이 부족할 수 있습니다.<br />괜찮으시다면 <b>조금 일찍 도착해 주시면 감사하겠습니다</b>. 주차 자리를 찾느라 서두르지 않으셔도 되도록이요.<br />관광버스로 오시는 분은 <b>11:30 이전</b>에 도착 부탁드립니다. 양해해 주셔서 감사합니다.",
+      "travel.parking.tap": "지도의 표시를 누르면 길안내가 열립니다",
+      "travel.parking.scale": "100 m",
+      "travel.parking.venue": "예식장 주차장",
+      "travel.parking.venue.tag": "무료 · 자리 제한",
+      "travel.parking.p1.tag": "도보 9분 · 승용차 NT$60/시간, 오토바이 NT$30",
+      "travel.parking.p2.tag": "도보 10분 · 승용차 NT$40/시간",
+      "travel.parking.venue.short": "로열 웨딩홀",
+      "travel.parking.p1": "바오칭로 주차장",
+      "travel.parking.p2": "워마 바오칭로 주차장",
+      "travel.parking.p2.short": "워마 바오칭로",
       "travel.address": "주소",
       "travel.copy": "복사",
       "travel.copy.done": "복사됨",
@@ -466,6 +518,21 @@
       }
     });
   });
+
+  /* ---------- 停車地圖：標記可點 → 開啟該地點導航 ---------- */
+  (function () {
+    var map = document.getElementById("parkMap");
+    if (!map) return;
+    map.querySelectorAll(".pm-pt").forEach(function (g) {
+      var url = g.getAttribute("data-url");
+      if (!url) return;
+      function open() { window.open(url, "_blank", "noopener"); }
+      g.addEventListener("click", open);
+      g.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+      });
+    });
+  })();
 
   /* ---------- 背景音樂：洗牌全部歌曲成佇列，一首播完自動換下一首 ---------- */
   (function () {
