@@ -1495,7 +1495,8 @@ a:focus-visible, button:focus-visible {
 
 .vt-hint {
   position: absolute;
-  top: 7%;
+  /* 放右下：右上會壓到券面「NO.」欄的兌換編號（編號佔票根上半部）*/
+  bottom: 9%;
   right: 5%;
   z-index: 3;
   font-family: var(--mono);

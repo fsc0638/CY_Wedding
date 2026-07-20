@@ -33,34 +33,50 @@ OUTDIR = os.path.join(ROOT, "vouchers")
 # 預設字體：華文楷體（可畫潮牌楷體為 Canva 專有字體、無法取得，以此為替代）
 DEFAULT_FONT = r"C:\Windows\Fonts\STKAITI.TTF"
 
-# ---- 版面參數（量測自底圖）----
-CENTER_X = 1683      # NO. 文字水平中心
-ANCHOR_Y = 821       # NO. 句點上緣 → 號碼置於其上方
-GAP = 24             # 句點與第一碼之間的間距
+# ---- 版面參數 ----
+# 以「佔底圖寬/高的比例」表示（量測自 2000x1419 版底圖）。
+# 改用比例而非絕對像素，是為了讓底圖換成不同解析度時仍能正確對位——
+# 2026-07-20 底圖由 2000x1419 換成 1748x1240 時，原本寫死的像素座標就會全部跑掉。
+R_CENTER_X = 0.8415  # NO. 文字水平中心（佔寬比例）
+R_ANCHOR_Y = 0.5786  # NO. 句點上緣（佔高比例）→ 號碼置於其上方
+R_GAP      = 0.0169  # 句點與第一碼之間的間距（佔高比例）
+R_FONT     = 0.0648  # 字級（佔高比例）
+R_TRACKING = 0.0113  # 字距（佔高比例）
+
 COLOR = (65, 75, 59, 255)   # 深綠（與 NO. 同色）
-FONT_SIZE = 92
-TRACKING = 16        # 字距
 
 
-def render_code(template_img, code, font):
+def layout_for(img):
+    """依底圖實際尺寸換算出本次要用的絕對像素版面參數。"""
+    w, h = img.size
+    return {
+        "center_x": round(R_CENTER_X * w),
+        "anchor_y": round(R_ANCHOR_Y * h),
+        "gap":      round(R_GAP * h),
+        "font":     round(R_FONT * h),
+        "tracking": round(R_TRACKING * h),
+    }
+
+
+def render_code(template_img, code, font, lay):
     """把 code 直書套到底圖右側 NO. 後方，回傳新圖（不改原圖）。"""
     im = template_img.copy()
     chs = list(str(code))
     ascent, descent = font.getmetrics()
     text_h = ascent + descent
-    total_w = sum(font.getlength(c) for c in chs) + TRACKING * (len(chs) - 1)
+    total_w = sum(font.getlength(c) for c in chs) + lay["tracking"] * (len(chs) - 1)
 
     layer = Image.new("RGBA", (int(total_w) + 20, text_h + 20), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     x = 10.0
     for c in chs:
         d.text((x, 10), c, font=font, fill=COLOR)
-        x += font.getlength(c) + TRACKING
+        x += font.getlength(c) + lay["tracking"]
 
     rot = layer.rotate(90, expand=True)      # 逆時針 90° → 與 NO. 同為由下往上讀
     rw, rh = rot.size
-    bottom = ANCHOR_Y - GAP
-    left = CENTER_X - rw // 2
+    bottom = lay["anchor_y"] - lay["gap"]
+    left = lay["center_x"] - rw // 2
     top = bottom - rh
     im.alpha_composite(rot, (int(left), int(top)))
     return im
@@ -105,14 +121,15 @@ def main():
     if not os.path.exists(TEMPLATE):
         sys.exit("找不到底圖：%s" % TEMPLATE)
 
-    font = ImageFont.truetype(font_path, FONT_SIZE)
     template = Image.open(TEMPLATE).convert("RGBA")
+    lay = layout_for(template)               # 依底圖實際尺寸換算版面
+    font = ImageFont.truetype(font_path, lay["font"])
     guests = load_guests()
     os.makedirs(OUTDIR, exist_ok=True)
 
     n = 0
     for name, code in guests:
-        img = render_code(template, code, font)
+        img = render_code(template, code, font, lay)
         fn = os.path.join(OUTDIR, "喜餅兌換券_%s_%s.png" % (safe_filename(name), code))
         img.convert("RGB").save(fn)
         n += 1
