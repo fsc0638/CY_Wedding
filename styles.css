@@ -618,17 +618,34 @@ section { position: relative; }
 .pm-pin   { transition: transform .22s ease; }
 .pm-pt:hover .pm-pin,
 .pm-pt:focus-visible .pm-pin { transform: translateY(-3px); }
-.pm-hint {
-  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
-  font-size: 0.72rem; color: var(--ink-soft); margin: 0.75rem 0 0;
+/* 地圖上的費率／步行時間小標 */
+.pm-meta { font-size: 9.6px; fill: rgba(45, 43, 37, 0.66); }
+
+/* 「點擊標記可導航」提示：做成顯眼的膠囊條 */
+.pm-tap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: fit-content;
+  margin: 1rem auto 0;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid rgba(168, 129, 60, 0.55);
+  border-radius: 100px;
+  background: rgba(168, 129, 60, 0.10);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: #7a6029;
+  font-weight: 500;
 }
-.pm-hint i { width: 12px; height: 12px; flex-shrink: 0; }
+.pm-tap i { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* 窄螢幕：SVG 等比縮小會讓路名細到看不清，故放大字級（單位隨 viewBox 一起縮放）*/
 @media (max-width: 680px) {
   .pm-road  { font-size: 15px !important; }
   .pm-water { font-size: 16px; }
   .pm-lbl   { font-size: 18px; }
+  .pm-meta  { font-size: 14px; }
 }
 
 /* 轉彎指示 */
