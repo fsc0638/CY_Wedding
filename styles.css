@@ -639,9 +639,6 @@ section { position: relative; }
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-22%); }
 }
-@media (prefers-reduced-motion: reduce) {
-  .park-pin img { animation: none; }
-}
 /* 停車費率一覽（列在提示條下方，地圖只保留名稱較清爽）*/
 .pfee {
   max-width: 620px;
