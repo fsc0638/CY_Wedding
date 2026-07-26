@@ -536,14 +536,23 @@ section { position: relative; }
   letter-spacing: 0.1em;
   margin-top: clamp(2rem, 5vw, 3rem);
 }
-.travel-grid {
+/* 交通方式三區塊：桌機並排、窄螢幕自動堆疊 */
+.travel-info-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  max-width: 1080px;
-  margin: clamp(2.6rem, 6vw, 3.6rem) auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(1.6rem, 4vw, 3rem);
+  max-width: 1000px;
+  margin: clamp(2.6rem, 6vw, 3.8rem) auto 0;
   text-align: left;
   align-items: start;
+}
+.travel-info-grid .ti-block { margin-bottom: 0; }
+
+/* 停車提醒＋費率：置中窄欄，跟在主視覺地圖下方 */
+.park-info {
+  max-width: 620px;
+  margin: 1.4rem auto 0;
+  text-align: left;
 }
 .ti-block { margin-bottom: 2rem; }
 .ti-block h3 {
@@ -570,13 +579,6 @@ section { position: relative; }
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--ink);
 }
-/* 停車區塊：跨出兩欄格線、獨立整段寬版，讓插畫地圖有足夠寬度 */
-.park-block {
-  max-width: 1080px;
-  margin: clamp(2.2rem, 5vw, 3.2rem) auto 0;
-  text-align: left;
-}
-
 /* 停車提醒 */
 .pnote {
   border: 1px solid rgba(45, 43, 37, 0.32);
@@ -598,12 +600,12 @@ section { position: relative; }
 .pnote p { margin: 0; font-size: 0.82rem; line-height: 1.85; }
 .pnote b { font-weight: 600; }
 
-/* 插畫風地圖：底圖為圖片，停車標記以可點擊的 P 圖示疊層呈現 */
+/* 插畫風地圖：交通區塊主視覺，停車標記以可點擊的 P 圖示疊層呈現 */
 .park-map {
   position: relative;
   display: block;
-  max-width: 720px;
-  margin: 0 auto;
+  max-width: 780px;
+  margin: clamp(2.4rem, 5vw, 3.4rem) auto 0;
   border: 1px solid rgba(45, 43, 37, 0.18);
   border-radius: 4px;
   overflow: hidden;
@@ -699,13 +701,6 @@ section { position: relative; }
   margin-top: 0.3rem;
   line-height: 1.6;
 }
-.map-wrap {
-  border: 1px solid rgba(45,43,37,0.25);
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
-  background: var(--cream);
-}
-.map-wrap iframe { width: 100%; height: 100%; border: 0; }
 .map-link {
   display: inline-block;
   margin-top: clamp(2.4rem, 5vw, 3.2rem);
@@ -834,8 +829,6 @@ section { position: relative; }
    RWD
    =================================================================== */
 @media (max-width: 760px) {
-  .travel-grid { grid-template-columns: 1fr; }
-  .map-wrap { aspect-ratio: 4 / 3; }
   .schedule { gap: clamp(2rem, 14vw, 4rem); }
 }
 @media (max-width: 420px) {
