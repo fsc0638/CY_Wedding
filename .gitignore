@@ -6,6 +6,10 @@
 # 賓客表單原始 Excel 含個資（電話／地址），不可進公開 repo
 # 僅提交去識別化後的 data/wishes.json 與只含雜湊的 data/guests.json
 data/*.xlsx
+# 含子資料夾（如 data/archive/）內的 xlsx，避免舊名單漏擋
+data/**/*.xlsx
+# 舊版名單歸檔區，整個資料夾都是個資、一律不進 repo
+data/archive/
 ~$*
 
 # 喜餅兌換券專屬連結清單（含明文賓客姓名），不可進公開 repo
