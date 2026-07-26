@@ -519,21 +519,6 @@
     });
   });
 
-  /* ---------- 停車地圖：標記可點 → 開啟該地點導航 ---------- */
-  (function () {
-    var map = document.getElementById("parkMap");
-    if (!map) return;
-    map.querySelectorAll(".pm-pt").forEach(function (g) {
-      var url = g.getAttribute("data-url");
-      if (!url) return;
-      function open() { window.open(url, "_blank", "noopener"); }
-      g.addEventListener("click", open);
-      g.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
-      });
-    });
-  })();
-
   /* ---------- 背景音樂：洗牌全部歌曲成佇列，一首播完自動換下一首 ---------- */
   (function () {
     var audio = document.getElementById("bgm");
