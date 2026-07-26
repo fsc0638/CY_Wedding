@@ -23,7 +23,6 @@ fill_invite_links.py — 依「是否需要寄送喜帖」產生「電子喜帖�
 import csv
 import os
 import sys
-from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import openpyxl
@@ -70,7 +69,7 @@ def main():
         mail = str(r[mi]).strip() if (mi < len(r) and r[mi] is not None) else ""
         if mail in NEED_EINVITE:
             if side == "女方":
-                link = BASE_URL + "?g=" + quote(name)   # 女方：個人化連結（?g=姓名 供解鎖兌換券）
+                link = BASE_URL + "?g=" + name           # 女方：個人化連結（?g=姓名 供解鎖兌換券；直接放明文全名，不做 URL 編碼）
             else:
                 link = BASE_URL                          # 男方/其他：通用連結（不需兌換喜餅）
             filled += 1
