@@ -42,6 +42,18 @@ NEED_EINVITE = {"響應環保，電子喜帖即可", "2個都要🕶"}
 SIDE_LABEL = {"俊郁朋友": "男方", "雁婷朋友": "女方"}
 
 
+def link_encode(s):
+    """只編碼會破壞網址的字元（空白／保留字元），中英文全名保持可讀。
+    例：'Jieun Jang' → 'Jieun%20Jang'（含空格的英文名不會被截斷）；'范雁婷' → '范雁婷'。
+    前端 normName 會去掉所有空白再比對，故 %20 不影響解鎖。"""
+    # '%' 必須最先處理，以免把後續替換產生的 '%' 再次編碼
+    for ch, rep in (("%", "%25"), (" ", "%20"), ("\t", "%09"),
+                    ("#", "%23"), ("&", "%26"), ("+", "%2B"),
+                    ("?", "%3F"), ("=", "%3D")):
+        s = s.replace(ch, rep)
+    return s
+
+
 def main():
     src = find_latest_xlsx(HERE)
     wb, tmp = load_workbook_resilient(openpyxl, src)
@@ -69,7 +81,7 @@ def main():
         mail = str(r[mi]).strip() if (mi < len(r) and r[mi] is not None) else ""
         if mail in NEED_EINVITE:
             if side == "女方":
-                link = BASE_URL + "?g=" + name           # 女方：個人化連結（?g=姓名 供解鎖兌換券；直接放明文全名，不做 URL 編碼）
+                link = BASE_URL + "?g=" + link_encode(name)  # 女方：個人化連結（?g=姓名 供解鎖兌換券；保持全名可讀，僅編碼空白等破網址字元）
             else:
                 link = BASE_URL                          # 男方/其他：通用連結（不需兌換喜餅）
             filled += 1
