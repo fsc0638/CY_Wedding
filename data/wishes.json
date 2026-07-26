@@ -1,5 +1,5 @@
 {
-  "count": 47,
+  "count": 56,
   "wishes": [
     {
       "side": "groom",
@@ -51,7 +51,7 @@
     },
     {
       "side": "groom",
-      "text": "自從沒有跟你們出去之後 我再也沒上過電視了\n沒有啦。恭喜你們長跑這麼久 終成眷屬🎉"
+      "text": "自從沒有跟你們出去之後 我再也沒上過電視了\n 沒有啦。恭喜你們長跑這麼久 終成眷屬🎉"
     },
     {
       "side": "groom",
@@ -114,6 +114,30 @@
       "text": "新婚快樂❤️‍🔥"
     },
     {
+      "side": "groom",
+      "text": "有舞蹈表演看嗎郎才女貌 😍"
+    },
+    {
+      "side": "bride",
+      "text": "好期待喔😚"
+    },
+    {
+      "side": "bride",
+      "text": "喜迎人生大事請養好精神風光出塲。"
+    },
+    {
+      "side": "bride",
+      "text": "幸福美滿，長長久久"
+    },
+    {
+      "side": "bride",
+      "text": "祝婚禮順利圓圓滿滿～俊男美女幸福一輩子喔"
+    },
+    {
+      "side": "bride",
+      "text": "早生貴子"
+    },
+    {
       "side": "bride",
       "text": "終於等到最美同學的大日子了❤️，一定跟學弟幸福一輩子"
     },
@@ -147,7 +171,7 @@
     },
     {
       "side": "bride",
-      "text": "很開心看到雁婷找到一起攜手走向未來的另一半，祝福你們在往後的日子裡彼此珍惜、互相陪伴。\n祝你們新婚快樂，一起走過歲歲年年，幸福長長久久 ❤️"
+      "text": "很開心看到雁婷找到一起攜手走向未來的另一半，祝福你們在往後的日子裡彼此珍惜、互相陪伴。\n 祝你們新婚快樂，一起走過歲歲年年，幸福長長久久 ❤️"
     },
     {
       "side": "bride",
@@ -163,7 +187,7 @@
     },
     {
       "side": "bride",
-      "text": "兄弟恭喜你們呀!!!!  祝百年好合~ 幸福一輩子!"
+      "text": "兄弟恭喜你們呀!!!! 祝百年好合~ 幸福一輩子!"
     },
     {
       "side": "bride",
@@ -183,11 +207,23 @@
     },
     {
       "side": "bride",
+      "text": "Yanting, my cool roomie in Roelof.\nReally happy for you two getting married after all these years together.\nTime is powerful, and nothing can replace the history you share. You’ve gone so many of life’s  turning points stacking up cherished memories and always empowering each other every step of the way.\nI know you can handle whatever life throws at you because you are with him. \nCan’t wait to celebrate you in person. See you soon 🤍"
+    },
+    {
+      "side": "bride",
       "text": "恭喜小姪女夫妻百年好合"
     },
     {
       "side": "bride",
       "text": "祝福新人永結同心"
+    },
+    {
+      "side": "bride",
+      "text": "看到你們，我相信了愛情💑"
+    },
+    {
+      "side": "bride",
+      "text": "鸞鳳和鳴"
     }
   ]
 }
