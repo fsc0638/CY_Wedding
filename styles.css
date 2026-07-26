@@ -617,7 +617,7 @@ section { position: relative; }
 .park-pin {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 6.2%;             /* 相對地圖寬度，貼合底圖內建 P 尺寸 */
+  width: 7%;               /* 略大於底圖內建 P，確保跳到最高點時仍完全覆蓋、不露出下方靜止的 P */
   display: block;
   cursor: pointer;
 }
@@ -637,7 +637,7 @@ section { position: relative; }
 }
 @keyframes parkBob {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-22%); }
+  50%      { transform: translateY(-14%); }
 }
 /* 停車費率一覽（列在提示條下方，地圖只保留名稱較清爽）*/
 .pfee {
