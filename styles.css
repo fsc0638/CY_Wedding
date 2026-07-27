@@ -809,6 +809,15 @@ section { position: relative; }
   color: var(--light-soft);
   margin-top: 1.4rem;
 }
+/* 版權標示（低調一行，不搶「See you Soon!」的視覺）*/
+.seeyou-copy {
+  margin-top: clamp(1.6rem, 5vw, 2.4rem);
+  font-size: 0.6rem;
+  line-height: 1.9;
+  letter-spacing: 0.12em;
+  color: rgba(246, 245, 236, 0.42);
+}
+
 /* 管理後台入口（頁尾左下角·避開「回到最上面」浮動鈕）*/
 .seeyou-admin {
   position: absolute;

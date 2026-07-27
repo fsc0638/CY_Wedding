@@ -346,6 +346,19 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-07-27 頁尾版權標示（四語，低調一行）
+- 需求延續上一則：既然無法轉私人，改在畫面上加版權警語。
+  **定位說明**：這是法律／嚇阻層面，**不是技術防護**——靜態站無法阻止檢視原始碼；與 `_config.yml` 的技術修正互補。
+- 賓客頁 `index.html` 頁尾（`.seeyou-inner`，「See you Soon!」下方）新增一行：
+  `© 2026 ChunYu & YanTing · 版權所有 / 本網站內容與照片僅供親友瀏覽，請勿轉載`
+  - i18n key `copyright.line`（`data-i18n-html`，含 `<br>`），**中／英／日／韓四語齊備**
+  - `.seeyou-copy`：0.6rem、行高 1.9、字距 0.12em、`rgba(246,245,236,0.42)`——與 `.seeyou-admin` 同調性，不搶主視覺
+  - 放在 `.seeyou-inner` 內（正常流排版），不用絕對定位 → 不會與左下角後台連結／回頂端鈕碰撞
+- 後台 `verify.html` **依使用者決定不加**未授權存取告示（維持「CY Wedding · 內部核銷用」）
+- 資產版本 bump：`styles.css` / `script.js` → `?v=20260727`
+- ✅ 驗證（手機 375px）：四語切換皆正確、`&` 正常渲染、`<br>` 有效；置中、與後台連結／回頂端鈕**不重疊**、無水平溢出、無 console error
+  - 註：預覽環境 IntersectionObserver 未觸發 `.reveal→.in`（既有 `.seeyou-text` 同樣現象，非本次問題）；截圖工具因 Browser pane 未顯示而不可用，改以量測驗證
+
 ## 2026-07-27 安全：Pages 不再公開開發文件／資料腳本；清除文件內工作人員帳號
 - 起因：使用者詢問「網址不變下把 repo 轉私人」。查證結論：
   **GitHub Free 方案的私人 repo 無法使用 Pages** → 一轉私人，`fsc0638.github.io/CY_Wedding/` 全數 404、
