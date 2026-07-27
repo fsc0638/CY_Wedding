@@ -1071,8 +1071,17 @@
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tearOff(); }
     });
     // ---- 誤撕復原：點 [復原] → 自訂彈窗，須輸入主辦方核銷驗證碼才解鎖 ----
-    // 核銷驗證碼（暫定值，活動開始前三天會變更；屆時同步更新此處與通知賓客）
-    var UNLOCK_CODE = "0638";
+    // 核銷驗證碼：依原設計「活動開始前三天變更」，改為**依日期自動切換**，
+    // 不需人工改碼、也不需重新部署：
+    //   2026-09-09 00:00(+08) 之前 → 0638，且彈窗會直接顯示碼（籌備期方便賓客自助復原）
+    //   2026-09-09 00:00(+08) 之後 → 1129，且**隱藏彈窗上的碼提示**
+    //                                 → 賓客需聯繫主辦單位索取（與彈窗文案一致）
+    // 用絕對時間點（+08:00）而非裝置本地日期，全球同一瞬間切換。
+    // ⚠️ 純前端軟性防呆：新碼仍存在於本檔原始碼中，懂技術者可查看；
+    //    真正的重複領取防護是 Firestore 的 redeemed 狀態 + 工作人員掃碼核銷。
+    var CODE_ROTATE_AT = new Date("2026-09-09T00:00:00+08:00").getTime();
+    function codeRotated() { return Date.now() >= CODE_ROTATE_AT; }
+    function unlockCode() { return codeRotated() ? "1129" : "0638"; }
 
     var modal = document.getElementById("voucherModal");
     var codeInput = document.getElementById("voucherCodeInput");
@@ -1080,9 +1089,13 @@
     var codeHint = document.getElementById("voucherCodeHint");
     var canDialog = modal && typeof modal.showModal === "function";
 
-    // 彈窗上方顯示用的驗證碼，以 UNLOCK_CODE 為單一來源（改碼只需改 UNLOCK_CODE）
+    // 彈窗上方的碼提示：換碼前顯示（單一來源 unlockCode()）；
+    // 換碼後隱藏 → 賓客改向主辦單位索取，「換碼」才具實際意義。
     function syncCodeHint() {
-      if (codeHint) codeHint.textContent = "【" + t("voucher.unlock.codeLabel") + "：" + UNLOCK_CODE + "】";
+      if (!codeHint) return;
+      if (codeRotated()) { codeHint.hidden = true; return; }
+      codeHint.hidden = false;
+      codeHint.textContent = "【" + t("voucher.unlock.codeLabel") + "：" + unlockCode() + "】";
     }
     syncCodeHint();
 
@@ -1100,7 +1113,7 @@
     function closeModal() { if (canDialog && modal.open) modal.close(); }
     function submitCode() {
       var val = (codeInput && codeInput.value ? codeInput.value : "").trim();
-      if (val === UNLOCK_CODE) {
+      if (val === unlockCode()) {
         closeModal();
         setTorn(false, false);
       } else if (codeError) {

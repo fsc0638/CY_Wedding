@@ -1677,6 +1677,8 @@ a:focus-visible, button:focus-visible {
   padding: 0.5em 0.8em;
   margin: 0 0 1.1rem;
 }
+/* 換碼後（活動前三天起）隱藏碼提示 → 賓客改向主辦單位索取 */
+.vm-code[hidden] { display: none; }
 .vm-code-num {
   font-family: "aquavit", sans-serif;
   font-weight: 400;
