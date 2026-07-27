@@ -43,11 +43,17 @@ const ocrSchema = Schema.array({
   }),
 });
 
+// 要換模型只改這一行即可（架構完全不用動；換完記得 bump verify.html 動態 import 的 ?v=）。
+// 免費額度（不需開 Blaze）可用：
+//   gemini-3.6-flash        ← 目前採用：最新世代、frontier 效能，手寫辨識較吃視覺能力
+//   gemini-2.5-pro          2.5 系列最強，可作為比較對象
+//   gemini-2.5-flash        前一版採用，性價比取向
+//   gemini-3.5-flash-lite / gemini-2.5-flash-lite   最快最省（準確度可能較低）
+// ⚠️ 需付費(Blaze)：gemini-3.1-pro-preview　｜　已停用：gemini-2.0-*（2026-06-01 起 404）
+const MODEL_ID = "gemini-3.6-flash";
+
 const model = getGenerativeModel(ai, {
-  // ⚠ gemini-2.5-flash 為目前確認可用的免費視覺模型。若主控台 Build → AI Logic → Models
-  //   出現更新的免費 free-tier 視覺模型字串，可改這裡（架構不用動）。
-  //   若易混淆字（伍/陸、世/哲）誤判仍頻繁，可改 "gemini-2.5-pro"（視覺較強）試試。
-  model: "gemini-2.5-flash",
+  model: MODEL_ID,
   generationConfig: {
     temperature: 0,                 // 降到 0：抽取任務求穩定、減少憑空編造
     responseMimeType: "application/json",
@@ -124,6 +130,10 @@ async function fileToPart(file) {
 // 把底層錯誤翻成工作人員看得懂的中文
 function friendly(err) {
   const s = String((err && (err.message || err.code)) || err);
+  // 換過模型後最可能踩到的錯：該模型在此專案不可用 → 明確指出模型名，方便改回上一個
+  if (/NOT_FOUND|404|is not found|not supported|unsupported/i.test(s))
+    return "此專案目前無法使用模型「" + MODEL_ID + "」。請改用 gemini-2.5-flash 或 gemini-2.5-pro"
+         + "（改 gift-ocr.js 的 MODEL_ID），或到主控台 Build → AI Logic → Models 確認可用清單。";
   if (/not.?enabled|PERMISSION|403|SERVICE_DISABLED|has not been used|AI ?Logic|aiLogic|FAILED_PRECONDITION/i.test(s))
     return "尚未啟用 Firebase AI Logic：請到主控台 Build → AI Logic → 選「Gemini Developer API」啟用後再試。";
   if (/quota|RESOURCE_EXHAUSTED|429/i.test(s)) return "已達 Gemini 免費額度上限，請稍後再試。";
