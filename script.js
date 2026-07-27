@@ -742,7 +742,7 @@
 
   /* ---------- 倒數計時 ---------- */
   // 婚禮:2026/09/12 12:30(台灣時間 UTC+8)
-  var target = new Date("2026-09-12T12:30:00+08:00").getTime();
+  var target = new Date("2026-09-12T12:00:00+08:00").getTime();
   var wrap = document.getElementById("countWrap");
   var done = document.getElementById("countDone");
   var cells = {};
