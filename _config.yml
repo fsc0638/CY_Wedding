@@ -1,0 +1,30 @@
+# GitHub Pages（Jekyll）輸出設定
+#
+# 目的：repo 內的「開發文件／資料處理腳本／後端規則」不要被婚禮網站公開輸出。
+# 背景：Pages 預設會把 repo 內所有檔案都當靜態檔服務，因此
+#       https://fsc0638.github.io/CY_Wedding/DEVLOG.md 這類網址原本任何人都能直接下載。
+#       賓客拿到的是網站網址，擋掉這些輸出可大幅降低曝光。
+#
+# ⚠️ 注意：repo 目前為「公開」，所以這些檔案在 github.com 上仍看得到。
+#          若要連 github.com 也隱藏，需 GitHub Pro（付費）+ 將 repo 轉為私人。
+#
+# ⚠️ 絕對不要排除 data/guests.json 與 data/wishes.json
+#    ——網站執行時會 fetch 它們（兌換券解鎖、祝福牆），排除會直接壞掉。
+
+exclude:
+  # 開發／交接文件
+  - DEVLOG.md
+  - DEPLOY_FINAL.md
+  # 後端安全規則（由 Firebase 主控台發布，網站不需要）
+  - firestore.rules
+  # 資料處理腳本（含名單機制細節，網站不需要）
+  - "data/*.py"
+  - data/_xlsx_util.py
+  - data/build_guests.py
+  - data/build_music.py
+  - data/build_wishes.py
+  - data/deploy_roster.py
+  - data/export_firestore.py
+  - data/fill_invite_links.py
+  - data/import_firestore.py
+  - data/make_vouchers.py

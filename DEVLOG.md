@@ -205,7 +205,7 @@
 - 工作人員以 Firebase Auth（email/密碼）登入**一次**即記住；安全規則限定只有登入者能改 `redeemed/redeemedAt`
 
 **Firebase 專案（已建）**：`cy-wedding-aad98`｜Firestore `asia-east1` 正式版｜Auth email/密碼啟用｜
-工作人員帳號 `kicl1143057@gmail.com`｜web config 已存於 `firebase-config.js`
+工作人員帳號（見 Firebase 主控台 Authentication，此處不記錄）｜web config 已存於 `firebase-config.js`
 
 **已完成（本 repo）**
 - `firebase-config.js`（公開安全的 web config）
@@ -241,7 +241,7 @@
 - ⏳〔使用者·主控台·尚缺〕Firestore→規則 貼上 `firestore.rules` 內容並**發布**
    —— 匯入用 Admin SDK 會跳過規則，但**前端 client（賓客 onSnapshot 讀、工作人員 updateDoc 寫）需規則發布後才能運作**
 - ⏳〔端到端測試〕①帶某位女方 `?g=` 開站 → 撕券 → 出現 QR；②另一裝置/手機掃 QR 開 verify → 用
-   `kicl1143057@gmail.com` 登入 → 按「確認核銷」→ ③回賓客那張券應**即時浮現「已領取」印章**；再測「取消核銷」撤章
+   工作人員帳號登入 → 按「確認核銷」→ ③回賓客那張券應**即時浮現「已領取」印章**；再測「取消核銷」撤章
 - ⏳〔收尾〕跑通後 commit → 合併 master → push
 - ⚠️ 跨機器：原始 Excel、`serviceAccountKey.json` 等個資/機密**不在 git**，換機器要另外帶；`guests.json` 在 git。
 - ⚠️ QR 走外部 CDN（qrcodejs）：現場若無網路，QR 與 Firebase 皆不可用 → 仍以「兌換碼 + 名單劃記」為後備。
@@ -345,6 +345,24 @@
 - `gemini-2.0-flash` 系列已於 2026-06-01 停用，勿用
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
+
+## 2026-07-27 安全：Pages 不再公開開發文件／資料腳本；清除文件內工作人員帳號
+- 起因：使用者詢問「網址不變下把 repo 轉私人」。查證結論：
+  **GitHub Free 方案的私人 repo 無法使用 Pages** → 一轉私人，`fsc0638.github.io/CY_Wedding/` 全數 404、
+  已發出的賓客連結立刻失效。需 **GitHub Pro（付費）** 才能「私人 repo + 網址不變」。
+  另需釐清：**repo 私人 ≠ 網站私人**；即使升 Pro，Pages 站點仍公開（賓客本來就要能開）。
+- 實測發現的真曝光：Pages 會把 repo 內**所有檔案**當靜態檔服務，故下列網址原本任何人可直接下載：
+  `/DEVLOG.md`（含核銷驗證碼、**工作人員 Gmail 帳號**、Firebase 專案 ID、後台位置）、
+  `/DEPLOY_FINAL.md`、`/data/*.py`。**轉私人也修不掉這條**（走的是網站網址，不是 github.com）。
+- 處置：
+  1. 新增 `_config.yml`（Jekyll `exclude`）→ Pages 不再輸出 DEVLOG.md / DEPLOY_FINAL.md / firestore.rules / `data/*.py`；
+     檔案仍留在 repo 供跨機器交接。⚠️ **刻意保留 `data/guests.json`、`data/wishes.json` 的輸出**（網站執行時 fetch，排除會壞站）。
+  2. 清除 DEVLOG.md 內 2 處**工作人員 Gmail 帳號**（改為「見 Firebase 主控台 Authentication」）。
+- 前置確認：repo 無 `.nojekyll`（Jekyll 本就在跑）、HTML/JS 無 `{{`/`{%` 樣板語法 → 加 `_config.yml` 安全。
+- ⚠️ 仍存在的限制（Free 方案、repo 維持公開）：
+  - 這些檔案在 **github.com 上仍看得到**（含 git 歷史內的舊 email）。要連 github.com 也隱藏 → 需 Pro + 轉私人。
+  - `script.js` 的 `UNLOCK_CODE = "0638"` 本就會被看到（靜態站設計上的軟性防呆），非本次新增曝光。
+- ✅ 驗證：email 已無殘留、`_config.yml` YAML 有效（13 項、未誤排除必需 JSON）；上線後實測各網址狀態碼。
 
 ## 2026-07-02 一鍵名單重整上線工具 `data/deploy_roster.py`
 - 需求：名單已上線後仍會零星手動加人；維持 xlsx 檔名不變，一個指令重整整份並正確上線。
