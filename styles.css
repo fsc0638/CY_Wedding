@@ -790,7 +790,11 @@ section { position: relative; }
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(45,43,37,0.28), rgba(45,43,37,0.5));
 }
-.seeyou-inner { position: relative; z-index: 2; color: var(--light); padding: 0 1.5rem; }
+/* 整體微微上移：讓「See you Soon!」與版權標示落在新人頭部上方的空白處，不遮住臉 */
+.seeyou-inner {
+  position: relative; z-index: 2; color: var(--light); padding: 0 1.5rem;
+  transform: translateY(-8vh);
+}
 .seeyou-text {
   font-family: var(--script);
   font-weight: 200;
@@ -809,11 +813,12 @@ section { position: relative; }
   color: var(--light-soft);
   margin-top: 1.4rem;
 }
-/* 版權標示（低調一行，不搶「See you Soon!」的視覺）*/
+/* 版權標示（低調，置於「See you Soon!」與新人頭部之間的空白帶）
+   照片中新人頭頂約在圖高 58.5% 處，該帶本身很窄 → 內容區整體微微上移以讓出空間。*/
 .seeyou-copy {
-  margin-top: clamp(1.6rem, 5vw, 2.4rem);
+  margin-top: 0.7rem;
   font-size: 0.6rem;
-  line-height: 1.9;
+  line-height: 1.65;
   letter-spacing: 0.12em;
   color: rgba(246, 245, 236, 0.42);
 }
