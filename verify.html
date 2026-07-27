@@ -129,13 +129,31 @@
     padding: 0.12rem 0.5rem; border-radius: 999px;
     font-size: 0.74rem; font-weight: 600; line-height: 1.5; white-space: nowrap;
   }
+  /* 中式是多數 → 低調；西式與中式+西式是少數、最容易發錯 → 高對比、粗體、加框 */
   .badge-cn   { background: #eef1ea; color: var(--green-d); }
-  .badge-west { background: #f3e9d2; color: #8a6d1f; }
-  .badge-both { background: #ece4f1; color: #6a4d86; }
+  .badge-west {
+    background: #e8a317; color: #3d2c00; font-weight: 800;
+    border: 1.5px solid #b8790a; box-shadow: 0 1px 3px rgba(184,121,10,0.3);
+  }
+  .badge-both {
+    background: #7b4fa8; color: #fff; font-weight: 800;
+    border: 1.5px solid #5d3a80; box-shadow: 0 1px 3px rgba(93,58,128,0.35);
+  }
 
   /* 核銷面板：大徽章 */
   .v-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.7rem; }
-  .v-badges .badge { font-size: 0.92rem; padding: 0.3rem 0.85rem; }
+  .v-badges .badge { font-size: 1.05rem; padding: 0.42rem 1rem; }
+  /* 需發西式（含中+西）→ 整條醒目警示，避免發錯盒 */
+  .gift-alert {
+    margin: 0.8rem 0 0; padding: 0.6rem 0.8rem; border-radius: 10px;
+    font-size: 0.92rem; font-weight: 700; text-align: center; line-height: 1.5;
+  }
+  .gift-alert.west { background: #fdf1d8; color: #7a5200; border: 2px solid #e8a317; }
+  .gift-alert.both { background: #f3ebf9; color: #4b2d6b; border: 2px solid #7b4fa8; }
+
+  /* 名單列：非純中式者整列淡底，長列表中一眼可辨 */
+  .roster-list li.g-west { background: #fffaf0; }
+  .roster-list li.g-both { background: #faf5fd; }
   .v-note {
     font-size: 0.85rem; color: var(--soft); text-align: center;
     margin: 0.7rem 0 0; padding: 0.5rem 0.7rem; background: #faf8f0; border-radius: 8px;
@@ -338,6 +356,7 @@
         <div class="name" id="vName">—</div>
         <div class="code" id="vCode">—</div>
         <div class="v-badges" id="vBadges"></div>
+        <p class="gift-alert" id="vGiftAlert" hidden></p>
         <div class="status-pill" id="vPill"><span class="dot"></span><span id="vPillText">—</span></div>
         <p class="redeemed-at" id="vAt" hidden></p>
         <p class="v-note" id="vNote" hidden></p>
@@ -664,10 +683,26 @@
     $("vName").textContent = d.name || "（未命名）";
     $("vCode").textContent = d.code ? ("NO. " + d.code) : "";
 
-    // 喜餅樣式大徽章（避免發錯盒）
+    // 喜餅大徽章：直接列出「要發哪幾盒」；含西式者再加一條醒目警示（避免發錯／漏發）
+    const gt = giftTypeOf(d);
     const badges = $("vBadges");
-    badges.innerHTML =
-      '<span class="badge ' + GIFT_BADGE[giftTypeOf(d)] + '">' + giftLabel(giftTypeOf(d)) + "</span>";
+    badges.innerHTML = (gt === "both")
+      ? '<span class="badge badge-cn">中式喜餅 × 1</span>' +
+        '<span class="badge badge-west">西式喜餅 × 1</span>'
+      : '<span class="badge ' + GIFT_BADGE[gt] + '">' + giftLabel(gt) + " × 1</span>";
+
+    const alert = $("vGiftAlert");
+    if (gt === "both") {
+      alert.hidden = false;
+      alert.className = "gift-alert both";
+      alert.textContent = "⚠ 這位需領「兩盒」：中式 1 盒 ＋ 西式 1 盒";
+    } else if (gt === "western") {
+      alert.hidden = false;
+      alert.className = "gift-alert west";
+      alert.textContent = "⚠ 這位只領「西式」1 盒（不是中式）";
+    } else {
+      alert.hidden = true;
+    }
 
     const pill = $("vPill"), redeemed = !!d.redeemed;
     pill.className = "status-pill " + (redeemed ? "redeemed" : "unredeemed");
@@ -734,15 +769,20 @@
   function renderRoster() {
     const total = rosterDocs.length;
     const done = rosterDocs.filter((r) => r.redeemed).length;
-    const west = rosterDocs.filter((r) => r.gift === "western").length;
-    const both = rosterDocs.filter((r) => r.gift === "both").length;
-    const cn = total - west - both;
+    // 盒數統計（「中式+西式」者兩邊各算 1 盒）→ 與實際要備/要發的盒數一致
+    const boxCn    = rosterDocs.filter((r) => r.gift === "chinese" || r.gift === "both").length;
+    const boxWest  = rosterDocs.filter((r) => r.gift === "western" || r.gift === "both").length;
+    const doneCn   = rosterDocs.filter((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both")).length;
+    const doneWest = rosterDocs.filter((r) => r.redeemed && (r.gift === "western" || r.gift === "both")).length;
+    const both     = rosterDocs.filter((r) => r.gift === "both").length;
+
     $("ovRedeemed").textContent = done + " / " + total;
-    $("ovGift").textContent = "中 " + cn + " · 西 " + west + (both ? " · 雙 " + both : "");
+    $("ovGift").textContent = "中 " + doneCn + "/" + boxCn + " · 西 " + doneWest + "/" + boxWest;
     setTabCount("tabRosterCount", total);
     rosterStats.innerHTML =
-      "已領取 <b>" + done + "</b> / " + total +
-      '<span class="sep">|</span>中式 ' + cn + " · 西式 " + west + (both ? " · 中+西 " + both : "");
+      "已核銷 <b>" + done + "</b> / " + total + " 人" +
+      '<span class="sep">|</span>中式 <b>' + doneCn + "</b>/" + boxCn + " 盒 · 西式 <b>" + doneWest + "</b>/" + boxWest + " 盒" +
+      (both ? '<span class="sep">|</span>其中 ' + both + " 人領兩盒" : "");
 
     const kw = (rosterSearch.value || "").trim().toLowerCase();
     const shown = rosterDocs.filter((r) =>
@@ -759,10 +799,12 @@
     const frag = document.createDocumentFragment();
     for (const r of shown) {
       const li = document.createElement("li");
-      if (r.redeemed) li.className = "is-redeemed";
+      // 非純中式者：整列淡底 + 高對比徽章，長列表中一眼可辨（西式/中+西 人數少、最容易漏）
+      li.className = (r.redeemed ? "is-redeemed " : "") +
+        (r.gift === "western" ? "g-west" : r.gift === "both" ? "g-both" : "");
       const atStr = r.redeemed ? fmt(r.redeemedAt) : "";
-      const giftBadge = '<span class="badge ' + GIFT_BADGE[r.gift] +
-        ' r-gift">' + GIFT_LABEL[r.gift] + "</span>";
+      const giftBadge = '<span class="badge ' + GIFT_BADGE[r.gift] + ' r-gift">' +
+        (r.gift === "both" ? "中式+西式 2盒" : GIFT_LABEL[r.gift]) + "</span>";
       li.innerHTML =
         '<span class="r-state"></span>' +
         '<span class="r-main"><span class="r-name"></span>' +
@@ -1201,14 +1243,17 @@
         csvCell(r.note)
       ].join(","));
     }
-    const done = rosterDocs.filter((r) => r.redeemed).length;
-    const west = rosterDocs.filter((r) => r.gift === "western").length;
-    const both = rosterDocs.filter((r) => r.gift === "both").length;
-    lines.push("");                                       // 空行後附統計
+    const done     = rosterDocs.filter((r) => r.redeemed).length;
+    const boxCn    = rosterDocs.filter((r) => r.gift === "chinese" || r.gift === "both").length;
+    const boxWest  = rosterDocs.filter((r) => r.gift === "western" || r.gift === "both").length;
+    const doneCn   = rosterDocs.filter((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both")).length;
+    const doneWest = rosterDocs.filter((r) => r.redeemed && (r.gift === "western" || r.gift === "both")).length;
+    const both     = rosterDocs.filter((r) => r.gift === "both").length;
+    lines.push("");                                       // 空行後附統計（盒數：中+西者兩邊各算 1 盒）
     lines.push(csvCell("統計") + "," +
-      csvCell("已領取 " + done + " / 共 " + rosterDocs.length +
-              "；中式 " + (rosterDocs.length - west - both) + " · 西式 " + west +
-              (both ? " · 中+西 " + both : "")));
+      csvCell("已核銷 " + done + " / 共 " + rosterDocs.length + " 人" +
+              "；中式 " + doneCn + "/" + boxCn + " 盒 · 西式 " + doneWest + "/" + boxWest + " 盒" +
+              (both ? "；其中 " + both + " 人領兩盒" : "")));
 
     const csv = "﻿" + lines.join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
