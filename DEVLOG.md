@@ -346,6 +346,21 @@
 - `result.response.text()` → JSON.parse 為文件標準寫法，已包 try/catch；首次真打一張照片確認端到端
 - ✅ 本機驗證：模組載入、Schema 建構、cy-ai app 初始化、校對表渲染/低信心紅框/同名橘框/入帳鈕驗證全部正常；**真實 Gemini 呼叫待主控台啟用後由使用者 smoke-test**
 
+## 2026-07-27 禮金 OCR 模型升級 gemini-2.5-flash → gemini-3.6-flash
+- 查證 [Firebase AI Logic 支援模型](https://firebase.google.com/docs/ai-logic/models) 後確認免費額度（不需 Blaze）可用：
+  `gemini-3.6-flash`（最新世代 frontier）、`gemini-2.5-pro`、`gemini-2.5-flash`、`gemini-3.5-flash-lite`/`2.5-flash-lite`；
+  ⚠️ `gemini-3.1-pro-preview` 需付費；`gemini-2.0-*` 已於 2026-06-01 停用（404）
+- 註：先前技術查證曾把「Gemini 3.x 系列是否存在」標為不確定 → **本次確認 3.x 系列為真**
+- 改動（`gift-ocr.js`）：
+  - 抽出常數 `MODEL_ID = "gemini-3.6-flash"`，換模型只改這一行；註解列出所有免費/付費/停用選項
+  - `friendly()` 新增「模型不可用」錯誤判斷（NOT_FOUND/404/unsupported）→ 直接指出模型名並建議改回 2.5-flash/2.5-pro
+- `verify.html` 動態 import bump → `./gift-ocr.js?v=20260727`（避免吃到舊快取）
+- 為何不換非 Google 的 LLM：Firebase AI Logic 只支援 Google 模型；換供應商需自架 proxy（金鑰不能放前端）
+  且多為付費 → 對婚禮量級不划算
+- ✅ 驗證：模組載入、`ocrImage` 匯出、無 console error
+- ⏳ **待使用者實測**：模型換新不保證對中文手寫更準，需用**同一張禮金簿照片**比較 3.6-flash vs 2.5-flash；
+  若 3.6 較差或不可用，改回只需改 `MODEL_ID` 一行
+
 ## 2026-07-27 倒數對齊 12:00；版權標示移出新人臉部
 ### ① 倒數時間對齊流程表
 - 先前流程已改「婚宴開席 12:00」，但倒數目標仍是 `2026-09-12T12:30:00+08:00`（不一致）
