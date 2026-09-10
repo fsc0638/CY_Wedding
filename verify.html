@@ -676,6 +676,8 @@
   const GIFT_LABEL = { chinese: "中式", western: "西式", both: "中式+西式" };
   const GIFT_BADGE = { chinese: "badge-cn", western: "badge-west", both: "badge-both" };
   const giftTypeOf = (d) => { const t = (d && d.giftType) || "chinese"; return (t === "western" || t === "both") ? t : "chinese"; };
+  // 盒數：Firestore 的 qty（未填/異常 → 1）。「中式+西式」者代表中西各 qty 盒。
+  const qtyOf = (d) => { const n = Math.floor(Number((d && d.qty) != null ? d.qty : 1)); return (isFinite(n) && n >= 1) ? n : 1; };
   const giftLabel = (t) => (GIFT_LABEL[t] || "中式") + "喜餅";
 
   function render(d) {
@@ -684,22 +686,27 @@
     $("vCode").textContent = d.code ? ("NO. " + d.code) : "";
 
     // 喜餅大徽章：直接列出「要發哪幾盒」；含西式者再加一條醒目警示（避免發錯／漏發）
-    const gt = giftTypeOf(d);
+    const gt = giftTypeOf(d), q = qtyOf(d);
     const badges = $("vBadges");
     badges.innerHTML = (gt === "both")
-      ? '<span class="badge badge-cn">中式喜餅 × 1</span>' +
-        '<span class="badge badge-west">西式喜餅 × 1</span>'
-      : '<span class="badge ' + GIFT_BADGE[gt] + '">' + giftLabel(gt) + " × 1</span>";
+      ? '<span class="badge badge-cn">中式喜餅 × ' + q + "</span>" +
+        '<span class="badge badge-west">西式喜餅 × ' + q + "</span>"
+      : '<span class="badge ' + GIFT_BADGE[gt] + '">' + giftLabel(gt) + " × " + q + "</span>";
 
     const alert = $("vGiftAlert");
     if (gt === "both") {
       alert.hidden = false;
       alert.className = "gift-alert both";
-      alert.textContent = "⚠ 這位需領「兩盒」：中式 1 盒 ＋ 西式 1 盒";
+      alert.textContent = "⚠ 這位需領「" + (q * 2) + "盒」：中式 " + q + " 盒 ＋ 西式 " + q + " 盒";
     } else if (gt === "western") {
       alert.hidden = false;
       alert.className = "gift-alert west";
-      alert.textContent = "⚠ 這位只領「西式」1 盒（不是中式）";
+      alert.textContent = "⚠ 這位只領「西式」" + q + " 盒（不是中式）";
+    } else if (q > 1) {
+      // 一次要發多盒，最容易只發 1 盒就放人走 → 比照西式給醒目警示
+      alert.hidden = false;
+      alert.className = "gift-alert both";
+      alert.textContent = "⚠ 這位要領「" + q + " 盒」中式喜餅（不是 1 盒）";
     } else {
       alert.hidden = true;
     }
@@ -737,6 +744,7 @@
         rosterDocs.push({
           id: d.id, name: v.name || "（未命名）", code: v.code || "",
           gift: ((v.giftType === "western" || v.giftType === "both") ? v.giftType : "chinese"),
+          qty: qtyOf(v),
           note: (v.note || "").trim(),
           redeemed: !!v.redeemed, redeemedAt: v.redeemedAt || null
         });
@@ -769,12 +777,14 @@
   function renderRoster() {
     const total = rosterDocs.length;
     const done = rosterDocs.filter((r) => r.redeemed).length;
-    // 盒數統計（「中式+西式」者兩邊各算 1 盒）→ 與實際要備/要發的盒數一致
-    const boxCn    = rosterDocs.filter((r) => r.gift === "chinese" || r.gift === "both").length;
-    const boxWest  = rosterDocs.filter((r) => r.gift === "western" || r.gift === "both").length;
-    const doneCn   = rosterDocs.filter((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both")).length;
-    const doneWest = rosterDocs.filter((r) => r.redeemed && (r.gift === "western" || r.gift === "both")).length;
+    // 盒數統計（「中式+西式」者兩邊各算 qty 盒；qty 即該人要領幾盒）→ 與實際要備/要發的盒數一致
+    const sumBox = (pred) => rosterDocs.reduce((n, r) => n + (pred(r) ? r.qty : 0), 0);
+    const boxCn    = sumBox((r) => r.gift === "chinese" || r.gift === "both");
+    const boxWest  = sumBox((r) => r.gift === "western" || r.gift === "both");
+    const doneCn   = sumBox((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both"));
+    const doneWest = sumBox((r) => r.redeemed && (r.gift === "western" || r.gift === "both"));
     const both     = rosterDocs.filter((r) => r.gift === "both").length;
+    const multi    = rosterDocs.filter((r) => r.qty > 1).length;
 
     $("ovRedeemed").textContent = done + " / " + total;
     $("ovGift").textContent = "中 " + doneCn + "/" + boxCn + " · 西 " + doneWest + "/" + boxWest;
@@ -782,7 +792,8 @@
     rosterStats.innerHTML =
       "已核銷 <b>" + done + "</b> / " + total + " 人" +
       '<span class="sep">|</span>中式 <b>' + doneCn + "</b>/" + boxCn + " 盒 · 西式 <b>" + doneWest + "</b>/" + boxWest + " 盒" +
-      (both ? '<span class="sep">|</span>其中 ' + both + " 人領兩盒" : "");
+      (both ? '<span class="sep">|</span>其中 ' + both + " 人領中西各一" : "") +
+      (multi ? '<span class="sep">|</span>' + multi + " 人領多盒" : "");
 
     const kw = (rosterSearch.value || "").trim().toLowerCase();
     const shown = rosterDocs.filter((r) =>
@@ -801,10 +812,11 @@
       const li = document.createElement("li");
       // 非純中式者：整列淡底 + 高對比徽章，長列表中一眼可辨（西式/中+西 人數少、最容易漏）
       li.className = (r.redeemed ? "is-redeemed " : "") +
-        (r.gift === "western" ? "g-west" : r.gift === "both" ? "g-both" : "");
+        (r.gift === "western" ? "g-west" : (r.gift === "both" || r.qty > 1) ? "g-both" : "");
       const atStr = r.redeemed ? fmt(r.redeemedAt) : "";
       const giftBadge = '<span class="badge ' + GIFT_BADGE[r.gift] + ' r-gift">' +
-        (r.gift === "both" ? "中式+西式 2盒" : GIFT_LABEL[r.gift]) + "</span>";
+        (r.gift === "both" ? "中式+西式 " + (r.qty * 2) + "盒"
+                           : GIFT_LABEL[r.gift] + (r.qty > 1 ? " " + r.qty + "盒" : "")) + "</span>";
       li.innerHTML =
         '<span class="r-state"></span>' +
         '<span class="r-main"><span class="r-name"></span>' +
@@ -1230,7 +1242,7 @@
   }
   $("exportBtn").addEventListener("click", () => {
     if (!rosterDocs.length) { uiAlert("目前沒有可匯出的名單資料。"); return; }
-    const header = ["姓名", "喜餅兌換券編號", "喜餅類型", "領取狀態", "核銷時間", "備註"];
+    const header = ["姓名", "喜餅兌換券編號", "喜餅類型", "盒數", "領取狀態", "核銷時間", "備註"];
     const lines = [header.map(csvCell).join(",")];
     // 依目前排序匯出（未領在前、已領在後）
     for (const r of rosterDocs) {
@@ -1238,22 +1250,26 @@
         csvCell(r.name),
         csvCell(r.code),
         csvCell(GIFT_LABEL[r.gift]),
+        csvCell(r.gift === "both" ? "中式" + r.qty + "+西式" + r.qty : String(r.qty)),
         csvCell(r.redeemed ? "已領取" : "未領取"),
         csvCell(r.redeemed ? fmt(r.redeemedAt) : ""),
         csvCell(r.note)
       ].join(","));
     }
     const done     = rosterDocs.filter((r) => r.redeemed).length;
-    const boxCn    = rosterDocs.filter((r) => r.gift === "chinese" || r.gift === "both").length;
-    const boxWest  = rosterDocs.filter((r) => r.gift === "western" || r.gift === "both").length;
-    const doneCn   = rosterDocs.filter((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both")).length;
-    const doneWest = rosterDocs.filter((r) => r.redeemed && (r.gift === "western" || r.gift === "both")).length;
+    const sumBox   = (pred) => rosterDocs.reduce((n, r) => n + (pred(r) ? r.qty : 0), 0);
+    const boxCn    = sumBox((r) => r.gift === "chinese" || r.gift === "both");
+    const boxWest  = sumBox((r) => r.gift === "western" || r.gift === "both");
+    const doneCn   = sumBox((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both"));
+    const doneWest = sumBox((r) => r.redeemed && (r.gift === "western" || r.gift === "both"));
     const both     = rosterDocs.filter((r) => r.gift === "both").length;
     lines.push("");                                       // 空行後附統計（盒數：中+西者兩邊各算 1 盒）
     lines.push(csvCell("統計") + "," +
       csvCell("已核銷 " + done + " / 共 " + rosterDocs.length + " 人" +
               "；中式 " + doneCn + "/" + boxCn + " 盒 · 西式 " + doneWest + "/" + boxWest + " 盒" +
-              (both ? "；其中 " + both + " 人領兩盒" : "")));
+              (both ? "；其中 " + both + " 人領中西各一" : "") +
+              (rosterDocs.filter((r) => r.qty > 1).length
+                 ? "；其中 " + rosterDocs.filter((r) => r.qty > 1).length + " 人領多盒" : "")));
 
     const csv = "﻿" + lines.join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });

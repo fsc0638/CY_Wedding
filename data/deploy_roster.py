@@ -45,7 +45,7 @@ sys.path.insert(0, HERE)
 import openpyxl
 from _xlsx_util import find_latest_xlsx, load_workbook_resilient, cleanup_tmp, find_col
 from build_guests import normalize_name, SIDE_MAP
-from import_firestore import map_gift
+from import_firestore import map_gift, map_qty
 
 GUESTS = os.path.join(HERE, "guests.json")
 WISHES = os.path.join(HERE, "wishes.json")
@@ -67,6 +67,7 @@ def parse_roster():
     ri = find_col(header, "關係")
     ci = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     gi = find_col(header, "喜餅類型", "喜餅樣式", "類型", "樣式")
+    qi = find_col(header, "喜餅數量", "數量")
     wi = find_col(header, "想對我們說的話", "說的話")
     if ni is None or ri is None:
         sys.exit("找不到「賓客姓名」或「關係」欄位，請確認表頭。")
@@ -93,13 +94,14 @@ def parse_roster():
             "side": SIDE_MAP.get(cell(r, ri), "groom"),
             "code": cell(r, ci),
             "gift": map_gift(cell(r, gi)),
+            "qty": map_qty(cell(r, qi)),
         }
     return os.path.basename(src), roster, dups, wishes
 
 
 def voucher_map(roster):
-    """發券賓客（女方+有編號）→ (code, gift)。供差異/Firestore-need 判斷。"""
-    return {k: (v["code"], v["gift"]) for k, v in roster.items()
+    """發券賓客（女方+有編號）→ (code, gift, qty)。供差異/Firestore-need 判斷。"""
+    return {k: (v["code"], v["gift"], v.get("qty", 1)) for k, v in roster.items()
             if v.get("side") == "bride" and v.get("code")}
 
 
@@ -143,6 +145,9 @@ def print_report(src, roster, snap, added, removed, changed, wishes, warns, fire
     groom = [v for v in roster.values() if v["side"] == "groom"]
     vouchers = [v for v in bride if v["code"]]
     gc = Counter(v["gift"] for v in vouchers)
+    box_cn = sum(v.get("qty", 1) for v in vouchers if v["gift"] in ("chinese", "both"))
+    box_west = sum(v.get("qty", 1) for v in vouchers if v["gift"] in ("western", "both"))
+    multi = [v for v in vouchers if v.get("qty", 1) != 1]
 
     def disp(ks, src_map):
         return "、".join(src_map.get(k, {}).get("display", k) for k in ks) or "無"
@@ -152,6 +157,9 @@ def print_report(src, roster, snap, added, removed, changed, wishes, warns, fire
     print("賓客總數：%d（女方 %d・男方 %d）" % (len(roster), len(bride), len(groom)))
     print("女方發券：%d（中式 %d・西式 %d・中+西 %d）"
           % (len(vouchers), gc.get("chinese", 0), gc.get("western", 0), gc.get("both", 0)))
+    print("預備盒數：中式 %d 盒・西式 %d 盒（合計 %d）%s"
+          % (box_cn, box_west, box_cn + box_west,
+             "｜多盒：" + "、".join("%s×%d" % (v["display"], v["qty"]) for v in multi) if multi else ""))
     print("女方未發券（無編號）：%d｜祝福留言：%d" % (len(bride) - len(vouchers), wishes))
     print("-" * 52)
     if not snap:
@@ -159,7 +167,7 @@ def print_report(src, roster, snap, added, removed, changed, wishes, warns, fire
     else:
         print("➕ 新增發券 %d：%s" % (len(added), disp(added, roster)))
         print("➖ 移除發券 %d：%s" % (len(removed), disp(removed, snap)))
-        print("✎ 編號/類型變動 %d：%s" % (len(changed), disp(changed, roster)))
+        print("✎ 編號/類型/數量變動 %d：%s" % (len(changed), disp(changed, roster)))
         if changed:
             print("   ⚠ 「變動」若含既有賓客的『編號』改動，會讓已寄出的券失效，請務必確認！")
     if warns:

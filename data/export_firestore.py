@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 KEY = os.path.join(HERE, "serviceAccountKey.json")
 TPE = timezone(timedelta(hours=8))  # 台北時間
 
-GIFT_LABEL = {"western": "西式", "chinese": "中式"}
+GIFT_LABEL = {"western": "西式", "chinese": "中式", "both": "中式+西式"}
 
 
 def fmt_ts(ts):
@@ -59,10 +59,16 @@ def main():
         note = (d.get("note") or "").strip()
         gift = d.get("giftType") or "chinese"
         redeemed = bool(d.get("redeemed"))
+        try:
+            qty = max(1, int(float(d.get("qty", 1))))
+        except (TypeError, ValueError):
+            qty = 1
         rows.append({
             "name": d.get("name") or "（未命名）",
             "code": str(d.get("code") or ""),
             "gift": GIFT_LABEL.get(gift, "中式"),
+            "gtype": gift if gift in ("chinese", "western", "both") else "chinese",
+            "qty": qty,
             "western": gift == "western",
             "status": "已領取" if redeemed else "未領取",
             "redeemed": redeemed,
@@ -90,7 +96,7 @@ def main():
     # ===== 明細頁 =====
     ws = wb.active
     ws.title = "明細"
-    headers = ["姓名", "喜餅兌換碼", "喜餅樣式", "領取狀態", "核銷時間", "備註"]
+    headers = ["姓名", "喜餅兌換碼", "喜餅樣式", "盒數", "領取狀態", "核銷時間", "備註"]
     ws.append(headers)
     for c in range(1, len(headers) + 1):
         cell = ws.cell(row=1, column=c)
@@ -100,17 +106,19 @@ def main():
         cell.border = border
 
     for r in rows:
-        ws.append([r["name"], r["code"], r["gift"], r["status"], r["at"], r["note"]])
+        ws.append([r["name"], r["code"], r["gift"],
+                   ("中式%d+西式%d" % (r["qty"], r["qty"])) if r["gtype"] == "both" else r["qty"],
+                   r["status"], r["at"], r["note"]])
         ri = ws.max_row
         for c in range(1, len(headers) + 1):
             cell = ws.cell(row=ri, column=c)
             cell.border = border
-            cell.alignment = left if c in (1, 6) else center
+            cell.alignment = left if c in (1, 7) else center
         if r["redeemed"]:
             for c in range(1, len(headers) + 1):
                 ws.cell(row=ri, column=c).fill = done_fill
 
-    widths = [12, 14, 10, 10, 18, 28]
+    widths = [12, 14, 10, 12, 10, 18, 28]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
     ws.freeze_panes = "A2"
@@ -118,10 +126,12 @@ def main():
     # ===== 統計頁 =====
     total = len(rows)
     done = sum(1 for r in rows if r["redeemed"])
-    west = sum(1 for r in rows if r["western"])
-    cn = total - west
-    west_done = sum(1 for r in rows if r["western"] and r["redeemed"])
-    cn_done = sum(1 for r in rows if not r["western"] and r["redeemed"])
+    # 盒數（「中式+西式」者兩邊各算 qty 盒；qty 即該人要領幾盒）
+    box = lambda pred: sum(r["qty"] for r in rows if pred(r))
+    cn = box(lambda r: r["gtype"] in ("chinese", "both"))
+    west = box(lambda r: r["gtype"] in ("western", "both"))
+    cn_done = box(lambda r: r["gtype"] in ("chinese", "both") and r["redeemed"])
+    west_done = box(lambda r: r["gtype"] in ("western", "both") and r["redeemed"])
 
     ws2 = wb.create_sheet("統計")
     stat_rows = [
@@ -130,9 +140,9 @@ def main():
         ("已領取（送出）", done),
         ("未領取", total - done),
         ("", ""),
-        ("中式喜餅 — 總數", cn),
+        ("中式喜餅 — 總盒數", cn),
         ("中式喜餅 — 已送出", cn_done),
-        ("西式喜餅 — 總數", west),
+        ("西式喜餅 — 總盒數", west),
         ("西式喜餅 — 已送出", west_done),
     ]
     for i, (k, v) in enumerate(stat_rows, start=1):

@@ -44,3 +44,6 @@ Video/out/
 Video/photos/
 # 主角偵測快取：內容只對應 Video/photos/ 的照片，沒照片就沒用，且重跑只要幾秒
 Video/.focus_raw.json
+
+# 改檔前的備份（制度要求留在專案內，但不進 repo）
+99-backups/
