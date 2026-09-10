@@ -1,0 +1,162 @@
+{
+ "_說明": "婚宴當天各縣市預報，由 Video/fetch_weather.py 抓取；臨近當天可重跑更新。",
+ "date": "2026-09-12",
+ "source": "Open-Meteo (api.open-meteo.com)",
+ "fetched_at": "2026-09-10 14:26 +0800",
+ "cities": [
+  {
+   "name": "臺北市",
+   "tmax": 32,
+   "tmin": 24,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "新北市",
+   "tmax": 32,
+   "tmin": 25,
+   "wmo": 3,
+   "icon": "cloud"
+  },
+  {
+   "name": "桃園市",
+   "tmax": 32,
+   "tmin": 24,
+   "wmo": 2,
+   "icon": "sun_cloud"
+  },
+  {
+   "name": "臺中市",
+   "tmax": 32,
+   "tmin": 24,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "臺南市",
+   "tmax": 30,
+   "tmin": 25,
+   "wmo": 95,
+   "icon": "thunder"
+  },
+  {
+   "name": "高雄市",
+   "tmax": 30,
+   "tmin": 25,
+   "wmo": 96,
+   "icon": "thunder"
+  },
+  {
+   "name": "基隆市",
+   "tmax": 30,
+   "tmin": 24,
+   "wmo": 53,
+   "icon": "drizzle"
+  },
+  {
+   "name": "新竹市",
+   "tmax": 32,
+   "tmin": 24,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "新竹縣",
+   "tmax": 32,
+   "tmin": 24,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "苗栗縣",
+   "tmax": 30,
+   "tmin": 23,
+   "wmo": 3,
+   "icon": "cloud"
+  },
+  {
+   "name": "彰化縣",
+   "tmax": 30,
+   "tmin": 25,
+   "wmo": 2,
+   "icon": "sun_cloud"
+  },
+  {
+   "name": "南投縣",
+   "tmax": 30,
+   "tmin": 22,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "雲林縣",
+   "tmax": 32,
+   "tmin": 23,
+   "wmo": 95,
+   "icon": "thunder"
+  },
+  {
+   "name": "嘉義市",
+   "tmax": 31,
+   "tmin": 23,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "嘉義縣",
+   "tmax": 31,
+   "tmin": 24,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "屏東縣",
+   "tmax": 31,
+   "tmin": 24,
+   "wmo": 96,
+   "icon": "thunder"
+  },
+  {
+   "name": "宜蘭縣",
+   "tmax": 29,
+   "tmin": 23,
+   "wmo": 95,
+   "icon": "thunder"
+  },
+  {
+   "name": "花蓮縣",
+   "tmax": 29,
+   "tmin": 24,
+   "wmo": 95,
+   "icon": "thunder"
+  },
+  {
+   "name": "臺東縣",
+   "tmax": 29,
+   "tmin": 23,
+   "wmo": 95,
+   "icon": "thunder"
+  },
+  {
+   "name": "澎湖縣",
+   "tmax": 28,
+   "tmin": 26,
+   "wmo": 51,
+   "icon": "drizzle"
+  },
+  {
+   "name": "金門縣",
+   "tmax": 30,
+   "tmin": 25,
+   "wmo": 3,
+   "icon": "cloud"
+  },
+  {
+   "name": "連江縣",
+   "tmax": 27,
+   "tmin": 25,
+   "wmo": 80,
+   "icon": "shower"
+  }
+ ]
+}

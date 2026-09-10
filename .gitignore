@@ -38,3 +38,9 @@ vouchers/
 _test_*.png
 _cmp_*.png
 _voucher_*.png
+
+# 文定影片素材與成品（照片原檔近百 MB、成品單檔數百 MB，可隨時重產），不進 repo
+Video/out/
+Video/photos/
+# 主角偵測快取：內容只對應 Video/photos/ 的照片，沒照片就沒用，且重跑只要幾秒
+Video/.focus_raw.json
