@@ -1263,7 +1263,7 @@
     const doneCn   = sumBox((r) => r.redeemed && (r.gift === "chinese" || r.gift === "both"));
     const doneWest = sumBox((r) => r.redeemed && (r.gift === "western" || r.gift === "both"));
     const both     = rosterDocs.filter((r) => r.gift === "both").length;
-    lines.push("");                                       // 空行後附統計（盒數：中+西者兩邊各算 1 盒）
+    lines.push("");                                       // 空行後附統計（盒數：中+西者兩邊各算 qty 盒）
     lines.push(csvCell("統計") + "," +
       csvCell("已核銷 " + done + " / 共 " + rosterDocs.length + " 人" +
               "；中式 " + doneCn + "/" + boxCn + " 盒 · 西式 " + doneWest + "/" + boxWest + " 盒" +

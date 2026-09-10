@@ -69,7 +69,6 @@ def main():
             "gift": GIFT_LABEL.get(gift, "中式"),
             "gtype": gift if gift in ("chinese", "western", "both") else "chinese",
             "qty": qty,
-            "western": gift == "western",
             "status": "已領取" if redeemed else "未領取",
             "redeemed": redeemed,
             "at": fmt_ts(d.get("redeemedAt")) if redeemed else "",
@@ -166,18 +165,23 @@ def main():
     ws2.cell(row=2, column=5).fill = head_fill
     ws2.cell(row=2, column=6, value="樣式").font = head_font
     ws2.cell(row=2, column=6).fill = head_fill
+    ws2.cell(row=2, column=7, value="盒數").font = head_font   # 現場點貨靠這張，沒盒數會漏發多盒者
+    ws2.cell(row=2, column=7).fill = head_fill
     for j, r in enumerate(pending, start=3):
         ws2.cell(row=j, column=4, value=r["name"])
         ws2.cell(row=j, column=5, value=r["code"])
         ws2.cell(row=j, column=6, value=r["gift"])
+        ws2.cell(row=j, column=7,
+                 value=("中式%d+西式%d" % (r["qty"], r["qty"])) if r["gtype"] == "both" else r["qty"])
     ws2.column_dimensions["D"].width = 12
     ws2.column_dimensions["E"].width = 14
     ws2.column_dimensions["F"].width = 8
+    ws2.column_dimensions["G"].width = 12
 
     out = os.path.join(HERE, "喜餅核銷報表_%s.xlsx" % datetime.now(TPE).strftime("%Y%m%d_%H%M"))
     wb.save(out)
-    print("完成：%d 位女方賓客，已送出 %d（中式 %d / 西式 %d）"
-          % (total, done, cn_done, west_done))
+    print("完成：%d 位女方賓客，已送出 %d 位；盒數 中式 %d/%d 盒・西式 %d/%d 盒"
+          % (total, done, cn_done, cn, west_done, west))
     print("報表已輸出 → %s" % out)
 
 

@@ -95,6 +95,7 @@ def parse_roster():
             "code": cell(r, ci),
             "gift": map_gift(cell(r, gi)),
             "qty": map_qty(cell(r, qi)),
+            "qty_raw": cell(r, qi),      # 保留原字串：供 validate 抓「有填但解析失敗」
         }
     return os.path.basename(src), roster, dups, wishes
 
@@ -134,6 +135,21 @@ def validate(roster, dups):
     bad = [v["display"] for v in vouchers if not (v["code"].isdigit() and len(v["code"]) == 8)]
     if bad:
         warns.append("兌換券編號格式異常（非 8 碼數字）：" + "、".join(bad))
+    # 「喜餅數量」欄打成「3盒」「三」「2.9」都會被 map_qty 靜默吞成 1／截斷 → 這正是本欄要防的錯，必須出聲
+    bad_qty = []
+    for v in vouchers:
+        raw = (v.get("qty_raw") or "").strip()
+        if not raw:
+            continue
+        try:
+            f = float(raw)
+        except ValueError:
+            bad_qty.append("%s（%s）" % (v["display"], raw))
+            continue
+        if f != int(f) or int(f) < 1:
+            bad_qty.append("%s（%s）" % (v["display"], raw))
+    if bad_qty:
+        warns.append("喜餅數量填寫無法解析，已一律當成 1 盒（請改成純數字）：" + "、".join(bad_qty))
     dupc = [c for c, n in Counter(v["code"] for v in vouchers).items() if n > 1]
     if dupc:
         warns.append("重複的兌換券編號（不同人同碼！）：" + "、".join(dupc))
