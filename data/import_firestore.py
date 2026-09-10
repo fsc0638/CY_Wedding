@@ -4,7 +4,7 @@ import_firestore.py — 將女方賓客匯入 Firestore（vouchers 集合）供�
 
 每位賓客一筆文件：
   doc id = 姓名雜湊（sha256(salt + 正規化姓名)，與網站 ?g= 解鎖、guests.json 同一套）
-  欄位   = { name, side:'bride', code, redeemed:False, redeemedAt:None }
+  欄位   = { name, side:'bride', code, giftType, qty, note, redeemed:False, redeemedAt:None }
 
 安全：若文件已存在，只更新 name/code/side，**保留** redeemed/redeemedAt（避免重跑把已核銷的清掉）。
 
@@ -49,6 +49,15 @@ def map_gift(raw):
     return "chinese"
 
 
+def map_qty(raw):
+    """喜餅數量 → 正整數（未填／不合法 → 1）。『中式+西式』者代表各 N 盒。"""
+    try:
+        n = int(float(str(raw).strip()))
+    except (TypeError, ValueError):
+        return 1
+    return n if n >= 1 else 1
+
+
 def clean_name(s):
     """去除姓名所有空白（含姓與名之間誤植的空白）；保留原大小寫供顯示。"""
     return "".join(str(s).split())
@@ -78,6 +87,7 @@ def main():
     ci = find_col(header, "喜餅兌換券編號", "兌換券編號", "兌換券", "喜餅兌換碼", "兌換碼")
     ri = find_col(header, "關係")
     gi = find_col(header, "喜餅類型", "喜餅樣式", "類型", "樣式")  # 可無 → 全部視為中式
+    qi = find_col(header, "喜餅數量", "數量")     # 可無 → 全部視為 1 盒
     bi = find_col(header, "備註")                 # 可無
     if ni is None or ci is None or ri is None:
         sys.exit("Excel 缺少 姓名 / 喜餅兌換券編號 / 關係 欄位。")
@@ -96,17 +106,19 @@ def main():
             continue
         gift_raw = str(r[gi]).strip() if gi is not None and gi < len(r) and r[gi] is not None else ""
         gift = map_gift(gift_raw)                  # chinese / western / both（未填→中式）
+        qty_raw = r[qi] if qi is not None and qi < len(r) else None
+        qty = map_qty(qty_raw)                     # 盒數（未填→1）
         note = str(r[bi]).strip() if bi is not None and bi < len(r) and r[bi] is not None else ""
         h = hashlib.sha256((salt + normalize_name(name)).encode("utf-8")).hexdigest()
         current_hashes.add(h)
         ref = db.collection("vouchers").document(h)
-        data = {"name": name, "side": "bride", "code": code, "giftType": gift, "note": note}
+        data = {"name": name, "side": "bride", "code": code, "giftType": gift, "qty": qty, "note": note}
         if not ref.get().exists:                 # 新文件才設初始狀態，既有的保留領取狀態
             data["redeemed"] = False
             data["redeemedAt"] = None
         ref.set(data, merge=True)
         n += 1
-        print("  %s（%s・%s）→ %s…" % (name, code, gift, h[:12]))
+        print("  %s（%s・%s ×%d）→ %s…" % (name, code, gift, qty, h[:12]))
 
     print("完成：已匯入/更新 %d 位女方賓客 → Firestore『vouchers』集合。" % n)
 
